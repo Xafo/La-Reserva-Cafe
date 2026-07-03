@@ -94,21 +94,13 @@ export function HomePage() {
       {/* Deseo: historia de origen, split editorial */}
       <section className="bg-forest text-forest-foreground">
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 py-28 md:grid-cols-2 md:px-8 md:py-40">
-          <Reveal className="relative">
+          <Reveal>
             <div className="overflow-hidden rounded-lg">
               <img
                 src={IMG.beansSack}
                 alt="Granos de cafe recien tostados en saco de yute"
                 loading="lazy"
                 className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
-              />
-            </div>
-            <div className="absolute -bottom-6 -right-4 hidden overflow-hidden rounded-lg shadow-xl md:block">
-              <img
-                src={IMG.pourOver}
-                alt="Preparacion de cafe en metodo de filtrado manual"
-                loading="lazy"
-                className="h-44 w-36 object-cover"
               />
             </div>
           </Reveal>
