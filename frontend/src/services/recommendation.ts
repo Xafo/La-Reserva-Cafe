@@ -47,6 +47,12 @@ const INTENSITY_ROAST: Record<Intensity, RoastLevel> = {
   Intenso: 'Oscuro',
 }
 
+const INTENSITY_PHRASE: Record<Intensity, string> = {
+  Suave: 'suave y aromatico',
+  Balanceado: 'balanceado',
+  Intenso: 'fuerte y con cuerpo',
+}
+
 const ROAST_ORDER: RoastLevel[] = ['Claro', 'Medio', 'Oscuro']
 
 // Afinidad metodo de preparacion -> tueste (0 a 1).
@@ -145,7 +151,7 @@ function scoreProduct(profile: PreferenceProfile, product: Product): Recommendat
   const intensityPts = distance === 0 ? WEIGHTS.intensity : distance === 1 ? 10 : 0
   score += intensityPts
   if (distance === 0) {
-    reasons.push(`Tueste ${product.roast.toLowerCase()}, la intensidad ${profile.intensity.toLowerCase()} que buscas`)
+    reasons.push(`Tueste ${product.roast.toLowerCase()}, ${INTENSITY_PHRASE[profile.intensity]} como lo pedis`)
   }
 
   const flavor = flavorScore(profile, product)

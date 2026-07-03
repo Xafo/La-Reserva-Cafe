@@ -77,7 +77,7 @@ export function CustomersPage() {
                   filter === f ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'
                 )}
               >
-                {f === 'Cliente' || f === 'Proveedor' ? `${f}s` : f}
+                {f === 'Cliente' ? 'Clientes' : f === 'Proveedor' ? 'Proveedores' : f}
               </button>
             ))}
           </div>
