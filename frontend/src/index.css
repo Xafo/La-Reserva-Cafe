@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cabinet Grotesk", "General Sans", sans-serif;
+  --font-sans: "General Sans", system-ui, sans-serif;
+
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.2 0.015 130);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.2 0.015 130);
+  --color-primary: oklch(0.43 0.1 132);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-forest: oklch(0.26 0.055 135);
+  --color-forest-deep: oklch(0.21 0.045 135);
+  --color-forest-foreground: oklch(0.96 0.01 120);
+  --color-accent: oklch(0.76 0.13 80);
+  --color-accent-ink: oklch(0.42 0.09 78);
+  --color-muted: oklch(0.965 0.006 130);
+  --color-muted-foreground: oklch(0.46 0.02 130);
+  --color-border: oklch(0.91 0.012 130);
+  --color-input: oklch(0.91 0.012 130);
+  --color-ring: oklch(0.43 0.1 132);
+  --color-destructive: oklch(0.55 0.21 27);
+  --color-destructive-foreground: oklch(1 0 0);
+  --color-secondary: oklch(0.965 0.006 130);
+  --color-secondary-foreground: oklch(0.2 0.015 130);
+
+  --radius: 0.5rem;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Compatibilidad con componentes ui/ del template (usan vars :root) */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2 0.015 130);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.015 130);
+  --primary: oklch(0.43 0.1 132);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.965 0.006 130);
+  --secondary-foreground: oklch(0.2 0.015 130);
+  --muted: oklch(0.965 0.006 130);
+  --muted-foreground: oklch(0.46 0.02 130);
+  --accent: oklch(0.76 0.13 80 / 0.16);
+  --accent-foreground: oklch(0.42 0.09 78);
+  --destructive: oklch(0.55 0.21 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.91 0.012 130);
+  --input: oklch(0.91 0.012 130);
+  --ring: oklch(0.43 0.1 132);
+  --radius: 0.5rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+/* Z-index semantico */
+:root {
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-cart: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+}
+
+/* Entrada del hero: el contenido es visible por defecto; la animacion solo
+   agrega el desplazamiento inicial cuando hay soporte y el usuario lo permite */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-rise {
+    animation: hero-rise 0.9s var(--ease-out-quint) both;
+  }
+  .hero-rise-late {
+    animation: hero-rise 0.9s 0.18s var(--ease-out-quint) both;
+  }
+  @keyframes hero-rise {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s var(--ease-out-quint), transform 0.7s var(--ease-out-quint);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marquee {
+  animation: marquee 38s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee { animation: none; }
+}
