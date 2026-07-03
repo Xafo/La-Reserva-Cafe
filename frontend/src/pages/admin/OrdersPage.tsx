@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { FileText } from 'lucide-react'
 import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
+import { ExportCsvButton } from '../../components/ExportCsvButton'
 import { orderService } from '../../services'
+import { ordersRepo } from '../../storage'
 import { lps, shortDate } from '../../lib/format'
 import type { Order, OrderStatus } from '../../types'
 
@@ -26,10 +28,13 @@ export function OrdersPage() {
       <div className="rounded-lg border border-border bg-background">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <p className="text-sm text-muted-foreground">Historial completo, mas reciente primero</p>
-          {/* TODO(backend): creacion manual de orden de compra multiproducto */}
-          <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
-            Nueva orden
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton repo={ordersRepo} filename="ordenes.csv" />
+            {/* TODO(backend): creacion manual de orden de compra multiproducto */}
+            <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
+              Nueva orden
+            </button>
+          </div>
         </header>
         {loading ? (
           <div className="space-y-2 p-5" aria-busy="true">

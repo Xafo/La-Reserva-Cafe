@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
+import { ExportCsvButton } from '../../components/ExportCsvButton'
 import { catalogService } from '../../services'
+import { productsRepo } from '../../storage'
 import { lps } from '../../lib/format'
 import type { Product } from '../../types'
 import { cn } from '../../lib/utils'
@@ -24,10 +26,13 @@ export function ProductsPage() {
       <div className="rounded-lg border border-border bg-background">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <p className="text-sm text-muted-foreground">{products.length} productos registrados</p>
-          {/* TODO(backend): alta de producto con carga de imagenes (POST /api/products) */}
-          <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
-            Nuevo producto
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton repo={productsRepo} filename="productos.csv" />
+            {/* TODO(backend): alta de producto con carga de imagenes (POST /api/products) */}
+            <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
+              Nuevo producto
+            </button>
+          </div>
         </header>
         {loading ? (
           <div className="space-y-2 p-5" aria-busy="true">
