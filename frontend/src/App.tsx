@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext'
 import { CartProvider } from './context/CartContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CartDrawer } from './components/store/CartDrawer'
@@ -9,6 +10,9 @@ import { ShopPage } from './pages/store/ShopPage'
 import { ProductDetailPage } from './pages/store/ProductDetailPage'
 import { CheckoutPage } from './pages/store/CheckoutPage'
 import { OriginPage } from './pages/store/OriginPage'
+import { RegisterPage } from './pages/store/RegisterPage'
+import { CustomerLoginPage } from './pages/store/CustomerLoginPage'
+import { AccountPage } from './pages/store/AccountPage'
 import { LoginPage } from './pages/admin/LoginPage'
 import { DashboardPage } from './pages/admin/DashboardPage'
 import { ProductsPage } from './pages/admin/ProductsPage'
@@ -30,31 +34,42 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function CustomerRoute({ children }: { children: React.ReactNode }) {
+  const { account } = useCustomerAuth()
+  if (!account) return <Navigate to="/ingresar" replace />
+  return <>{children}</>
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
         <AuthProvider>
-          <CartProvider>
-            <ScrollToTop />
-            <CartDrawer />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/tienda" element={<ShopPage />} />
-              <Route path="/tienda/:id" element={<ProductDetailPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/origen" element={<OriginPage />} />
-              <Route path="/admin/login" element={<LoginPage />} />
-              <Route path="/admin" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-              <Route path="/admin/productos" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
-              <Route path="/admin/ordenes" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-              <Route path="/admin/calidad" element={<ProtectedRoute><QualityPage /></ProtectedRoute>} />
-              <Route path="/admin/clientes" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
-              <Route path="/admin/reportes" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
-              <Route path="/admin/usuarios" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </CartProvider>
+          <CustomerAuthProvider>
+            <CartProvider>
+              <ScrollToTop />
+              <CartDrawer />
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/tienda" element={<ShopPage />} />
+                <Route path="/tienda/:id" element={<ProductDetailPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/origen" element={<OriginPage />} />
+                <Route path="/registro" element={<RegisterPage />} />
+                <Route path="/ingresar" element={<CustomerLoginPage />} />
+                <Route path="/cuenta" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
+                <Route path="/admin/login" element={<LoginPage />} />
+                <Route path="/admin" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/admin/productos" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+                <Route path="/admin/ordenes" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+                <Route path="/admin/calidad" element={<ProtectedRoute><QualityPage /></ProtectedRoute>} />
+                <Route path="/admin/clientes" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+                <Route path="/admin/reportes" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                <Route path="/admin/usuarios" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </CartProvider>
+          </CustomerAuthProvider>
         </AuthProvider>
       </ErrorBoundary>
     </BrowserRouter>

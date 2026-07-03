@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { orderService } from '../../services'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
@@ -9,6 +10,7 @@ import { lps } from '../../lib/format'
 
 export function CheckoutPage() {
   const { items, totalLps, clear } = useCart()
+  const { account } = useCustomerAuth()
   const navigate = useNavigate()
   const [submitting, setSubmitting] = useState(false)
   const [orderId, setOrderId] = useState<string | null>(null)
@@ -79,10 +81,10 @@ export function CheckoutPage() {
         <div className="mt-12 grid gap-14 md:grid-cols-[1fr_380px]">
           <form onSubmit={handleSubmit} className="space-y-5">
             {[
-              { name: 'nombre', label: 'Nombre completo', type: 'text', autoComplete: 'name' },
-              { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel' },
-              { name: 'direccion', label: 'Direccion de entrega', type: 'text', autoComplete: 'street-address' },
-              { name: 'ciudad', label: 'Ciudad', type: 'text', autoComplete: 'address-level2' },
+              { name: 'nombre', label: 'Nombre completo', type: 'text', autoComplete: 'name', defaultValue: account?.name },
+              { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel', defaultValue: account?.phone },
+              { name: 'direccion', label: 'Direccion de entrega', type: 'text', autoComplete: 'street-address', defaultValue: undefined },
+              { name: 'ciudad', label: 'Ciudad', type: 'text', autoComplete: 'address-level2', defaultValue: account?.city },
             ].map((f) => (
               <div key={f.name}>
                 <label htmlFor={f.name} className="mb-1.5 block text-sm font-medium">
@@ -94,6 +96,7 @@ export function CheckoutPage() {
                   type={f.type}
                   required
                   autoComplete={f.autoComplete}
+                  defaultValue={f.defaultValue}
                   className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
                 />
               </div>

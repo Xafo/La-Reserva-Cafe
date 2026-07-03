@@ -1,5 +1,15 @@
-import type { Product, Order, OrderStatus, Customer, User, Role, CartItem } from '../types'
-import { productsRepo, ordersRepo, customersRepo, usersRepo } from '../storage'
+import type {
+  Product,
+  Order,
+  OrderStatus,
+  Customer,
+  User,
+  Role,
+  CartItem,
+  CustomerAccount,
+  PreferenceProfile,
+} from '../types'
+import { productsRepo, ordersRepo, customersRepo, usersRepo, accountsRepo } from '../storage'
 
 // =============================================================================
 // Capa de servicios — UNICA frontera entre la UI y los datos.
@@ -101,6 +111,77 @@ export const authService = {
   // TODO(backend): GET /api/audit-log — bitacora de acciones por usuario
 }
 
+export interface RegisterData {
+  name: string
+  email: string
+  password: string
+  phone: string
+  city: string
+}
+
+export const accountService = {
+  // TODO(backend): POST /api/accounts — registro de cliente de la tienda
+  async register(data: RegisterData): Promise<CustomerAccount> {
+    await delay(400)
+    const accounts = await accountsRepo.getAll()
+    if (accounts.some((a) => a.email.toLowerCase() === data.email.toLowerCase())) {
+      throw new Error('Ya existe una cuenta con ese correo. Inicia sesion.')
+    }
+    const account: CustomerAccount = {
+      id: `a-${Date.now()}`,
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      city: data.city,
+      createdAt: new Date().toISOString(),
+      preferences: null,
+      recommendedProductId: null,
+    }
+    await accountsRepo.create(account)
+    // El registro alimenta el CRM: ventas ve al cliente en /admin/clientes.
+    const customers = await customersRepo.getAll()
+    if (!customers.some((c) => c.email.toLowerCase() === data.email.toLowerCase())) {
+      await customersRepo.create({
+        id: `c-${Date.now()}`,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        type: 'Cliente',
+        city: data.city,
+        totalOrders: 0,
+      })
+    }
+    return account
+  },
+  // TODO(backend): POST /api/accounts/login
+  async login(email: string, password: string): Promise<CustomerAccount> {
+    await delay(500)
+    const accounts = await accountsRepo.getAll()
+    const account = accounts.find(
+      (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password,
+    )
+    if (!account) throw new Error('Correo o contrasena incorrectos.')
+    return account
+  },
+  // TODO(backend): PUT /api/accounts/{id}/preferences
+  async updatePreferences(
+    accountId: string,
+    preferences: PreferenceProfile,
+    recommendedProductId: string | null,
+  ): Promise<CustomerAccount> {
+    await delay()
+    const account = await accountsRepo.getById(accountId)
+    if (!account) throw new Error('La cuenta no existe.')
+    return accountsRepo.update({ ...account, preferences, recommendedProductId })
+  },
+  // TODO(backend): GET /api/accounts (solo roles con permiso de clientes)
+  async getAccounts(): Promise<CustomerAccount[]> {
+    await delay()
+    return accountsRepo.getAll()
+  },
+}
+
 export const reportService = {
   // TODO(backend): GET /api/reports/summary
   async getSummary() {
@@ -123,6 +204,8 @@ export const reportService = {
   },
   // TODO(backend): GET /api/reports/export?format=pdf|xlsx
 }
+
+export { recommendationService } from './recommendation'
 
 export type Permission = 'productos' | 'calidad' | 'ordenes' | 'clientes' | 'reportes' | 'usuarios'
 

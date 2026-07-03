@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, UserRound } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { BrandMark } from './BrandMark'
 import { cn } from '../../lib/utils'
 
@@ -12,6 +13,7 @@ const links = [
 
 export function StoreNav({ overHero = false }: { overHero?: boolean }) {
   const { count, open } = useCart()
+  const { account } = useCustomerAuth()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -54,11 +56,33 @@ export function StoreNav({ overHero = false }: { overHero?: boolean }) {
               {l.label}
             </NavLink>
           ))}
+          {!account && (
+            <NavLink
+              to="/registro"
+              className={cn(
+                'hidden px-3 py-2 text-sm font-medium transition-colors md:block',
+                onDark ? 'text-forest-foreground/85 hover:text-forest-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Crear cuenta
+            </NavLink>
+          )}
+          <Link
+            to={account ? '/cuenta' : '/ingresar'}
+            aria-label={account ? 'Mi cuenta' : 'Iniciar sesion'}
+            className={cn(
+              'ml-1 inline-flex h-10 items-center justify-center gap-2 rounded-full px-2.5 transition-colors',
+              onDark ? 'hover:bg-white/10' : 'hover:bg-muted'
+            )}
+          >
+            <UserRound className="h-5 w-5" />
+            {account && <span className="hidden text-sm font-medium md:block">{account.name.split(' ')[0]}</span>}
+          </Link>
           <button
             onClick={open}
             aria-label={`Abrir carrito, ${count} articulos`}
             className={cn(
-              'relative ml-2 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors',
+              'relative ml-1 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition-colors',
               onDark ? 'hover:bg-white/10' : 'hover:bg-muted'
             )}
           >
