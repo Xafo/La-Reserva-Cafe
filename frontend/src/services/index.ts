@@ -1,10 +1,12 @@
 import type { Product, Order, OrderStatus, Customer, User, Role, CartItem } from '../types'
-import { PRODUCTS, ORDERS, CUSTOMERS, USERS } from '../data/mock'
+import { productsRepo, ordersRepo, customersRepo, usersRepo } from '../storage'
 
 // =============================================================================
 // Capa de servicios — UNICA frontera entre la UI y los datos.
 //
-// TODO(backend .NET 10): sustituir cada implementacion mock por una llamada a
+// Los datos viven en repositorios CSV (src/storage): semilla en public/data/*.csv,
+// mutaciones en localStorage. Es el placeholder de la base de datos real.
+// TODO(backend .NET 10): sustituir cada implementacion por una llamada a
 // `api<T>()` de src/config/api.ts contra el endpoint indicado en cada funcion.
 // Las firmas (parametros y tipos de retorno) son el contrato esperado de los
 // DTOs en src/Application/DTOs del backend; no cambiarlas sin actualizar ambos lados.
@@ -12,25 +14,22 @@ import { PRODUCTS, ORDERS, CUSTOMERS, USERS } from '../data/mock'
 
 const delay = (ms = 220) => new Promise((r) => setTimeout(r, ms))
 
-let orders = [...ORDERS]
-let products = [...PRODUCTS]
-
 export const catalogService = {
   // TODO(backend): GET /api/products?activeOnly=true
   async getProducts(activeOnly = false): Promise<Product[]> {
     await delay()
+    const products = await productsRepo.getAll()
     return activeOnly ? products.filter((p) => p.active) : products
   },
   // TODO(backend): GET /api/products/{id}
   async getProduct(id: string): Promise<Product | undefined> {
     await delay()
-    return products.find((p) => p.id === id)
+    return productsRepo.getById(id)
   },
   // TODO(backend): PUT /api/products/{id}
   async updateProduct(updated: Product): Promise<Product> {
     await delay()
-    products = products.map((p) => (p.id === updated.id ? updated : p))
-    return updated
+    return productsRepo.update(updated)
   },
 }
 
@@ -38,13 +37,18 @@ export const orderService = {
   // TODO(backend): GET /api/orders
   async getOrders(): Promise<Order[]> {
     await delay()
-    return orders
+    return ordersRepo.getAll()
   },
   // TODO(backend): POST /api/orders
   async createOrder(customerName: string, items: CartItem[]): Promise<Order> {
     await delay(400)
+    const orders = await ordersRepo.getAll()
+    const maxSeq = orders.reduce((max, o) => {
+      const seq = Number(o.id.split('-').pop())
+      return Number.isFinite(seq) && seq > max ? seq : max
+    }, 0)
     const order: Order = {
-      id: `OC-2026-${String(149 + orders.length - ORDERS.length).padStart(4, '0')}`,
+      id: `OC-2026-${String(maxSeq + 1).padStart(4, '0')}`,
       customerName,
       items: items.map((i) => ({
         productId: i.product.id,
@@ -56,13 +60,13 @@ export const orderService = {
       createdAt: new Date().toISOString(),
       totalLps: items.reduce((s, i) => s + i.product.priceLps * i.quantity, 0),
     }
-    orders = [order, ...orders]
-    return order
+    return ordersRepo.create(order)
   },
   // TODO(backend): PATCH /api/orders/{id}/status
   async updateStatus(id: string, status: OrderStatus): Promise<void> {
     await delay()
-    orders = orders.map((o) => (o.id === id ? { ...o, status } : o))
+    const order = await ordersRepo.getById(id)
+    if (order) await ordersRepo.update({ ...order, status })
   },
   // TODO(backend): GET /api/orders/{id}/pdf — generacion de PDF imprimible
 }
@@ -71,7 +75,7 @@ export const customerService = {
   // TODO(backend): GET /api/customers
   async getCustomers(): Promise<Customer[]> {
     await delay()
-    return CUSTOMERS
+    return customersRepo.getAll()
   },
 }
 
@@ -79,7 +83,7 @@ export const userService = {
   // TODO(backend): GET /api/users (solo rol Administrador)
   async getUsers(): Promise<User[]> {
     await delay()
-    return USERS
+    return usersRepo.getAll()
   },
 }
 
@@ -88,7 +92,8 @@ export const authService = {
   // que ya implementa el flujo Bearer/refresh del template DotForge).
   async login(email: string, _password: string): Promise<User> {
     await delay(500)
-    const user = USERS.find((u) => u.email === email)
+    const users = await usersRepo.getAll()
+    const user = users.find((u) => u.email === email)
     if (!user) throw new Error('Credenciales invalidas. Use admin@altura.hn / demo')
     return user
   },
@@ -100,6 +105,7 @@ export const reportService = {
   // TODO(backend): GET /api/reports/summary
   async getSummary() {
     await delay()
+    const [orders, products] = await Promise.all([ordersRepo.getAll(), productsRepo.getAll()])
     const finalized = orders.filter((o) => o.status === 'Finalizada')
     return {
       salesLps: finalized.reduce((s, o) => s + o.totalLps, 0),

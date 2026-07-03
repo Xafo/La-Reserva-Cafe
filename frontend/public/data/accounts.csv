@@ -1,0 +1,2 @@
+id,name,email,password,phone,city,createdAt,pref_goals,pref_brewMethods,pref_drinkStyles,pref_flavorFamilies,pref_intensity,pref_budget,pref_updatedAt,recommendedProductId
+a-1,Maria Fernanda Lagos,mflagos@gmail.com,demo,+504 9933-1845,San Pedro Sula,2026-06-07T08:55:00,Cafe de especialidad,V60 o chorreado|Prensa francesa,Solo (negro),Frutal y tropical|Floral y te,Suave,L400 a L600,2026-06-07T09:05:00,p-santabarbara

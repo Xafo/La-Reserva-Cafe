@@ -1,0 +1,6 @@
+id,customerName,items,status,createdAt,totalLps
+OC-2026-0148,Cafe y Letras S. de R.L.,p-copan~Copan Clasico~24~380|p-comayagua~Comayagua Espresso~12~395,Pendiente,2026-06-08T14:30:00,13860
+OC-2026-0147,Maria Fernanda Lagos,p-santabarbara~Santa Barbara Honey~2~510,Aprobada,2026-06-07T09:12:00,1020
+OC-2026-0146,Hotel Real Intercontinental,p-marcala~Marcala Reserva~40~420,Finalizada,2026-06-05T16:45:00,16800
+OC-2026-0145,Jorge Andino,p-elparaiso~El Paraiso Geisha~1~890,Cancelada,2026-06-04T11:00:00,890
+OC-2026-0144,Distribuidora La Granja,p-copan~Copan Clasico~60~360,Finalizada,2026-06-02T08:20:00,21600

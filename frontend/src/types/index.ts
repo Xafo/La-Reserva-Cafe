@@ -74,3 +74,42 @@ export interface CartItem {
   product: Product
   quantity: number
 }
+
+// --- Cuentas de cliente de la tienda (separadas de los usuarios admin) ---
+// TODO(backend .NET 10): CustomerAccount mapea a las tablas CustomerAccounts +
+// CustomerPreferences (ver docs/STORAGE.md).
+
+export type PlatformGoal = 'Cafe de especialidad' | 'Cafe de todos los dias' | 'Regalar cafe' | 'Comprar para mi negocio'
+export type BrewMethod = 'Espresso' | 'Prensa francesa' | 'V60 o chorreado' | 'Cafetera de goteo' | 'Cold brew'
+export type DrinkStyle = 'Solo (negro)' | 'Con leche' | 'Frio'
+export type FlavorFamily = 'Chocolate y nuez' | 'Frutal y tropical' | 'Floral y te' | 'Caramelo y panela' | 'Vino y frutos rojos'
+export type Intensity = 'Suave' | 'Balanceado' | 'Intenso'
+export type Budget = 'Hasta L400' | 'L400 a L600' | 'Sin limite'
+
+export interface PreferenceProfile {
+  goals: PlatformGoal[]
+  brewMethods: BrewMethod[]
+  drinkStyles: DrinkStyle[]
+  flavorFamilies: FlavorFamily[]
+  intensity: Intensity
+  budget: Budget
+  updatedAt: string
+}
+
+export interface CustomerAccount {
+  id: string
+  name: string
+  email: string
+  password: string // demo: texto plano. TODO(backend): hash con Identity
+  phone: string
+  city: string
+  createdAt: string
+  preferences: PreferenceProfile | null
+  recommendedProductId: string | null
+}
+
+export interface Recommendation {
+  product: Product
+  matchPct: number
+  reasons: string[]
+}
