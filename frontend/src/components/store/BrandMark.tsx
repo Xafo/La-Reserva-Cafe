@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils'
 // vector oficial si el cliente lo entrega.
 export function BrandMark({ className, dark = false }: { className?: string; dark?: boolean }) {
   return (
-    <span className={cn('inline-flex items-center gap-2.5 select-none', className)}>
+    <span className={cn('inline-flex shrink-0 items-center gap-2.5 select-none', className)}>
       <svg viewBox="0 0 52 46" aria-hidden="true" className="h-9 w-9 shrink-0">
         <g
           fill="none"
@@ -36,7 +36,7 @@ export function BrandMark({ className, dark = false }: { className?: string; dar
       <span className="flex flex-col leading-none">
         <span
           className={cn(
-            'font-display text-lg font-extrabold tracking-tight',
+            'font-display text-lg font-extrabold tracking-tight whitespace-nowrap',
             dark ? 'text-forest-foreground' : 'text-foreground'
           )}
         >
@@ -44,7 +44,7 @@ export function BrandMark({ className, dark = false }: { className?: string; dar
         </span>
         <span
           className={cn(
-            'mt-0.5 text-[9px] font-semibold uppercase tracking-[0.22em]',
+            'mt-0.5 hidden whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.22em] sm:block',
             dark ? 'text-forest-foreground/60' : 'text-muted-foreground'
           )}
         >
