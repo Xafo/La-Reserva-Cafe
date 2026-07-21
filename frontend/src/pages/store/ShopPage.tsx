@@ -74,8 +74,8 @@ export function ShopPage() {
           La carta de temporada
         </h1>
         <p className="mt-4 max-w-xl text-muted-foreground">
-          Seis origenes, tres procesos. Cada lote catado arriba de 84 puntos antes
-          de entrar a la carta.
+          Microlotes de Olancho y Francisco Morazan, con blends de casa para tu
+          espresso de cada dia. Cada lote catado antes de entrar a la carta.
         </p>
 
         <div className="mt-10 flex flex-col gap-4 border-y border-border py-5 md:flex-row md:items-center md:gap-10">

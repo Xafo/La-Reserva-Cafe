@@ -31,7 +31,7 @@ export function LoginPage() {
         <Link to="/" className="mb-12 w-fit"><BrandMark /></Link>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">Portal interno</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Acceso para el equipo. Demo: admin@altura.hn, compras@, ventas@ o supervisor@ con cualquier contrasena.
+          Acceso para el equipo. Demo: admin@lareserva.hn, compras@, ventas@ o supervisor@ con cualquier contrasena.
         </p>
         <form onSubmit={handleSubmit} className="mt-9 max-w-sm space-y-4">
           <div>

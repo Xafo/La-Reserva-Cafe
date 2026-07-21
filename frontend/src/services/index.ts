@@ -104,7 +104,7 @@ export const authService = {
     await delay(500)
     const users = await usersRepo.getAll()
     const user = users.find((u) => u.email === email)
-    if (!user) throw new Error('Credenciales invalidas. Use admin@altura.hn / demo')
+    if (!user) throw new Error('Credenciales invalidas. Use admin@lareserva.hn / demo')
     return user
   },
   // TODO(backend): POST /api/auth/forgot-password — recuperacion de contrasena
@@ -195,10 +195,10 @@ export const reportService = {
       lowStock: products.filter((p) => p.stock < 25),
       recentOrders: orders.slice(0, 5),
       topProducts: [
-        { name: 'Copan Clasico', units: 84 },
-        { name: 'Marcala Reserva', units: 40 },
-        { name: 'Comayagua Espresso', units: 12 },
-        { name: 'Santa Barbara Honey', units: 8 },
+        { name: 'La Reserva Blend', units: 84 },
+        { name: 'Espresso de Casa', units: 60 },
+        { name: 'Nahun Vidal Sanchez', units: 14 },
+        { name: 'Josue Galo', units: 9 },
       ],
     }
   },
