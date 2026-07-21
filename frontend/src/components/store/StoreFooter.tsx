@@ -9,9 +9,9 @@ export function StoreFooter() {
           <div className="max-w-sm space-y-4">
             <BrandMark dark />
             <p className="text-sm leading-relaxed text-forest-foreground/70">
-              {/* TODO(copy): texto institucional pendiente del cliente */}
-              Cafe de especialidad cultivado en las montanas de Honduras, tostado en
-              tandas pequenas y enviado a tu puerta.
+              Cafe de especialidad y tostaduria en Honduras. Microlotes de
+              productores de Olancho y Francisco Morazan, tostados en tandas
+              pequenas y enviados a tu puerta.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-12 text-sm">
@@ -26,16 +26,16 @@ export function StoreFooter() {
             <div className="space-y-3">
               <p className="font-display font-bold">Contacto</p>
               <ul className="space-y-2 text-forest-foreground/70">
-                {/* TODO(copy): datos reales de contacto */}
+                {/* TODO(copy): confirmar datos reales de contacto con el cliente */}
                 <li>Tegucigalpa, Honduras</li>
-                <li>hola@altura.hn</li>
+                <li>hola@lareserva.hn</li>
                 <li>+504 0000-0000</li>
               </ul>
             </div>
           </div>
         </div>
         <p className="mt-14 border-t border-white/10 pt-6 text-xs text-forest-foreground/50">
-          {new Date().getFullYear()} ALTURA. Nombre y logo provisionales pendientes de definicion del cliente.
+          {new Date().getFullYear()} LA RESERVA — Cafe y Tostaduria. Todos los derechos reservados.
         </p>
       </div>
     </footer>

@@ -9,7 +9,7 @@ import { ProductCard } from '../../components/store/ProductCard'
 import { Reveal } from '../../components/store/Reveal'
 import { IMG } from '../../data/images'
 
-const origins = ['Marcala', 'Santa Barbara', 'Copan', 'Intibuca', 'Comayagua', 'El Paraiso']
+const origins = ['Campamento', 'Guaimaca', 'Cantarranas', 'Marale', 'Olancho', 'Francisco Morazan']
 
 export function HomePage() {
   const [featured, setFeatured] = useState<Product[]>([])
@@ -35,12 +35,11 @@ export function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,oklch(0.21_0.045_135/0.55)_75%,oklch(0.21_0.045_135/0.85)_100%)]" />
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-32 text-center md:px-8">
           <h1 className="hero-rise mx-auto max-w-5xl font-display text-[clamp(2.7rem,7vw,5.5rem)] font-extrabold leading-[1.02] tracking-tight">
-            Cafe nacido a mil setecientos metros
+            Del productor a tu taza
           </h1>
           <p className="hero-rise-late mx-auto mt-6 max-w-xl text-balance text-lg text-forest-foreground/85">
-            {/* TODO(copy): propuesta de valor definitiva pendiente del cliente */}
-            Microlotes de especialidad cultivados en las montanas de Honduras,
-            tostados en tandas pequenas y enviados directo a tu puerta.
+            Microlotes de productores de Olancho y Francisco Morazan, catados,
+            tostados en tandas pequenas y servidos en nuestra tostaduria.
           </p>
           <div className="hero-rise-late mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
@@ -109,16 +108,14 @@ export function HomePage() {
               Sabemos el nombre de quien lo cultivo
             </h2>
             <div className="mt-7 max-w-prose space-y-5 leading-relaxed text-forest-foreground/85">
-              {/* TODO(copy): historia real de la empresa pendiente */}
               <p>
-                Cada lote llega con su trazabilidad completa: la finca, la altura
-                exacta, el dia de la cosecha y la mano que lo recogio. Trabajamos
-                directamente con productores de seis regiones cafetaleras de Honduras.
+                Cada bolsa lleva el nombre de quien lo cultivo: Josue Galo en
+                Guaimaca, Nahun Vidal Sanchez en Cantarranas. Compramos directo
+                al productor en Olancho y Francisco Morazan.
               </p>
               <p>
-                Pagamos por encima del precio de bolsa y catamos cada microlote
-                antes de comprarlo. Si esta en nuestra carta, supero los 84 puntos
-                en mesa de catacion.
+                Catamos cada microlote antes de tostarlo. Si esta en nuestra
+                carta, lo probamos en mesa de catacion y lo aprobamos.
               </p>
             </div>
             <Link
@@ -146,24 +143,24 @@ export function HomePage() {
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {[
             {
-              img: IMG.cupTop,
-              alt: 'Taza de cafe filtrado vista desde arriba',
+              img: IMG.capuccinos,
+              alt: 'Dos capuccinos con arte latte de La Reserva',
               title: 'Filtrados y metodos',
-              text: 'Tuestes claros, acidez brillante. Honey y naturales de Santa Barbara e Intibuca.',
+              text: 'Tuestes claros, acidez brillante. Los honey y naturales de Josue Galo y Nahun Vidal Sanchez.',
               to: '/tienda?proceso=Honey',
             },
             {
               img: IMG.espresso,
               alt: 'Espresso con crema densa recien extraido',
               title: 'Espresso y leche',
-              text: 'Tuestes medios y oscuros con cuerpo para cortar la leche. Comayagua y Copan.',
+              text: 'Nuestro Espresso de Casa: tueste oscuro con cuerpo para cortar la leche.',
               to: '/tienda?tueste=Oscuro',
             },
             {
-              img: IMG.equipment,
-              alt: 'Molino y bolsa de cafe sobre barra de madera',
+              img: IMG.bolsasEstante,
+              alt: 'Bolsas de microlote en el estante de la tostaduria',
               title: 'Cosechas limitadas',
-              text: 'Microlotes Geisha y Parainema de subasta. Pocas unidades por temporada.',
+              text: 'Microlotes de un solo productor. Pocas bolsas por temporada.',
               to: '/tienda',
             },
           ].map((c, i) => (
