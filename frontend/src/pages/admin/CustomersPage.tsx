@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { AdminLayout } from '../../components/AdminLayout'
 import { ExportCsvButton } from '../../components/ExportCsvButton'
 import { Dialog } from '../../components/ui/dialog'
@@ -37,6 +37,9 @@ export function CustomersPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<Filter>('Todos')
   const [viewing, setViewing] = useState<CustomerAccount | null>(null)
+  const [editing, setEditing] = useState<Customer | null>(null)
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([customerService.getCustomers(), accountService.getAccounts(), catalogService.getProducts()]).then(
@@ -61,6 +64,17 @@ export function CustomersPage() {
     ? products.find((p) => p.id === viewing.recommendedProductId)
     : undefined
 
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setError(null)
+    const form = new FormData(event.currentTarget)
+    const payload = { name: String(form.get('name')), email: String(form.get('email')), phone: String(form.get('phone')), city: String(form.get('city')), type: String(form.get('type')) as Customer['type'] }
+    try {
+      const saved = editing ? await customerService.updateCustomer({ ...editing, ...payload }) : await customerService.createCustomer(payload)
+      setCustomers((items) => editing ? items.map((item) => item.id === saved.id ? saved : item) : [...items, saved])
+      setEditorOpen(false); setEditing(null)
+    } catch { setError('No se pudo guardar el registro.') }
+  }
+
   return (
     <AdminLayout title="Clientes y proveedores">
       <div className="rounded-lg border border-border bg-background">
@@ -82,8 +96,7 @@ export function CustomersPage() {
           </div>
           <div className="flex items-center gap-2">
             <ExportCsvButton items={customers} filename="clientes.csv" />
-            {/* TODO(backend): alta y edicion de clientes/proveedores */}
-            <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
+            <button onClick={() => { setEditing(null); setEditorOpen(true) }} className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
               Nuevo registro
             </button>
           </div>
@@ -109,7 +122,7 @@ export function CustomersPage() {
               {filtered.map((c) => {
                 const account = accountByEmail.get(c.email.toLowerCase())
                 return (
-                  <tr key={c.id} className="border-b border-border last:border-0">
+                  <tr key={c.id} onClick={() => { setEditing(c); setEditorOpen(true) }} className="cursor-pointer border-b border-border last:border-0 hover:bg-muted/50">
                     <td className="px-5 py-3 font-medium">{c.name}</td>
                     <td className="px-5 py-3">
                       <span className={cn(
@@ -126,7 +139,7 @@ export function CustomersPage() {
                     <td className="px-5 py-3">
                       {account?.preferences ? (
                         <button
-                          onClick={() => setViewing(account)}
+                          onClick={(event) => { event.stopPropagation(); setViewing(account) }}
                           className="cursor-pointer font-medium text-primary hover:underline"
                         >
                           Ver preferencias
@@ -144,6 +157,19 @@ export function CustomersPage() {
           </table>
         )}
       </div>
+
+      <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
+        <form onSubmit={submit} className="space-y-3">
+          <h2 className="font-display text-xl font-bold">{editing ? 'Editar registro' : 'Nuevo registro'}</h2>
+          <input name="name" required defaultValue={editing?.name} placeholder="Nombre" className="w-full rounded border border-input p-2" />
+          <input name="email" required type="email" defaultValue={editing?.email} placeholder="Correo" className="w-full rounded border border-input p-2" />
+          <input name="phone" required defaultValue={editing?.phone} placeholder="Teléfono" className="w-full rounded border border-input p-2" />
+          <input name="city" required defaultValue={editing?.city} placeholder="Ciudad" className="w-full rounded border border-input p-2" />
+          <select name="type" defaultValue={editing?.type ?? 'Cliente'} className="w-full rounded border border-input p-2"><option>Cliente</option><option>Proveedor</option></select>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <button className="w-full rounded bg-primary py-2 font-semibold text-primary-foreground">Guardar</button>
+        </form>
+      </Dialog>
 
       <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}>
         {viewing?.preferences && (

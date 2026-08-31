@@ -416,6 +416,10 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("id");
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text")

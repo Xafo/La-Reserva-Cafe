@@ -31,7 +31,7 @@ public sealed record ProductDto(
 public sealed record OrderItemDto(string ProductId, string ProductName, int Quantity, decimal UnitPriceLps);
 public sealed record OrderDto(string Id, string CustomerName, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps);
 public sealed record CustomerDto(string Id, string Name, string Email, string Phone, string Type, string City, int TotalOrders);
-public sealed record UserDto(string Id, string Name, string Email, string Role);
+public sealed record UserDto(string Id, string Name, string Email, string Role, bool Active);
 
 public sealed record PreferenceProfileDto(
     string[] Goals,
@@ -62,6 +62,8 @@ public sealed record UpdatePreferencesRequest(PreferenceProfileDto Preferences, 
 public sealed record CreateOrderRequest(string CustomerName, CreateOrderItemRequest[] Items);
 public sealed record CreateOrderItemRequest(string ProductId, int Quantity);
 public sealed record UpdateOrderStatusRequest(string Status);
+public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
+public sealed record SaveUserRequest(string Name, string Email, string Role, string? InitialPassword, bool Active = true);
 
 public sealed record ReportSummaryDto(
     decimal SalesLps,
@@ -92,7 +94,7 @@ public static class DtoMapper
     public static CustomerDto ToDto(this Customer value) =>
         new(value.Id, value.Name, value.Email, value.Phone, value.Type, value.City, value.TotalOrders);
 
-    public static UserDto ToDto(this User value) => new(value.Id, value.Name, value.Email, value.Role);
+    public static UserDto ToDto(this User value) => new(value.Id, value.Name, value.Email, value.Role, value.Active);
 
     public static CustomerAccountDto ToDto(this CustomerAccount value) => new(
         value.Id, value.Name, value.Email, value.Phone, value.City, value.CreatedAt,

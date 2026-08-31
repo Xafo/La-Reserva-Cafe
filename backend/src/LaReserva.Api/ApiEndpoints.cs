@@ -40,7 +40,7 @@ public static partial class ApiEndpoints
                 return Results.Unauthorized();
             var email = NormalizeEmail(request.Email);
             var user = await db.Users.SingleOrDefaultAsync(value => value.Email == email, cancellationToken);
-            if (user is null) return Results.Unauthorized();
+            if (user is null || !user.Active) return Results.Unauthorized();
 
             var verification = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
             if (verification == PasswordVerificationResult.Failed) return Results.Unauthorized();
@@ -105,6 +105,29 @@ public static partial class ApiEndpoints
                 .SingleOrDefaultAsync(value => value.Id == id, cancellationToken);
             return product is null ? Results.NotFound() : Results.Ok(product.ToDto());
         });
+
+        group.MapPost("/", async (ProductDto request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            if (!ValidProduct(request) || !DateOnly.TryParseExact(request.Quality.HarvestDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var harvestDate))
+                return Results.BadRequest(new { error = "Los datos del producto son inválidos." });
+            var id = $"p-{Guid.NewGuid():N}";
+            var product = new Product
+            {
+                Id = id, Name = request.Name.Trim(), Origin = request.Origin.Trim(), Region = request.Region.Trim(),
+                Process = request.Process, Roast = request.Roast, PresentationGrams = request.PresentationGrams,
+                PriceLps = request.PriceLps, Stock = request.Stock, Active = request.Active,
+                Description = request.Description.Trim(), ImageUrl = request.ImageUrl.Trim(), ImageAlt = request.ImageAlt.Trim(),
+                Quality = new QualityProfile
+                {
+                    ProductId = id, GrainType = request.Quality.GrainType.Trim(), AltitudeMasl = request.Quality.AltitudeMasl,
+                    HumidityPct = request.Quality.HumidityPct, HarvestDate = harvestDate, Producer = request.Quality.Producer.Trim(),
+                    Grade = request.Quality.Grade, CuppingScore = request.Quality.CuppingScore, Notes = request.Quality.Notes,
+                },
+            };
+            db.Products.Add(product);
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Created($"/api/products/{id}", product.ToDto());
+        }).RequireAuthorization("ProductsWrite");
 
         group.MapPut("/{id}", async (string id, ProductDto request, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
@@ -202,6 +225,33 @@ public static partial class ApiEndpoints
             var customers = await db.Customers.AsNoTracking().OrderBy(value => value.Name).ToListAsync(cancellationToken);
             return Results.Ok(customers.Select(value => value.ToDto()));
         }).RequireAuthorization("CustomersView");
+
+        group.MapPost("/", async (SaveCustomerRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            var error = ValidateCustomer(request);
+            if (error is not null) return Results.BadRequest(new { error });
+            var email = NormalizeEmail(request.Email);
+            if (await db.Customers.AnyAsync(value => value.Email == email, cancellationToken))
+                return Results.Conflict(new { error = "Ya existe un registro con ese correo." });
+            var customer = new Customer { Id = $"c-{Guid.NewGuid():N}", Name = request.Name.Trim(), Email = email, Phone = request.Phone.Trim(), Type = request.Type, City = request.City.Trim(), TotalOrders = 0 };
+            db.Customers.Add(customer);
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Created($"/api/customers/{customer.Id}", customer.ToDto());
+        }).RequireAuthorization("CustomersWrite");
+
+        group.MapPut("/{id}", async (string id, SaveCustomerRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            var error = ValidateCustomer(request);
+            if (error is not null) return Results.BadRequest(new { error });
+            var customer = await db.Customers.FindAsync([id], cancellationToken);
+            if (customer is null) return Results.NotFound();
+            var email = NormalizeEmail(request.Email);
+            if (await db.Customers.AnyAsync(value => value.Id != id && value.Email == email, cancellationToken))
+                return Results.Conflict(new { error = "Ya existe un registro con ese correo." });
+            customer.Name = request.Name.Trim(); customer.Email = email; customer.Phone = request.Phone.Trim(); customer.Type = request.Type; customer.City = request.City.Trim();
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Ok(customer.ToDto());
+        }).RequireAuthorization("CustomersWrite");
     }
 
     private static void MapUsers(RouteGroupBuilder group)
@@ -210,6 +260,32 @@ public static partial class ApiEndpoints
         {
             var users = await db.Users.AsNoTracking().OrderBy(value => value.Name).ToListAsync(cancellationToken);
             return Results.Ok(users.Select(value => value.ToDto()));
+        }).RequireAuthorization("Administrator");
+
+        group.MapPost("/", async (SaveUserRequest request, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
+        {
+            var error = ValidateUser(request, requirePassword: true);
+            if (error is not null) return Results.BadRequest(new { error });
+            var email = NormalizeEmail(request.Email);
+            if (await db.Users.AnyAsync(value => value.Email == email, cancellationToken)) return Results.Conflict(new { error = "Ya existe un usuario con ese correo." });
+            var user = new User { Id = $"u-{Guid.NewGuid():N}", Name = request.Name.Trim(), Email = email, Role = request.Role, Active = request.Active, PasswordHash = string.Empty };
+            user.PasswordHash = passwordHasher.HashPassword(user, request.InitialPassword!);
+            db.Users.Add(user); await db.SaveChangesAsync(cancellationToken);
+            return Results.Created($"/api/users/{user.Id}", user.ToDto());
+        }).RequireAuthorization("Administrator");
+
+        group.MapPut("/{id}", async (string id, SaveUserRequest request, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
+        {
+            var error = ValidateUser(request, requirePassword: false);
+            if (error is not null) return Results.BadRequest(new { error });
+            var user = await db.Users.FindAsync([id], cancellationToken);
+            if (user is null) return Results.NotFound();
+            var email = NormalizeEmail(request.Email);
+            if (await db.Users.AnyAsync(value => value.Id != id && value.Email == email, cancellationToken)) return Results.Conflict(new { error = "Ya existe un usuario con ese correo." });
+            user.Name = request.Name.Trim(); user.Email = email; user.Role = request.Role; user.Active = request.Active;
+            if (!string.IsNullOrEmpty(request.InitialPassword)) user.PasswordHash = passwordHasher.HashPassword(user, request.InitialPassword);
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Ok(user.ToDto());
         }).RequireAuthorization("Administrator");
     }
 
@@ -351,6 +427,18 @@ public static partial class ApiEndpoints
         new[] { "Lavado", "Honey", "Natural" }.Contains(product.Process) &&
         new[] { "Claro", "Medio", "Oscuro" }.Contains(product.Roast) &&
         new[] { "Premium", "Exportacion", "Estandar" }.Contains(product.Quality.Grade);
+
+    private static string? ValidateCustomer(SaveCustomerRequest request) =>
+        string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Phone) || string.IsNullOrWhiteSpace(request.City) ||
+        !EmailPattern().IsMatch(NormalizeEmail(request.Email)) || !new[] { "Cliente", "Proveedor" }.Contains(request.Type)
+            ? "Los datos del cliente o proveedor son inválidos." : null;
+
+    private static string? ValidateUser(SaveUserRequest request, bool requirePassword) =>
+        string.IsNullOrWhiteSpace(request.Name) || !EmailPattern().IsMatch(NormalizeEmail(request.Email)) ||
+        !new[] { "Administrador", "Compras", "Ventas", "Supervisor" }.Contains(request.Role) ||
+        (requirePassword && (request.InitialPassword?.Length ?? 0) < 12) ||
+        (!string.IsNullOrEmpty(request.InitialPassword) && request.InitialPassword.Length < 12)
+            ? "Los datos del usuario son inválidos; la contraseña inicial debe tener al menos 12 caracteres." : null;
 
     private static string? RefreshCookieName(string session) => session switch
     {

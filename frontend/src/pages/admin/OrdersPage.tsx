@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { FileText } from 'lucide-react'
 import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
 import { ExportCsvButton } from '../../components/ExportCsvButton'
-import { orderService } from '../../services'
+import { Dialog } from '../../components/ui/dialog'
+import { catalogService, orderService } from '../../services'
 import { lps, shortDate } from '../../lib/format'
-import type { Order, OrderStatus } from '../../types'
+import type { Order, OrderStatus, Product } from '../../types'
 
 const STATUSES: OrderStatus[] = ['Pendiente', 'Aprobada', 'Cancelada', 'Finalizada']
 
@@ -12,14 +13,24 @@ export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [open, setOpen] = useState(false)
+  const [lines, setLines] = useState([{ productId: '', quantity: 1 }])
 
   useEffect(() => {
-    orderService.getOrders().then((o) => { setOrders(o); setLoading(false) })
+    Promise.all([orderService.getOrders(), catalogService.getProducts(true)]).then(([o, p]) => { setOrders(o); setProducts(p); setLoading(false) })
   }, [])
 
   const changeStatus = async (id: string, status: OrderStatus) => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)))
     await orderService.updateStatus(id, status)
+  }
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const customerName = String(new FormData(event.currentTarget).get('customerName'))
+    const order = await orderService.createManualOrder(customerName, lines.filter((line) => line.productId && line.quantity > 0))
+    setOrders((items) => [order, ...items]); setOpen(false); setLines([{ productId: '', quantity: 1 }])
   }
 
   return (
@@ -29,8 +40,7 @@ export function OrdersPage() {
           <p className="text-sm text-muted-foreground">Historial completo, mas reciente primero</p>
           <div className="flex items-center gap-2">
             <ExportCsvButton items={orders} filename="ordenes.csv" />
-            {/* TODO(backend): creacion manual de orden de compra multiproducto */}
-            <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
+            <button onClick={() => setOpen(true)} className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
               Nueva orden
             </button>
           </div>
@@ -112,6 +122,7 @@ export function OrdersPage() {
           </table>
         )}
       </div>
+      <Dialog open={open} onOpenChange={setOpen}><form onSubmit={submit} className="space-y-3"><h2 className="font-display text-xl font-bold">Nueva orden</h2><input name="customerName" required placeholder="Cliente" className="w-full rounded border border-input p-2" />{lines.map((line, index) => <div key={index} className="flex gap-2"><select required value={line.productId} onChange={(event) => setLines((items) => items.map((item, i) => i === index ? { ...item, productId: event.target.value } : item))} className="min-w-0 flex-1 rounded border border-input p-2"><option value="">Producto</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}</select><input type="number" min="1" value={line.quantity} onChange={(event) => setLines((items) => items.map((item, i) => i === index ? { ...item, quantity: Number(event.target.value) } : item))} className="w-20 rounded border border-input p-2" /></div>)}<button type="button" onClick={() => setLines((items) => [...items, { productId: '', quantity: 1 }])} className="text-sm font-medium text-primary">+ Agregar producto</button><button className="w-full rounded bg-primary py-2 font-semibold text-primary-foreground">Crear orden</button></form></Dialog>
     </AdminLayout>
   )
 }

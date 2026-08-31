@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
 import { ExportCsvButton } from '../../components/ExportCsvButton'
+import { Dialog } from '../../components/ui/dialog'
 import { catalogService } from '../../services'
 import { lps } from '../../lib/format'
 import type { Product } from '../../types'
@@ -9,6 +10,8 @@ import { cn } from '../../lib/utils'
 export function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     catalogService.getProducts().then((p) => { setProducts(p); setLoading(false) })
@@ -20,6 +23,17 @@ export function ProductsPage() {
     await catalogService.updateProduct(updated)
   }
 
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setError(null)
+    const form = new FormData(event.currentTarget)
+    try {
+      const product = await catalogService.createProduct({
+        name: String(form.get('name')), origin: String(form.get('origin')), region: String(form.get('region')), process: String(form.get('process')) as Product['process'], roast: String(form.get('roast')) as Product['roast'], presentationGrams: Number(form.get('grams')), priceLps: Number(form.get('price')), stock: Number(form.get('stock')), active: true, description: String(form.get('description')), imageUrl: String(form.get('imageUrl')) || '/images/cafe-default.jpg', imageAlt: String(form.get('name')), quality: { grainType: String(form.get('grainType')), altitudeMasl: Number(form.get('altitude')), humidityPct: Number(form.get('humidity')), harvestDate: String(form.get('harvestDate')), producer: String(form.get('producer')), grade: String(form.get('grade')) as Product['quality']['grade'], cuppingScore: Number(form.get('cupping')), notes: [] },
+      })
+      setProducts((items) => [...items, product]); setOpen(false)
+    } catch { setError('No se pudo guardar el producto.') }
+  }
+
   return (
     <AdminLayout title="Catalogo de productos">
       <div className="rounded-lg border border-border bg-background">
@@ -27,8 +41,7 @@ export function ProductsPage() {
           <p className="text-sm text-muted-foreground">{products.length} productos registrados</p>
           <div className="flex items-center gap-2">
             <ExportCsvButton items={products} filename="productos.csv" />
-            {/* TODO(backend): alta de producto con carga de imagenes (POST /api/products) */}
-            <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
+            <button onClick={() => setOpen(true)} className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
               Nuevo producto
             </button>
           </div>
@@ -89,6 +102,7 @@ export function ProductsPage() {
           </table>
         )}
       </div>
+      <Dialog open={open} onOpenChange={setOpen}><form onSubmit={submit} className="grid max-h-[80vh] gap-2 overflow-y-auto"><h2 className="font-display text-xl font-bold">Nuevo producto</h2>{[['name','Nombre'],['origin','Origen'],['region','Región'],['grams','Presentación (g)'],['price','Precio LPS'],['stock','Stock'],['description','Descripción'],['imageUrl','URL de imagen'],['grainType','Variedad'],['altitude','Altura msnm'],['humidity','Humedad %'],['harvestDate','Cosecha'],['producer','Productor'],['cupping','Puntaje taza']].map(([name,label]) => <input key={name} name={name} required type={['grams','price','stock','altitude','humidity','cupping'].includes(name) ? 'number' : name === 'harvestDate' ? 'date' : 'text'} placeholder={label} className="rounded border border-input p-2" />)}<select name="process" defaultValue="Lavado" className="rounded border border-input p-2"><option>Lavado</option><option>Honey</option><option>Natural</option></select><select name="roast" defaultValue="Medio" className="rounded border border-input p-2"><option>Claro</option><option>Medio</option><option>Oscuro</option></select><select name="grade" defaultValue="Premium" className="rounded border border-input p-2"><option>Premium</option><option>Exportacion</option><option>Estandar</option></select>{error && <p className="text-sm text-destructive">{error}</p>}<button className="rounded bg-primary py-2 font-semibold text-primary-foreground">Guardar</button></form></Dialog>
     </AdminLayout>
   )
 }

@@ -135,7 +135,7 @@ export const customerCodec: EntityCodec<Customer> = {
 }
 
 export const userCodec: EntityCodec<User> = {
-  headers: ['id', 'name', 'email', 'role'],
-  fromRow: (r) => ({ id: r.id, name: r.name, email: r.email, role: r.role as Role }),
-  toRow: (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role }),
+  headers: ['id', 'name', 'email', 'role', 'active'],
+  fromRow: (r) => ({ id: r.id, name: r.name, email: r.email, role: r.role as Role, active: r.active !== 'false' }),
+  toRow: (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, active: String(u.active) }),
 }

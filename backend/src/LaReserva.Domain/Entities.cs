@@ -68,6 +68,7 @@ public sealed class User
     public required string Name { get; set; }
     public required string Email { get; set; }
     public required string Role { get; set; }
+    public bool Active { get; set; } = true;
     public required string PasswordHash { get; set; }
 }
 

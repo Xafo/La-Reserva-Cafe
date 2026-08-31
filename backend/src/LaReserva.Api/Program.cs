@@ -38,6 +38,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Administrator", policy => policy.RequireRole("Administrador"))
     .AddPolicy("ProductsWrite", policy => policy.RequireRole("Administrador", "Compras", "Supervisor"))
     .AddPolicy("CustomersView", policy => policy.RequireRole("Administrador", "Compras", "Ventas", "Supervisor"))
+    .AddPolicy("CustomersWrite", policy => policy.RequireRole("Administrador", "Compras", "Ventas"))
     .AddPolicy("ReportsView", policy => policy.RequireRole("Administrador", "Ventas", "Supervisor"));
 
 var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];

@@ -39,6 +39,9 @@ export const catalogService = {
       body: JSON.stringify(updated),
     }, 'team')
   },
+  async createProduct(product: Omit<Product, 'id'>): Promise<Product> {
+    return api<Product>('/products', { method: 'POST', body: JSON.stringify({ ...product, id: '' }) }, 'team')
+  },
 }
 
 export const orderService = {
@@ -54,6 +57,9 @@ export const orderService = {
       }),
     })
   },
+  async createManualOrder(customerName: string, items: { productId: string; quantity: number }[]): Promise<Order> {
+    return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ customerName, items }) }, 'team')
+  },
   async updateStatus(id: string, status: OrderStatus): Promise<void> {
     return api<void>(`/orders/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
@@ -66,11 +72,26 @@ export const customerService = {
   async getCustomers(): Promise<Customer[]> {
     return api<Customer[]>('/customers', undefined, 'team')
   },
+  async createCustomer(customer: Omit<Customer, 'id' | 'totalOrders'>): Promise<Customer> {
+    return api<Customer>('/customers', { method: 'POST', body: JSON.stringify(customer) }, 'team')
+  },
+  async updateCustomer(customer: Customer): Promise<Customer> {
+    return api<Customer>(`/customers/${encodeURIComponent(customer.id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(customer),
+    }, 'team')
+  },
 }
 
 export const userService = {
   async getUsers(): Promise<User[]> {
     return api<User[]>('/users', undefined, 'team')
+  },
+  async createUser(user: Omit<User, 'id'> & { initialPassword: string }): Promise<User> {
+    return api<User>('/users', { method: 'POST', body: JSON.stringify(user) }, 'team')
+  },
+  async updateUser(user: User & { initialPassword?: string }): Promise<User> {
+    return api<User>(`/users/${encodeURIComponent(user.id)}`, { method: 'PUT', body: JSON.stringify(user) }, 'team')
   },
 }
 
