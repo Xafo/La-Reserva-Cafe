@@ -266,6 +266,7 @@ Diseño, tienda, quiz de recomendación, panel admin y publicación en línea.
 - [ ] Publicar Postgres + API + frontend, dominio propio.
 - [ ] Pruebas finales, capacitación al equipo y manual de uso.
 - [ ] Inicia garantía de 30 días de soporte correctivo.
+- [ ] Definir el almacenamiento persistente y cifrado de claves de ASP.NET Data Protection si se incorporan funciones que dependan de él en producción.
 - **➤ HITO: Entrega final → pago 20%.**
 
 ---
