@@ -1,6 +1,6 @@
 import { CsvRepository } from './repository'
-import { productCodec, orderCodec, customerCodec, userCodec, accountCodec } from './codecs'
-import type { Product, Order, Customer, User, CustomerAccount } from '../types'
+import { productCodec, orderCodec, customerCodec, userCodec } from './codecs'
+import type { Product, Order, Customer, User } from '../types'
 
 // Instancias unicas de los repositorios. Cada uno siembra desde su .csv en
 // public/data/ la primera vez y persiste mutaciones en localStorage.
@@ -11,9 +11,7 @@ export const productsRepo = new CsvRepository<Product>('products', '/data/produc
 export const ordersRepo = new CsvRepository<Order>('orders', '/data/orders.csv', orderCodec)
 export const customersRepo = new CsvRepository<Customer>('customers', '/data/customers.csv', customerCodec)
 export const usersRepo = new CsvRepository<User>('users', '/data/users.csv', userCodec)
-export const accountsRepo = new CsvRepository<CustomerAccount>('accounts', '/data/accounts.csv', accountCodec)
-
-const ALL_REPOS = [productsRepo, ordersRepo, customersRepo, usersRepo, accountsRepo]
+const ALL_REPOS = [productsRepo, ordersRepo, customersRepo, usersRepo]
 
 /** Restaura el demo al estado semilla (util en presentaciones en vivo). */
 export function resetDemoData(): void {

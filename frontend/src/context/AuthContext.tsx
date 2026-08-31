@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import type { User } from '../types'
 import { authService } from '../services'
+import { revokeSession } from '../config/api'
 
 // TODO(backend .NET 10): al conectar /api/auth este contexto vuelve al patron
 // DotForge original (accessToken + refresh en localStorage via config/api.ts).
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
+    void revokeSession('team')
     sessionStorage.removeItem('auth_user')
     setUser(null)
   }, [])

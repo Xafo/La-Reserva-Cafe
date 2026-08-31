@@ -1,80 +1,74 @@
-# Plataforma de Cafe de Especialidad (nombre pendiente)
+# LA RESERVA — Café y Tostadería
 
-Plataforma web de gestion y comercializacion de cafe de especialidad hondureno,
-segun la propuesta formal del 20 de mayo de 2026.
+Portal público y administrativo para la gestión y comercialización de café de LA RESERVA, Honduras.
 
-> Marca de trabajo: **ALTURA**. El nombre real, logo y copy institucional estan
-> pendientes del cliente — buscar `TODO(brand)` y `TODO(copy)` en el codigo.
+## Estado
 
-> Este repo (`cafe-platform-Fable`) es la linea de trabajo demo derivada de
-> `cafe-platform`; agrega cuentas de clientes, quiz de preferencias con
-> recomendacion de cafe y storage CSV como placeholder de la base de datos.
+- Frontend: React 19, Vite, TypeScript y Tailwind CSS 4.
+- Backend: .NET 10 con Domain, Application, Infrastructure y API.
+- Base de datos: PostgreSQL 17 y EF Core.
+- Seguridad: contraseñas hasheadas, JWT de corta duración, refresh tokens rotativos en cookies HttpOnly y autorización por roles.
+- Ejecución local: frontend, API y PostgreSQL en Docker Compose.
 
-## Estado actual
+El alcance completo está en [docs/PLAN-DESARROLLO.md](docs/PLAN-DESARROLLO.md).
 
-- **Frontend 100% funcional sin backend** (React 19 + Vite + Tailwind 4,
-  base plantilla DotForge).
-- **Datos en capa CSV** (`frontend/src/storage/`): semillas en
-  `frontend/public/data/*.csv`, mutaciones en localStorage y export .csv desde
-  el admin. Es el placeholder de la base de datos — ver [docs/STORAGE.md](docs/STORAGE.md).
-- **Backend .NET Core 10 pendiente.** Toda la UI consume `frontend/src/services/`,
-  que define el contrato (firmas + DTOs en `src/types/`) y marca cada endpoint
-  con `TODO(backend)`. Ver [docs/BACKEND-TODO.md](docs/BACKEND-TODO.md).
+## Ejecutar con Docker
 
-## Superficies
+1. Crear la configuración local:
 
-| Ruta | Que es | Acceso |
-|---|---|---|
-| `/`, `/tienda`, `/tienda/:id`, `/checkout`, `/origen` | Portal publico de venta | Abierto |
-| `/registro`, `/ingresar`, `/cuenta` | Cuenta de cliente: al registrarse pasa por el quiz de preferencias y recibe su cafe recomendado | Abierto / sesion de cliente |
-| `/admin/*` | Gestion interna: dashboard, catalogo, calidad, ordenes, clientes/proveedores, reporteria, usuarios | Login por rol |
+   ```bash
+   cp .env.example .env
+   ```
 
-Usuarios demo del equipo (cualquier contrasena): `admin@altura.hn`,
-`compras@altura.hn`, `ventas@altura.hn`, `supervisor@altura.hn`.
-Cliente demo de la tienda: `mflagos@gmail.com` / `demo`.
+2. Reemplazar todos los valores de `.env` por secretos aleatorios y contraseñas de al menos 12 caracteres. El archivo `.env` está excluido de Git.
 
-## Quiz de preferencias y recomendacion
+3. Construir y levantar el stack:
 
-Al crear una cuenta en `/registro`, el cliente responde 6 preguntas de
-seleccion multiple (que busca, metodo de preparacion, como lo toma, sabores,
-intensidad, presupuesto). `recommendationService`
-(`frontend/src/services/recommendation.ts`) puntua el catalogo con pesos por
-dimension y devuelve el mejor match con razones + 2 alternativas. Ventas ve
-esos perfiles en `/admin/clientes` (filtro "En linea" → "Ver preferencias").
+   ```bash
+   docker compose up --build -d
+   ```
 
-Para reiniciar el demo a los datos semilla: `resetDemoData()` en la consola
-del navegador.
+4. Abrir:
 
-## Demo hosteado (gratis, Vercel)
+   - Portal: `http://localhost:5173`
+   - API: `http://localhost:5120`
+   - Salud: `http://localhost:5120/health`
 
-```bash
-npm i -g vercel
-cd frontend
-vercel login
-vercel        # primer deploy: aceptar la deteccion de Vite (build npm run build, output dist)
-vercel --prod # URL de produccion para compartir con el cliente
-```
+5. Detener sin eliminar los datos:
 
-`frontend/vercel.json` ya incluye el rewrite a `index.html` para que los
-deep links de React Router funcionen. Los CSV de `public/data/` viajan al
-build automaticamente.
+   ```bash
+   docker compose down
+   ```
 
-## Correr en local
+La base de datos no publica un puerto al host. Solamente la API puede acceder a ella mediante la red interna de Docker.
+
+## Credenciales iniciales
+
+Los usuarios de `frontend/public/data/users.csv` reciben durante el seed la contraseña definida en `SEED_ADMIN_PASSWORD`. La cuenta de cliente semilla recibe `SEED_CUSTOMER_PASSWORD`. Las contraseñas nunca se guardan ni se devuelven en texto plano.
+
+Cambiar estas credenciales antes de cualquier despliegue compartido o de producción.
+
+## Desarrollo y verificación
 
 ```bash
+dotnet tool restore
+dotnet restore backend/LaReserva.slnx
+dotnet build backend/LaReserva.slnx --no-restore
+dotnet test backend/LaReserva.slnx --no-build
+
 cd frontend
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # verificacion tsc + bundle
+npm ci
+npm run build
 ```
 
-## Diseno
+Las migraciones se aplican al iniciar la API y los CSV se importan solamente cuando la base está vacía.
 
-Sistema definido en [DESIGN.md](DESIGN.md) y [PRODUCT.md](PRODUCT.md), construido
-con los skills `impeccable` y `taste` (instalados en `.claude/skills/`).
-Paleta verde cafetal + dorado miel en OKLCH; tipografia Cabinet Grotesk +
-General Sans (Fontshare).
+## Sesiones y autorización
 
-## Equipo
+- El access token vive únicamente en `sessionStorage` y expira en 15 minutos.
+- El refresh token se guarda en cookie `HttpOnly` y en PostgreSQL solamente como hash.
+- Cada refresh revoca y reemplaza el token anterior.
+- El cierre de sesión revoca el refresh token en el servidor.
+- Los permisos del frontend son solo presentación; la API vuelve a comprobar cada rol.
 
-Ver [docs/TEAM.md](docs/TEAM.md) para la division de trabajo y convenciones.
+No agregar secretos a `appsettings*.json`, archivos Docker, commits, issues o pull requests.

@@ -220,10 +220,10 @@ Dos opciones equivalentes; **mantener las firmas** de `services/index.ts` intact
   llamada `api<T>(endpoint)`.
 
 Checklist de conexión:
-- [ ] `config/api.ts`: confirmar base URL / variable de entorno para producción.
-- [ ] Auth real: guardar `accessToken`/`refreshToken`; `AuthContext` y `CustomerAuthContext` pasan a usar tokens.
-- [ ] CORS en el backend para el origen del frontend.
-- [ ] Migrar los CSV a la BD (seed) y validar que la UI se ve igual.
+- [x] `config/api.ts`: base URL configurable mediante `VITE_API_URL` (por defecto `/api`).
+- [x] Auth real: `accessToken` de corta duración en `sessionStorage`; refresh token rotativo en cookie `HttpOnly` (no accesible desde JavaScript). `AuthContext` y `CustomerAuthContext` usan sesiones reales.
+- [x] CORS restringido a los orígenes configurados del frontend.
+- [x] Migrar los CSV a la BD (seed) y validar que la UI se ve igual.
 
 ---
 
@@ -232,13 +232,13 @@ Checklist de conexión:
 ### Fase 0 — Demo funcional + marca (ENTREGADO)
 Diseño, tienda, quiz de recomendación, panel admin y publicación en línea.
 
-### Fase 1 — Backend seguro + base de datos (EN MARCHA)
-- [ ] Solución .NET 10 con capas Domain/Application/Infrastructure/Api.
-- [ ] EF Core + PostgreSQL, entidades y migraciones (sección 4).
-- [ ] Seed desde `frontend/public/data/*.csv`.
-- [ ] Auth: login con hash + JWT (access/refresh).
-- [ ] Endpoints de lectura + login (sección 5).
-- [ ] Conectar el frontend (sección 6). **Meta: la UI se ve idéntica, ahora con datos reales.**
+### Fase 1 — Backend seguro + base de datos (COMPLETADA)
+- [x] Solución .NET 10 con capas Domain/Application/Infrastructure/Api.
+- [x] EF Core + PostgreSQL, entidades y migraciones (sección 4).
+- [x] Seed desde `frontend/public/data/*.csv`.
+- [x] Auth: contraseñas hasheadas + JWT de corta duración + refresh token rotativo revocable.
+- [x] Endpoints de lectura + login (sección 5).
+- [x] Conectar el frontend (sección 6). **Meta: la UI se ve idéntica, ahora con datos reales.**
 - Completa módulo **3.1 (base)**.
 
 ### Fase 2 — Gestión administrativa completa

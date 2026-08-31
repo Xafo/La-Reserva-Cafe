@@ -1,57 +1,91 @@
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_URL ?? '/api'
+export type SessionKind = 'team' | 'customer'
 
-export async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('access_token')
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+export async function api<T>(
+  path: string,
+  options?: RequestInit,
+  session?: SessionKind,
+): Promise<T> {
+  const token = session ? sessionStorage.getItem(`${session}_access_token`) : null
+  const headers = new Headers(options?.headers)
+  if (options?.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
   }
+  if (token) headers.set('Authorization', `Bearer ${token}`)
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
 
-  if (res.status === 401) {
-    const refreshed = await refreshToken()
+  if (res.status === 401 && session) {
+    const refreshed = await refreshToken(session)
     if (refreshed) {
-      headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`
-      const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers })
-      if (!retryRes.ok) throw new ApiError(await retryRes.json(), retryRes.status)
-      return retryRes.json()
+      headers.set('Authorization', `Bearer ${sessionStorage.getItem(`${session}_access_token`)}`)
+      const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
+      if (!retryRes.ok) throw await toApiError(retryRes)
+      return parseResponse<T>(retryRes)
     }
-    localStorage.clear()
-    window.location.href = '/login'
-    throw new Error('Session expired')
+    clearSession(session)
+    window.location.href = session === 'team' ? '/admin/login' : '/ingresar'
+    throw new Error('La sesion expiro')
   }
 
-  if (!res.ok) throw new ApiError(await res.json(), res.status)
-  if (res.status === 204) return undefined as T
-  return res.json()
+  if (!res.ok) throw await toApiError(res)
+  return parseResponse<T>(res)
 }
 
-async function refreshToken(): Promise<boolean> {
-  const refresh = localStorage.getItem('refresh_token')
-  if (!refresh) return false
+async function refreshToken(session: SessionKind): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: refresh }),
+      credentials: 'include',
+      body: JSON.stringify({ session }),
     })
     if (!res.ok) return false
-    const data = await res.json()
-    localStorage.setItem('access_token', data.accessToken)
-    localStorage.setItem('refresh_token', data.refreshToken ?? refresh)
+    const data = (await res.json()) as { accessToken: string }
+    saveSession(session, data.accessToken)
     return true
   } catch {
     return false
   }
 }
 
+export function saveSession(session: SessionKind, accessToken: string): void {
+  sessionStorage.setItem(`${session}_access_token`, accessToken)
+}
+
+export function clearSession(session: SessionKind): void {
+  sessionStorage.removeItem(`${session}_access_token`)
+}
+
+export async function revokeSession(session: SessionKind): Promise<void> {
+  clearSession(session)
+  await fetch(`${API_BASE}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session }),
+  }).catch(() => undefined)
+}
+
+async function parseResponse<T>(response: Response): Promise<T> {
+  if (response.status === 204) return undefined as T
+  return response.json() as Promise<T>
+}
+
+async function toApiError(response: Response): Promise<ApiError> {
+  const body: unknown = await response.json().catch(() => null)
+  return new ApiError(body, response.status)
+}
+
 export class ApiError extends Error {
-  body: any
+  body: unknown
   status: number
 
-  constructor(body: any, status: number) {
-    super(body?.error || 'An error occurred')
+  constructor(body: unknown, status: number) {
+    const message = typeof body === 'object' && body !== null && 'error' in body
+      ? String(body.error)
+      : 'Ocurrio un error al procesar la solicitud'
+    super(message)
     this.body = body
     this.status = status
   }

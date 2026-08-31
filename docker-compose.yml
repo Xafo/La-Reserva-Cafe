@@ -1,0 +1,89 @@
+name: la-reserva
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: la_reserva
+      POSTGRES_USER: la_reserva
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U la_reserva -d la_reserva"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - data
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      AllowedHosts: localhost;127.0.0.1
+      ConnectionStrings__Postgres: Host=db;Port=5432;Database=la_reserva;Username=la_reserva;Password=${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env}
+      Jwt__Issuer: LaReserva.Api
+      Jwt__Audience: LaReserva.Web
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY en .env}
+      Jwt__AccessTokenMinutes: 15
+      Jwt__RefreshTokenDays: 7
+      Cors__Origins__0: http://localhost:5173
+      Seed__DataPath: /app/seed
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:?Defina SEED_ADMIN_PASSWORD en .env}
+      Seed__CustomerPassword: ${SEED_CUSTOMER_PASSWORD:?Defina SEED_CUSTOMER_PASSWORD en .env}
+    ports:
+      - "127.0.0.1:5120:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      - edge
+      - data
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "127.0.0.1:5173:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - edge
+
+volumes:
+  postgres_data:
+
+networks:
+  edge:
+  data:
+    internal: true

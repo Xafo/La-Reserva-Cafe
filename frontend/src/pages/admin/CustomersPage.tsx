@@ -3,7 +3,6 @@ import { AdminLayout } from '../../components/AdminLayout'
 import { ExportCsvButton } from '../../components/ExportCsvButton'
 import { Dialog } from '../../components/ui/dialog'
 import { customerService, accountService, catalogService } from '../../services'
-import { customersRepo } from '../../storage'
 import { lps } from '../../lib/format'
 import type { Customer, CustomerAccount, Product } from '../../types'
 import { cn } from '../../lib/utils'
@@ -82,7 +81,7 @@ export function CustomersPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <ExportCsvButton repo={customersRepo} filename="clientes.csv" />
+            <ExportCsvButton items={customers} filename="clientes.csv" />
             {/* TODO(backend): alta y edicion de clientes/proveedores */}
             <button className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest">
               Nuevo registro

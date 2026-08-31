@@ -6,17 +6,9 @@ import type {
   Customer,
   User,
   Role,
-  CustomerAccount,
-  PreferenceProfile,
   CoffeeProcess,
   RoastLevel,
   QualityGrade,
-  PlatformGoal,
-  BrewMethod,
-  DrinkStyle,
-  FlavorFamily,
-  Intensity,
-  Budget,
 } from '../types'
 import type { EntityCodec } from './repository'
 
@@ -146,53 +138,4 @@ export const userCodec: EntityCodec<User> = {
   headers: ['id', 'name', 'email', 'role'],
   fromRow: (r) => ({ id: r.id, name: r.name, email: r.email, role: r.role as Role }),
   toRow: (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role }),
-}
-
-const decodePreferences = (r: Record<string, string>): PreferenceProfile | null => {
-  if (r.pref_intensity === '') return null
-  return {
-    goals: splitList(r.pref_goals) as PlatformGoal[],
-    brewMethods: splitList(r.pref_brewMethods) as BrewMethod[],
-    drinkStyles: splitList(r.pref_drinkStyles) as DrinkStyle[],
-    flavorFamilies: splitList(r.pref_flavorFamilies) as FlavorFamily[],
-    intensity: r.pref_intensity as Intensity,
-    budget: r.pref_budget as Budget,
-    updatedAt: r.pref_updatedAt,
-  }
-}
-
-export const accountCodec: EntityCodec<CustomerAccount> = {
-  headers: [
-    'id', 'name', 'email', 'password', 'phone', 'city', 'createdAt',
-    'pref_goals', 'pref_brewMethods', 'pref_drinkStyles', 'pref_flavorFamilies',
-    'pref_intensity', 'pref_budget', 'pref_updatedAt', 'recommendedProductId',
-  ],
-  fromRow: (r) => ({
-    id: r.id,
-    name: r.name,
-    email: r.email,
-    password: r.password,
-    phone: r.phone,
-    city: r.city,
-    createdAt: r.createdAt,
-    preferences: decodePreferences(r),
-    recommendedProductId: r.recommendedProductId === '' ? null : r.recommendedProductId,
-  }),
-  toRow: (a) => ({
-    id: a.id,
-    name: a.name,
-    email: a.email,
-    password: a.password,
-    phone: a.phone,
-    city: a.city,
-    createdAt: a.createdAt,
-    pref_goals: a.preferences ? joinList(a.preferences.goals) : '',
-    pref_brewMethods: a.preferences ? joinList(a.preferences.brewMethods) : '',
-    pref_drinkStyles: a.preferences ? joinList(a.preferences.drinkStyles) : '',
-    pref_flavorFamilies: a.preferences ? joinList(a.preferences.flavorFamilies) : '',
-    pref_intensity: a.preferences?.intensity ?? '',
-    pref_budget: a.preferences?.budget ?? '',
-    pref_updatedAt: a.preferences?.updatedAt ?? '',
-    recommendedProductId: a.recommendedProductId ?? '',
-  }),
 }

@@ -86,6 +86,7 @@ export function RegisterPage() {
                     name={f.name}
                     type={f.type}
                     required
+                    minLength={f.type === 'password' ? 12 : undefined}
                     autoComplete={f.autoComplete}
                     className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
                   />

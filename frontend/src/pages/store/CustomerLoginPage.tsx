@@ -34,7 +34,7 @@ export function CustomerLoginPage() {
       <section className="mx-auto max-w-md px-5 pb-28 pt-28 md:pt-36">
         <h1 className="font-display text-4xl font-extrabold tracking-tight">Iniciar sesion</h1>
         <p className="mt-3 text-muted-foreground">
-          Demo: mflagos@gmail.com con contrasena <span className="font-medium text-foreground">demo</span>.
+          Accede a tus preferencias y recomendaciones guardadas.
         </p>
         <form onSubmit={handleSubmit} className="mt-9 space-y-4">
           <div>

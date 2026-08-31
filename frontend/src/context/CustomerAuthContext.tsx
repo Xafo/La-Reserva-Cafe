@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import type { CustomerAccount, PreferenceProfile } from '../types'
 import { accountService, type RegisterData } from '../services'
+import { revokeSession } from '../config/api'
 
 // Sesion del cliente de la tienda, separada del AuthContext del portal admin.
 // Persiste en localStorage para que el demo sobreviva cerrar la pestana.
@@ -41,7 +42,10 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     persist(await accountService.login(email, password))
   }, [])
 
-  const logout = useCallback(() => persist(null), [])
+  const logout = useCallback(() => {
+    void revokeSession('customer')
+    persist(null)
+  }, [])
 
   const savePreferences = useCallback(
     async (preferences: PreferenceProfile, recommendedProductId: string | null) => {

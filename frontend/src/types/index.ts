@@ -100,7 +100,6 @@ export interface CustomerAccount {
   id: string
   name: string
   email: string
-  password: string // demo: texto plano. TODO(backend): hash con Identity
   phone: string
   city: string
   createdAt: string
