@@ -64,6 +64,8 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// El hook comparte el contexto con su Provider; no afecta el refresco de producción.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCustomerAuth() {
   const ctx = useContext(CustomerAuthContext)
   if (!ctx) throw new Error('useCustomerAuth must be used within CustomerAuthProvider')
