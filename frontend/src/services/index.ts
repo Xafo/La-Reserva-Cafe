@@ -110,6 +110,9 @@ export const authService = {
     saveSession('team', response.accessToken)
     return response.user
   },
+  async requestPasswordReset(email: string): Promise<void> {
+    await api<void>('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })
+  },
 }
 
 export interface RegisterData {
@@ -165,6 +168,7 @@ export const reportService = {
       lowStock: Product[]
       recentOrders: Order[]
       topProducts: { name: string; units: number }[]
+      recentActivity: { id: number; actorId: string; action: string; entity: string; entityId: string; occurredAt: string }[]
     }>('/reports/summary', undefined, 'team')
   },
 }

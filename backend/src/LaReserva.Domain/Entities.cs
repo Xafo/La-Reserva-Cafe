@@ -109,3 +109,22 @@ public sealed class RefreshToken
     public DateTimeOffset? RevokedAt { get; set; }
     public string? ReplacedByHash { get; set; }
 }
+
+public sealed class PasswordResetToken
+{
+    public Guid Id { get; set; }
+    public required string UserId { get; set; }
+    public required string TokenHash { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+    public DateTimeOffset? UsedAt { get; set; }
+}
+
+public sealed class AuditEntry
+{
+    public long Id { get; set; }
+    public required string ActorId { get; set; }
+    public required string Action { get; set; }
+    public required string Entity { get; set; }
+    public required string EntityId { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
+}

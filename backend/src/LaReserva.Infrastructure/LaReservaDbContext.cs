@@ -15,6 +15,8 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
     public DbSet<CustomerPreference> CustomerPreferences => Set<CustomerPreference>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<CommercialRequest> CommercialRequests => Set<CommercialRequest>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -109,6 +111,20 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
             entity.HasIndex(value => value.TokenHash).IsUnique();
             entity.HasIndex(value => new { value.SubjectId, value.SubjectType });
             entity.Property(value => value.RevokedAt).IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.ToTable("password_reset_tokens");
+            entity.HasKey(value => value.Id);
+            entity.HasIndex(value => value.TokenHash).IsUnique();
+        });
+
+        modelBuilder.Entity<AuditEntry>(entity =>
+        {
+            entity.ToTable("audit_entries");
+            entity.HasKey(value => value.Id);
+            entity.HasIndex(value => value.OccurredAt);
         });
     }
 }
