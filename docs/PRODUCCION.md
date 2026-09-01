@@ -58,6 +58,16 @@ recreaciones de la API a la vez durante ese primer arranque.
 
 - Respaldar diariamente `postgres_data` y `product_uploads`; probar la
   restauración antes de la entrega final.
+- El script `scripts/backup.sh` genera un `pg_dump` comprimido y un archivo
+  de imágenes sin modificar los datos. Con el stack de producción activo:
+
+  ```bash
+  BACKUP_DIR=/srv/backups/la-reserva ./scripts/backup.sh
+  ```
+
+  El directorio de destino debe estar fuera del repositorio y copiarse a una
+  ubicación externa. Programar el comando con el mecanismo de tareas del
+  servidor solamente después de probar una restauración en un entorno aislado.
 - Actualizar imágenes base y dependencias de manera programada, después de
   pasar CI y mantener una copia del respaldo previo.
 - Revisar los logs de `api` y el estado de `docker compose ps` tras cada
