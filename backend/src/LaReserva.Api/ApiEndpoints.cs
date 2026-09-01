@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using LaReserva.Application;
 using LaReserva.Domain;
@@ -20,6 +21,11 @@ public static partial class ApiEndpoints
         MapOrders(routes.MapGroup("/api/orders"));
         MapCustomers(routes.MapGroup("/api/customers"));
         MapUsers(routes.MapGroup("/api/users"));
+        routes.MapGet("/api/audit-log", async (LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            var entries = await db.AuditEntries.AsNoTracking().OrderByDescending(value => value.OccurredAt).Take(100).ToListAsync(cancellationToken);
+            return Results.Ok(entries.Select(value => value.ToDto()));
+        }).RequireAuthorization("Administrator");
         MapAccounts(routes.MapGroup("/api/accounts"));
         MapReports(routes.MapGroup("/api/reports"));
         return routes;
@@ -87,6 +93,19 @@ public static partial class ApiEndpoints
             httpResponse.Cookies.Delete(cookieName, new CookieOptions { Path = "/api/auth" });
             return Results.NoContent();
         });
+
+        group.MapPost("/forgot-password", async (ForgotPasswordRequest request, LaReservaDbContext db, ILogger<Program> logger, CancellationToken cancellationToken) =>
+        {
+            var user = await db.Users.SingleOrDefaultAsync(value => value.Email == NormalizeEmail(request.Email), cancellationToken);
+            if (user is not null)
+            {
+                var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+                db.PasswordResetTokens.Add(new PasswordResetToken { Id = Guid.NewGuid(), UserId = user.Id, TokenHash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(rawToken))), ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(30) });
+                await db.SaveChangesAsync(cancellationToken);
+                logger.LogInformation("Password reset requested for user {UserId}; configure a transactional email provider to deliver the token.", user.Id);
+            }
+            return Results.NoContent();
+        }).RequireRateLimiting("auth");
     }
 
     private static void MapProducts(RouteGroupBuilder group)
@@ -285,7 +304,8 @@ public static partial class ApiEndpoints
             return Results.Ok(users.Select(value => value.ToDto()));
         }).RequireAuthorization("Administrator");
 
-        group.MapPost("/", async (SaveUserRequest request, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
+
+        group.MapPost("/", async (SaveUserRequest request, ClaimsPrincipal principal, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
         {
             var error = ValidateUser(request, requirePassword: true);
             if (error is not null) return Results.BadRequest(new { error });
@@ -293,11 +313,11 @@ public static partial class ApiEndpoints
             if (await db.Users.AnyAsync(value => value.Email == email, cancellationToken)) return Results.Conflict(new { error = "Ya existe un usuario con ese correo." });
             var user = new User { Id = $"u-{Guid.NewGuid():N}", Name = request.Name.Trim(), Email = email, Role = request.Role, Active = request.Active, PasswordHash = string.Empty };
             user.PasswordHash = passwordHasher.HashPassword(user, request.InitialPassword!);
-            db.Users.Add(user); await db.SaveChangesAsync(cancellationToken);
+            db.Users.Add(user); AddAudit(db, principal, "Crear usuario", "Usuario", user.Id); await db.SaveChangesAsync(cancellationToken);
             return Results.Created($"/api/users/{user.Id}", user.ToDto());
         }).RequireAuthorization("Administrator");
 
-        group.MapPut("/{id}", async (string id, SaveUserRequest request, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
+        group.MapPut("/{id}", async (string id, SaveUserRequest request, ClaimsPrincipal principal, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
         {
             var error = ValidateUser(request, requirePassword: false);
             if (error is not null) return Results.BadRequest(new { error });
@@ -307,6 +327,7 @@ public static partial class ApiEndpoints
             if (await db.Users.AnyAsync(value => value.Id != id && value.Email == email, cancellationToken)) return Results.Conflict(new { error = "Ya existe un usuario con ese correo." });
             user.Name = request.Name.Trim(); user.Email = email; user.Role = request.Role; user.Active = request.Active;
             if (!string.IsNullOrEmpty(request.InitialPassword)) user.PasswordHash = passwordHasher.HashPassword(user, request.InitialPassword);
+            AddAudit(db, principal, "Actualizar usuario", "Usuario", user.Id);
             await db.SaveChangesAsync(cancellationToken);
             return Results.Ok(user.ToDto());
         }).RequireAuthorization("Administrator");
@@ -433,13 +454,15 @@ public static partial class ApiEndpoints
                 .GroupBy(value => value.ProductName)
                 .Select(grouping => new TopProductDto(grouping.Key, grouping.Sum(value => value.Quantity)))
                 .OrderByDescending(value => value.Units).Take(5).ToArray();
+            var activity = await db.AuditEntries.AsNoTracking().OrderByDescending(value => value.OccurredAt).Take(5).ToListAsync(cancellationToken);
             return Results.Ok(new ReportSummaryDto(
                 orders.Where(value => value.Status == "Finalizada").Sum(value => value.TotalLps),
                 orders.Count(value => value.Status == "Pendiente"),
                 products.Count(value => value.Active),
                 products.Where(value => value.Stock < 25).Select(value => value.ToDto()).ToArray(),
                 orders.Take(5).Select(value => value.ToDto()).ToArray(),
-                topProducts));
+                topProducts,
+                activity.Select(value => value.ToDto()).ToArray()));
         }).RequireAuthorization("ReportsView");
 
         group.MapGet("/export", async (string type, string format, LaReservaDbContext db, CancellationToken cancellationToken) =>
@@ -473,6 +496,16 @@ public static partial class ApiEndpoints
         (requirePassword && (request.InitialPassword?.Length ?? 0) < 12) ||
         (!string.IsNullOrEmpty(request.InitialPassword) && request.InitialPassword.Length < 12)
             ? "Los datos del usuario son inválidos; la contraseña inicial debe tener al menos 12 caracteres." : null;
+
+    private static void AddAudit(LaReservaDbContext db, ClaimsPrincipal principal, string action, string entity, string entityId) =>
+        db.AuditEntries.Add(new AuditEntry
+        {
+            ActorId = principal.FindFirstValue("sub") ?? "system",
+            Action = action,
+            Entity = entity,
+            EntityId = entityId,
+            OccurredAt = DateTimeOffset.UtcNow,
+        });
 
     private static string? RefreshCookieName(string session) => session switch
     {
