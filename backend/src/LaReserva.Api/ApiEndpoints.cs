@@ -106,6 +106,22 @@ public static partial class ApiEndpoints
             }
             return Results.NoContent();
         }).RequireRateLimiting("auth");
+
+        group.MapPost("/reset-password", async (ResetPasswordRequest request, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Token) || request.Password.Length < 12) return Results.BadRequest(new { error = "Solicitud inválida." });
+            var hash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(request.Token)));
+            var reset = await db.PasswordResetTokens.SingleOrDefaultAsync(value => value.TokenHash == hash && value.UsedAt == null && value.ExpiresAt > DateTimeOffset.UtcNow, cancellationToken);
+            if (reset is null) return Results.BadRequest(new { error = "Solicitud inválida o expirada." });
+            var user = await db.Users.FindAsync([reset.UserId], cancellationToken);
+            if (user is null) return Results.BadRequest(new { error = "Solicitud inválida." });
+            user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
+            reset.UsedAt = DateTimeOffset.UtcNow;
+            db.RefreshTokens.RemoveRange(db.RefreshTokens.Where(value => value.SubjectId == user.Id && value.SubjectType == "team"));
+            db.AuditEntries.Add(new AuditEntry { ActorId = user.Id, Action = "Restablecer contraseña", Entity = "Usuario", EntityId = user.Id, OccurredAt = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.NoContent();
+        }).RequireRateLimiting("auth");
     }
 
     private static void MapProducts(RouteGroupBuilder group)
@@ -243,12 +259,13 @@ public static partial class ApiEndpoints
             return Results.Created($"/api/orders/{order.Id}", order.ToDto());
         });
 
-        group.MapPatch("/{id}/status", async (string id, UpdateOrderStatusRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPatch("/{id}/status", async (string id, UpdateOrderStatusRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (!OrderStatuses.Contains(request.Status)) return Results.BadRequest(new { error = "Estado inválido." });
             var order = await db.Orders.FindAsync([id], cancellationToken);
             if (order is null) return Results.NotFound();
             order.Status = request.Status;
+            AddAudit(db, principal, "Cambiar estado de orden", "Orden", order.Id);
             await db.SaveChangesAsync(cancellationToken);
             return Results.NoContent();
         }).RequireAuthorization("Team");
