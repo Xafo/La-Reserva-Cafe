@@ -242,11 +242,11 @@ Diseño, tienda, quiz de recomendación, panel admin y publicación en línea.
 - Completa módulo **3.1 (base)**.
 
 ### Fase 2 — Gestión administrativa completa
-- [ ] CRUD de productos con **carga de imágenes** (POST/PUT `/api/products`).
-- [ ] Ficha de calidad editable.
-- [ ] CRUD de usuarios (invitar/editar/desactivar) + asignación de rol.
-- [ ] CRUD de clientes y proveedores.
-- [ ] Creación manual de órdenes multiproducto en el admin.
+- [x] CRUD de productos con **carga de imágenes** (POST/PUT `/api/products`).
+- [x] Ficha de calidad editable.
+- [x] CRUD de usuarios (invitar/editar/desactivar) + asignación de rol.
+- [x] CRUD de clientes y proveedores.
+- [x] Creación manual de órdenes multiproducto en el admin.
 - Completa módulos **3.2 · 3.3 · 3.4 · 3.5**. Habilitar los botones hoy marcados `TODO(backend)` en las páginas admin.
 
 ### Fase 3 — Documentos y reportería

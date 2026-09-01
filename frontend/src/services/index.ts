@@ -42,6 +42,10 @@ export const catalogService = {
   async createProduct(product: Omit<Product, 'id'>): Promise<Product> {
     return api<Product>('/products', { method: 'POST', body: JSON.stringify({ ...product, id: '' }) }, 'team')
   },
+  async uploadProductImage(id: string, file: File): Promise<Product> {
+    const data = new FormData(); data.append('file', file)
+    return api<Product>(`/products/${encodeURIComponent(id)}/image`, { method: 'POST', body: data }, 'team')
+  },
 }
 
 export const orderService = {

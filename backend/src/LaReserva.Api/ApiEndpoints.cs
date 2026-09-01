@@ -127,7 +127,24 @@ public static partial class ApiEndpoints
             db.Products.Add(product);
             await db.SaveChangesAsync(cancellationToken);
             return Results.Created($"/api/products/{id}", product.ToDto());
-        }).RequireAuthorization("ProductsWrite");
+        }).RequireAuthorization("ProductsWrite").DisableAntiforgery();
+
+        group.MapPost("/{id}/image", async (string id, IFormFile file, IConfiguration configuration, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            if (file.Length is <= 0 or > 5_000_000 || !new[] { "image/jpeg", "image/png", "image/webp" }.Contains(file.ContentType))
+                return Results.BadRequest(new { error = "La imagen debe ser JPG, PNG o WebP y pesar menos de 5 MB." });
+            var product = await db.Products.Include(value => value.Quality)
+                .SingleOrDefaultAsync(value => value.Id == id, cancellationToken);
+            if (product is null) return Results.NotFound();
+            var extension = file.ContentType switch { "image/jpeg" => ".jpg", "image/png" => ".png", _ => ".webp" };
+            var filename = $"{Guid.NewGuid():N}{extension}";
+            var path = Path.Combine(configuration["Uploads:Path"] ?? "/app/uploads", filename);
+            await using var stream = File.Create(path);
+            await file.CopyToAsync(stream, cancellationToken);
+            product.ImageUrl = $"/uploads/{filename}";
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Ok(product.ToDto());
+        }).RequireAuthorization("ProductsWrite").DisableAntiforgery();
 
         group.MapPut("/{id}", async (string id, ProductDto request, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {

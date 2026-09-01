@@ -13,6 +13,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build --chown=app:app /app/publish .
 COPY --chown=app:app frontend/public/data ./seed
+RUN mkdir /app/uploads && chown app:app /app/uploads
 USER app
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "LaReserva.Api.dll"]

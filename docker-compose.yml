@@ -44,6 +44,9 @@ services:
       Seed__DataPath: /app/seed
       Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:?Defina SEED_ADMIN_PASSWORD en .env}
       Seed__CustomerPassword: ${SEED_CUSTOMER_PASSWORD:?Defina SEED_CUSTOMER_PASSWORD en .env}
+      Uploads__Path: /app/uploads
+    volumes:
+      - product_uploads:/app/uploads
     ports:
       - "127.0.0.1:5120:8080"
     depends_on:
@@ -82,6 +85,7 @@ services:
 
 volumes:
   postgres_data:
+  product_uploads:
 
 networks:
   edge:
