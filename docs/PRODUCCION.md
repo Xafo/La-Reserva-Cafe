@@ -84,4 +84,5 @@ recreaciones de la API a la vez durante ese primer arranque.
   Compras, Ventas y Supervisor.
 - Se valida que `/api` y PostgreSQL no sean accesibles de forma pública.
 - Se verifica un respaldo restaurado en un entorno aislado.
-- Se entrega el manual de uso y se registra la fecha de inicio de garantía.
+- Se entrega [el manual de uso](MANUAL-USO.md), se capacita al equipo y se
+  registra la fecha de inicio de garantía.
