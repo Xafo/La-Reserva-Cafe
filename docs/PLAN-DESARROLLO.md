@@ -258,9 +258,14 @@ Diseño, tienda, quiz de recomendación, panel admin y publicación en línea.
 
 ### Fase 4 — Seguridad avanzada y auditoría
 - [ ] `POST /api/auth/forgot-password` (correo de recuperación).
-- [ ] Bitácora de acciones por usuario + `GET /api/audit-log`.
-- [ ] "Actividad reciente" del dashboard alimentada por la bitácora.
+- [x] Bitácora de acciones por usuario + `GET /api/audit-log`.
+- [x] "Actividad reciente" del dashboard alimentada por la bitácora.
 - Completa módulo **3.1 (completo)**.
+
+Estado: recuperación segura, restablecimiento de contraseña, bitácora y
+actividad reciente están implementados en la rama de trabajo. Falta configurar
+y verificar el proveedor SMTP/transaccional para enviar el correo; por ello la
+fase no se marca como completa.
 
 ### Fase 5 — Puesta en producción y entrega
 - [ ] Publicar Postgres + API + frontend, dominio propio.
@@ -268,6 +273,13 @@ Diseño, tienda, quiz de recomendación, panel admin y publicación en línea.
 - [ ] Inicia garantía de 30 días de soporte correctivo.
 - [ ] Definir el almacenamiento persistente y cifrado de claves de ASP.NET Data Protection si se incorporan funciones que dependan de él en producción.
 - **➤ HITO: Entrega final → pago 20%.**
+
+Preparado: `docker-compose.production.yml` con Caddy/TLS, guía de despliegue,
+respaldo portable y manual de uso. Pendiente: dominio y servidor, DNS/TLS
+efectivo, secretos definitivos, respaldo restaurado de prueba, SMTP,
+capacitación y la fecha de inicio de garantía. Data Protection no es necesario
+para las sesiones actuales; deberá persistirse y cifrarse fuera del contenedor
+si se incorpora una función que lo use.
 
 ---
 
