@@ -250,9 +250,9 @@ Diseño, tienda, quiz de recomendación, panel admin y publicación en línea.
 - Completa módulos **3.2 · 3.3 · 3.4 · 3.5**. Habilitar los botones hoy marcados `TODO(backend)` en las páginas admin.
 
 ### Fase 3 — Documentos y reportería
-- [ ] `GET /api/orders/{id}/pdf` con **QuestPDF**.
-- [ ] `/api/reports/summary` calculado con datos reales.
-- [ ] `/api/reports/export?format=pdf|xlsx` (**QuestPDF** + **ClosedXML**): ventas, inventario, más vendidos, movimientos por fecha.
+- [x] `GET /api/orders/{id}/pdf` con **QuestPDF**.
+- [x] `/api/reports/summary` calculado con datos reales.
+- [x] `/api/reports/export?format=pdf|xlsx` (**QuestPDF** + **ClosedXML**): ventas, inventario, más vendidos, movimientos por fecha.
 - Completa módulos **3.6 · 3.7**.
 - **➤ HITO: Entrega de avance funcional → pago 30%.**
 

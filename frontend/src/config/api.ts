@@ -67,6 +67,17 @@ export async function revokeSession(session: SessionKind): Promise<void> {
   }).catch(() => undefined)
 }
 
+export async function downloadTeamFile(path: string): Promise<void> {
+  const token = sessionStorage.getItem('team_access_token')
+  const response = await fetch(`${API_BASE}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {}, credentials: 'include' })
+  if (!response.ok) throw await toApiError(response)
+  const blob = await response.blob()
+  const disposition = response.headers.get('Content-Disposition') ?? ''
+  const name = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? 'reporte'
+  const url = URL.createObjectURL(blob); const anchor = document.createElement('a')
+  anchor.href = url; anchor.download = name; anchor.click(); URL.revokeObjectURL(url)
+}
+
 async function parseResponse<T>(response: Response): Promise<T> {
   if (response.status === 204) return undefined as T
   return response.json() as Promise<T>

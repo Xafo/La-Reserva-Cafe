@@ -233,6 +233,12 @@ public static partial class ApiEndpoints
             await db.SaveChangesAsync(cancellationToken);
             return Results.NoContent();
         }).RequireAuthorization("Team");
+
+        group.MapGet("/{id}/pdf", async (string id, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            var order = await db.Orders.AsNoTracking().Include(value => value.Items).SingleOrDefaultAsync(value => value.Id == id, cancellationToken);
+            return order is null ? Results.NotFound() : Results.File(ReportDocuments.OrderPdf(order), "application/pdf", $"{order.Id}.pdf");
+        }).RequireAuthorization("Team");
     }
 
     private static void MapCustomers(RouteGroupBuilder group)
@@ -434,6 +440,17 @@ public static partial class ApiEndpoints
                 products.Where(value => value.Stock < 25).Select(value => value.ToDto()).ToArray(),
                 orders.Take(5).Select(value => value.ToDto()).ToArray(),
                 topProducts));
+        }).RequireAuthorization("ReportsView");
+
+        group.MapGet("/export", async (string type, string format, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            if (!new[] { "productos", "ordenes", "ventas", "inventario", "mas-vendidos", "movimientos" }.Contains(type) || !new[] { "pdf", "xlsx" }.Contains(format))
+                return Results.BadRequest(new { error = "Tipo o formato inválido." });
+            var products = await db.Products.AsNoTracking().ToListAsync(cancellationToken);
+            var orders = await db.Orders.AsNoTracking().Include(value => value.Items).ToListAsync(cancellationToken);
+            if (format == "xlsx") return Results.File(ReportDocuments.Excel(type, products, orders), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx");
+            var document = ReportDocuments.OrderPdf(new Order { Id = $"Reporte {type}", CustomerName = "LA RESERVA", Status = "", CreatedAt = DateTimeOffset.UtcNow, TotalLps = orders.Sum(value => value.TotalLps), Items = orders.SelectMany(value => value.Items).ToList() });
+            return Results.File(document, "application/pdf", $"{type}.pdf");
         }).RequireAuthorization("ReportsView");
     }
 

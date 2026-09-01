@@ -3,6 +3,7 @@ import { FileText } from 'lucide-react'
 import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
 import { ExportCsvButton } from '../../components/ExportCsvButton'
 import { Dialog } from '../../components/ui/dialog'
+import { downloadTeamFile } from '../../config/api'
 import { catalogService, orderService } from '../../services'
 import { lps, shortDate } from '../../lib/format'
 import type { Order, OrderStatus, Product } from '../../types'
@@ -93,9 +94,9 @@ export function OrdersPage() {
                       </div>
                     </td>
                     <td className="px-5 py-3">
-                      {/* TODO(backend): GET /api/orders/{id}/pdf */}
                       <button
-                        title="Generar PDF (requiere backend)"
+                        onClick={() => downloadTeamFile(`/orders/${encodeURIComponent(o.id)}/pdf`).catch(() => undefined)}
+                        title="Descargar PDF"
                         className="cursor-pointer rounded p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground"
                       >
                         <FileText className="h-4 w-4" />
