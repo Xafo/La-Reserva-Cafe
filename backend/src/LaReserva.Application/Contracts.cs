@@ -69,6 +69,7 @@ public sealed record UpdateOrderStatusRequest(string Status);
 public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
 public sealed record SaveUserRequest(string Name, string Email, string Role, string? InitialPassword, bool Active = true);
 public sealed record ForgotPasswordRequest(string Email);
+public sealed record ResetPasswordRequest(string Token, string Password);
 public sealed record AuditEntryDto(long Id, string ActorId, string Action, string Entity, string EntityId, DateTimeOffset OccurredAt);
 
 public sealed record ReportSummaryDto(
