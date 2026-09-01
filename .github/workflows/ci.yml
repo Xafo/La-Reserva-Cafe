@@ -45,5 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: >-
+          DOMAIN=portal.example.com ACME_EMAIL=infra@example.com
+          POSTGRES_PASSWORD=verification-password
+          JWT_SIGNING_KEY=verification-signing-key-that-is-long-enough-1234567890
+          SEED_ADMIN_PASSWORD=verification-admin-password
+          SEED_CUSTOMER_PASSWORD=verification-customer-password
+          docker compose --env-file /dev/null -f docker-compose.production.yml config --quiet
       - run: docker build --file backend/Dockerfile --tag la-reserva-api:ci .
       - run: docker build --file frontend/Dockerfile --tag la-reserva-web:ci .

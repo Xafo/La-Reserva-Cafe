@@ -1,0 +1,111 @@
+name: la-reserva
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: la_reserva
+      POSTGRES_USER: la_reserva
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env.production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U la_reserva -d la_reserva"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - data
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      AllowedHosts: ${DOMAIN:?Defina DOMAIN en .env.production}
+      ConnectionStrings__Postgres: Host=db;Port=5432;Database=la_reserva;Username=la_reserva;Password=${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env.production}
+      Jwt__Issuer: LaReserva.Api
+      Jwt__Audience: LaReserva.Web
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY en .env.production}
+      Jwt__AccessTokenMinutes: 15
+      Jwt__RefreshTokenDays: 7
+      Cors__Origins__0: https://${DOMAIN:?Defina DOMAIN en .env.production}
+      Seed__DataPath: /app/seed
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:?Defina SEED_ADMIN_PASSWORD en .env.production}
+      Seed__CustomerPassword: ${SEED_CUSTOMER_PASSWORD:?Defina SEED_CUSTOMER_PASSWORD en .env.production}
+      Uploads__Path: /app/uploads
+    volumes:
+      - product_uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      - edge
+      - data
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - edge
+
+  proxy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Defina DOMAIN en .env.production}
+      ACME_EMAIL: ${ACME_EMAIL:?Defina ACME_EMAIL en .env.production}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_started
+    networks:
+      - edge
+
+volumes:
+  postgres_data:
+  product_uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  edge:
+  data:
+    internal: true

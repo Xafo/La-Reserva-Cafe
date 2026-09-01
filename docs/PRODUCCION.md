@@ -6,11 +6,12 @@ estar aprobadas antes de exponer el portal públicamente.
 
 ## Estado de preparación
 
-El archivo `docker-compose.yml` está configurado para que PostgreSQL no sea
-accesible desde Internet y para que API y frontend queden publicados solo en
-loopback. Para producción, un proxy TLS del servidor debe recibir el tráfico
-de Internet y reenviarlo al frontend en `127.0.0.1:5173`. El frontend ya
-reenvía `/api` y `/uploads` a la API por la red interna de Docker.
+El archivo `docker-compose.yml` es para ejecución local: PostgreSQL no es
+accesible desde Internet y API y frontend se publican solo en loopback. Para
+producción se usa `docker-compose.production.yml`, que añade Caddy con TLS
+automático y solo expone los puertos 80/443. API, frontend y PostgreSQL quedan
+en redes internas. El frontend reenvía `/api` y `/uploads` a la API por la red
+interna de Docker.
 
 No publicar directamente el puerto `5120` de la API ni el de PostgreSQL.
 
@@ -31,16 +32,24 @@ entorno del servidor, con permisos restringidos. No se suben al repositorio.
 
 ## Despliegue inicial
 
-1. Clonar el repositorio privado en el servidor y crear `.env` desde
-   `.env.example` con valores aleatorios y contraseñas de al menos 12
-   caracteres.
-2. Construir e iniciar el stack con `docker compose up --build -d`.
-3. Esperar el estado saludable de `db` y `api` usando `docker compose ps`.
-4. Configurar el proxy TLS para el dominio para que reenvíe al puerto local
-   `5173`. Restringir el firewall a SSH, HTTP y HTTPS.
-5. Comprobar `https://<dominio>/`, `https://<dominio>/api/health`, inicio de
+1. Apuntar los registros DNS `A` y, si corresponde, `AAAA` del dominio al
+   servidor antes de iniciar Caddy.
+2. Clonar el repositorio privado en el servidor y crear `.env.production`
+   desde `.env.production.example`. Usar valores aleatorios y contraseñas de
+   al menos 12 caracteres para los secretos.
+3. Construir e iniciar el stack con:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.production.yml up --build -d
+   ```
+
+   Caddy solicita y renueva el certificado TLS automáticamente cuando el DNS
+   ya apunta al servidor y los puertos 80/443 están accesibles.
+4. Esperar el estado saludable de `db` y `api` usando `docker compose ps`.
+5. Restringir el firewall a SSH, HTTP y HTTPS.
+6. Comprobar `https://<dominio>/`, `https://<dominio>/api/health`, inicio de
    sesión, carga de imagen, creación de orden y descarga de PDF/XLSX.
-6. Cambiar las contraseñas de cuentas semilla o desactivarlas si no se usarán.
+7. Cambiar las contraseñas de cuentas semilla o desactivarlas si no se usarán.
 
 Las migraciones y la semilla se ejecutan al iniciar la API. No ejecutar varias
 recreaciones de la API a la vez durante ese primer arranque.
