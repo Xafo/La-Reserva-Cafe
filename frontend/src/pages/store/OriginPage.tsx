@@ -4,72 +4,77 @@ import { StoreFooter } from '../../components/store/StoreFooter'
 import { Reveal } from '../../components/store/Reveal'
 import { IMG } from '../../data/images'
 
-const regions = [
-  { name: 'Campamento', areas: 'Olancho', profile: 'Base de nuestro blend. Lempira, IHCAFE 90 y Obata en lavado: taza citrica, acaramelada y balanceada.' },
-  { name: 'Guaimaca', areas: 'Francisco Morazan', profile: 'Parainema en proceso melado del productor Josue Galo. Notas de lima y panela sobre un cuerpo compacto.' },
-  { name: 'Cantarranas', areas: 'El Zurzular, Francisco Morazan', profile: 'Catuai natural de Nahun Vidal Sanchez, secado al sol. Cacao, pina y miel en una taza jugosa.' },
-  { name: 'Marale', areas: 'Francisco Morazan', profile: 'Lotes de altura para nuestros filtrados de temporada. Perfil floral y afrutado que rota con la cosecha.' },
+const commitments = [
+  { title: 'Frescura como estándar', text: 'La diferencia que nuestros primeros clientes encontraron en La Reserva es la base de lo que queremos llevar a cada taza.' },
+  { title: 'Un origen que podamos respaldar', text: 'Nuestro compromiso es contar de dónde viene cada café, quién lo produce y cómo se procesa. La historia debe sostenerse en el producto.' },
+  { title: 'Calidad que valga lo que pagás', text: 'Queremos que el valor esté en el café que recibís. Acercar al productor y a quien lo disfruta es parte de ese camino.' },
+]
+
+const horizons = [
+  { stage: 'Nuestro comienzo', title: 'La Reserva, Honduras', text: 'Empezamos con los cafés de nuestra tostaduría. Queremos ganar la confianza de nuestros primeros clientes con frescura, origen real y una buena relación calidad-precio.' },
+  { stage: 'El siguiente paso', title: 'Más fincas y tostadurías', text: 'Una vez validado este primer paso, queremos invitar a otros productores y tostadurías de Honduras que compartan nuestro compromiso con la calidad.' },
+  { stage: 'Nuestra visión', title: 'La cultura del café, más lejos', text: 'Con el tiempo, queremos ir más allá del café tostado y de Centroamérica, llevando esa misma confianza a más personas que aman el café.' },
 ]
 
 export function OriginPage() {
   return (
     <main className="w-full max-w-full overflow-x-hidden">
       <StoreNav />
-
       <section className="relative bg-forest-deep text-forest-foreground">
-        <img
-          src={IMG.cataCoE}
-          alt="Catador de La Reserva en mesa de catacion del Cup of Excellence"
-          className="absolute inset-0 h-full w-full object-cover opacity-30"
-        />
-        <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-44 md:px-8">
-          <h1 className="max-w-4xl font-display text-[clamp(2.8rem,6vw,5rem)] font-extrabold leading-[1.04] tracking-tight">
-            Productores con nombre y apellido
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-forest-foreground/85">
-            Compramos directo a productores de Olancho y Francisco Morazan.
-            Catamos sus lotes, los tostamos en casa y ponemos su nombre en la
-            bolsa.
-          </p>
+        <img src={IMG.cuppingMesa} alt="Mesa de catación en La Reserva, donde comienza nuestra historia" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+        <div className="relative mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-36">
+          <h1 className="max-w-4xl font-display text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.08] tracking-tight">De La Reserva a Directo Café</h1>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-forest-foreground/90">Nuestra historia empieza en una tostaduría hondureña, sirviendo una taza de café con cuidado.</p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-36">
-        <div className="grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2">
-          {regions.map((r, i) => (
-            <Reveal key={r.name} delay={i * 70} className="bg-background p-8 md:p-10">
-              <h2 className="font-display text-2xl font-extrabold">{r.name}</h2>
-              <p className="mt-1 text-sm font-medium text-accent-ink">{r.areas}</p>
-              <p className="mt-4 max-w-prose leading-relaxed text-muted-foreground">{r.profile}</p>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal className="mt-24 grid items-center gap-12 md:grid-cols-2">
-          <div className="overflow-hidden rounded-lg">
-            <img
-              src={IMG.cuppingSetup}
-              alt="Mesa de catacion de La Reserva con muestras y tazas"
-              loading="lazy"
-              className="aspect-[3/2] w-full object-cover"
-            />
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 md:grid-cols-2 md:px-8 md:py-32" aria-labelledby="story-heading">
+        <Reveal>
+          <h2 id="story-heading" className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">La frescura nos abrió una pregunta</h2>
+          <div className="mt-6 max-w-prose space-y-5 leading-relaxed text-muted-foreground">
+            <p>Empezamos vendiendo café en La Reserva. Taza tras taza, nuestros clientes notaban una diferencia: la frescura. Eso nos hizo preguntarnos qué pasaría si pudiéramos llevar esa experiencia a más personas.</p>
+            <p>Al mismo tiempo, veíamos un mercado lleno de historias que no siempre se cumplían al probar el café. Directo Café nace de esas dos experiencias: lo que aprendimos tostando y el deseo de que cada producto cumpla lo que promete.</p>
+            <p>La Reserva es nuestra tostaduría y nuestro punto de partida. Directo Café es la plataforma que nace de ella: comenzamos con sus cafés y queremos abrir, más adelante, un espacio para otras fincas y tostadurías.</p>
           </div>
-          <div>
-            <h2 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-              Catamos antes de comprar
-            </h2>
-            <p className="mt-5 max-w-prose leading-relaxed text-muted-foreground">
-              Cada microlote pasa por mesa de catacion antes de entrar a la
-              carta. Probamos, puntuamos y solo tostamos los lotes que nos
-              convencen, pagando al productor un premio por esa calidad.
-            </p>
-            <Link to="/tienda" className="mt-8 inline-block rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground hover:bg-forest">
-              Probar la cosecha
-            </Link>
-          </div>
+        </Reveal>
+        <Reveal delay={100}>
+          <img src={IMG.bolsasEstante} alt="Cafés de La Reserva en el estante de la tostaduría" loading="lazy" className="aspect-[4/5] w-full rounded-lg object-cover" />
         </Reveal>
       </section>
 
+      <section className="bg-forest text-forest-foreground" aria-labelledby="mission-heading">
+        <div className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-32">
+          <Reveal>
+            <h2 id="mission-heading" className="max-w-3xl font-display text-3xl font-extrabold leading-tight tracking-tight md:text-5xl">Que la confianza llegue hasta tu taza</h2>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-forest-foreground/90">Existimos para acercar lo que el café promete a lo que realmente disfrutás. Nuestra misión se sostiene en tres compromisos.</p>
+          </Reveal>
+          <dl className="mt-14 divide-y divide-white/20">
+            {commitments.map((item) => (
+              <div key={item.title} className="grid gap-4 py-7 md:grid-cols-[1fr_1.4fr] md:gap-12">
+                <dt className="font-display text-xl font-bold md:text-2xl">{item.title}</dt>
+                <dd className="max-w-prose leading-relaxed text-forest-foreground/90">{item.text}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-32" aria-labelledby="vision-heading">
+        <Reveal>
+          <h2 id="vision-heading" className="max-w-3xl font-display text-3xl font-extrabold tracking-tight md:text-5xl">Una visión que crece paso a paso</h2>
+          <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">Queremos llevar la confianza que nació en Honduras a cualquier persona que ame el café. Ese camino tiene tres horizontes.</p>
+        </Reveal>
+        <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-12">
+          {horizons.map((item, index) => (
+            <li key={item.title}>
+              <p className="font-semibold text-primary">{index + 1}. {item.stage}</p>
+              <h3 className="mt-3 font-display text-2xl font-bold tracking-tight">{item.title}</h3>
+              <p className="mt-4 max-w-prose leading-relaxed text-muted-foreground">{item.text}</p>
+            </li>
+          ))}
+        </ol>
+        <Link to="/tienda" className="mt-14 inline-block rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground hover:bg-forest">Conocé los cafés de La Reserva</Link>
+      </section>
       <StoreFooter />
     </main>
   )

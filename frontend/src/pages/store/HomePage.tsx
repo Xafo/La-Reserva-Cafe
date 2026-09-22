@@ -13,12 +13,20 @@ const origins = ['Campamento', 'Guaimaca', 'Cantarranas', 'Marale', 'Olancho', '
 
 export function HomePage() {
   const [featured, setFeatured] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [catalogError, setCatalogError] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
-    catalogService.getProducts(true).then((p) => {
-      setFeatured([...p].sort((a, b) => b.quality.cuppingScore - a.quality.cuppingScore).slice(0, 3))
-    })
-  }, [])
+    let cancelled = false
+    catalogService.getProducts(true)
+      .then((p) => {
+        if (!cancelled) setFeatured([...p].sort((a, b) => b.quality.cuppingScore - a.quality.cuppingScore).slice(0, 3))
+      })
+      .catch(() => { if (!cancelled) setCatalogError(true) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [attempt])
 
   return (
     <main className="w-full max-w-full overflow-x-hidden">
@@ -28,31 +36,31 @@ export function HomePage() {
       <section className="relative flex min-h-svh items-center justify-center bg-forest-deep text-forest-foreground">
         <img
           src={IMG.heroFog}
-          alt="Bosque de altura hondureno bajo la niebla del amanecer"
+          alt="Preparación de café en la tostaduría La Reserva"
           className="absolute inset-0 h-full w-full object-cover opacity-55"
           fetchPriority="high"
         />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,oklch(0.21_0.045_135/0.55)_75%,oklch(0.21_0.045_135/0.85)_100%)]" />
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-32 text-center md:px-8">
           <h1 className="hero-rise mx-auto max-w-5xl font-display text-[clamp(2.7rem,7vw,5.5rem)] font-extrabold leading-[1.02] tracking-tight">
-            Del productor a tu taza
+            Buen café. Desde el origen.
           </h1>
           <p className="hero-rise-late mx-auto mt-6 max-w-xl text-balance text-lg text-forest-foreground/85">
-            Microlotes de productores de Olancho y Francisco Morazan, catados,
-            tostados en tandas pequenas y servidos en nuestra tostaduria.
+            Somos Directo Café. Nacimos en La Reserva, una tostaduría hondureña,
+            para acercarte café que cumpla en la taza lo que promete.
           </p>
           <div className="hero-rise-late mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/tienda"
               className="rounded-full bg-accent px-8 py-3.5 font-semibold text-forest-deep transition-transform duration-300 hover:scale-[1.03]"
             >
-              Comprar cafe
+              Explorar los cafés
             </Link>
             <Link
               to="/origen"
               className="rounded-full border border-forest-foreground/40 px-8 py-3.5 font-semibold text-forest-foreground transition-colors hover:bg-white/10"
             >
-              Conocer el origen
+              Conocer nuestra historia
             </Link>
           </div>
         </div>
@@ -74,13 +82,33 @@ export function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-40">
         <Reveal className="flex flex-wrap items-end justify-between gap-6">
           <h2 className="max-w-2xl font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-            La cosecha de esta temporada
+            Empezamos con La Reserva
           </h2>
           <Link to="/tienda" className="group inline-flex items-center gap-2 font-semibold text-primary">
             Ver toda la carta
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </Reveal>
+        <p className="mt-5 max-w-xl text-muted-foreground">
+          Los cafés de nuestra tostaduría son el primer paso de Directo Café.
+          Explorá sus orígenes, procesos y notas de sabor.
+        </p>
+        {loading ? (
+          <p role="status" className="mt-10 text-muted-foreground">Cargando los cafés de La Reserva…</p>
+        ) : catalogError ? (
+          <div className="mt-10 max-w-xl">
+            <p role="status">No pudimos cargar los cafés. Podés volver a intentarlo.</p>
+            <button type="button" onClick={() => {
+              setCatalogError(false)
+              setLoading(true)
+              setAttempt((value) => value + 1)
+            }} className="mt-4 cursor-pointer rounded-full border border-primary px-6 py-2.5 font-semibold text-primary hover:bg-muted">
+              Reintentar
+            </button>
+          </div>
+        ) : featured.length === 0 ? (
+          <p role="status" className="mt-10 text-muted-foreground">No hay cafés disponibles en este momento. Volvé a consultar más adelante.</p>
+        ) : (
         <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((p, i) => (
             <Reveal key={p.id} delay={i * 90}>
@@ -88,6 +116,7 @@ export function HomePage() {
             </Reveal>
           ))}
         </div>
+        )}
       </section>
 
       {/* Deseo: historia de origen, split editorial */}
@@ -97,7 +126,7 @@ export function HomePage() {
             <div className="overflow-hidden rounded-lg">
               <img
                 src={IMG.beansSack}
-                alt="Granos de cafe recien tostados en saco de yute"
+                alt="Granos de café tostado de La Reserva"
                 loading="lazy"
                 className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
               />
@@ -105,24 +134,25 @@ export function HomePage() {
           </Reveal>
           <Reveal delay={120}>
             <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
-              Sabemos el nombre de quien lo cultivo
+              Todo empezó con una taza en La Reserva
             </h2>
             <div className="mt-7 max-w-prose space-y-5 leading-relaxed text-forest-foreground/85">
               <p>
-                Cada bolsa lleva el nombre de quien lo cultivo: Josue Galo en
-                Guaimaca, Nahun Vidal Sanchez en Cantarranas. Compramos directo
-                al productor en Olancho y Francisco Morazan.
+                Sirviendo café en nuestra tostaduría descubrimos algo sencillo:
+                la frescura hacía la diferencia. Quisimos llevar esa confianza
+                a más personas, empezando por lo que conocemos.
               </p>
               <p>
-                Catamos cada microlote antes de tostarlo. Si esta en nuestra
-                carta, lo probamos en mesa de catacion y lo aprobamos.
+                Así nace Directo Café: con los cafés de La Reserva y el compromiso
+                de acercar el origen a quien lo disfruta. Nuestra misión es que
+                cada compra se sienta confiable, desde la descripción hasta el primer sorbo.
               </p>
             </div>
             <Link
               to="/origen"
               className="mt-9 inline-flex items-center gap-2 rounded-full border border-forest-foreground/40 px-7 py-3 font-semibold transition-colors hover:bg-white/10"
             >
-              Nuestra trazabilidad
+              De La Reserva a Directo Café
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Reveal>
@@ -133,7 +163,7 @@ export function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-40">
         <Reveal>
           <h2 className="max-w-3xl font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-            Elegi segun como lo tomas
+            Elegí según cómo lo tomás
           </h2>
           <p className="mt-4 max-w-xl text-muted-foreground">
             Filtramos la carta por proceso y tueste para que encuentres tu taza,
@@ -143,11 +173,11 @@ export function HomePage() {
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {[
             {
-              img: IMG.capuccinos,
-              alt: 'Dos capuccinos con arte latte de La Reserva',
-              title: 'Filtrados y metodos',
-              text: 'Tuestes claros, acidez brillante. Los honey y naturales de Josue Galo y Nahun Vidal Sanchez.',
-              to: '/tienda?proceso=Honey',
+              img: IMG.mug,
+              alt: 'Taza de café de La Reserva junto a granos tostados',
+              title: 'Filtrados y métodos',
+              text: 'Explorá los cafés de tueste claro y compará sus notas de sabor.',
+              to: '/tienda?tueste=Claro',
             },
             {
               img: IMG.espresso,
@@ -159,8 +189,8 @@ export function HomePage() {
             {
               img: IMG.bolsasEstante,
               alt: 'Bolsas de microlote en el estante de la tostaduria',
-              title: 'Cosechas limitadas',
-              text: 'Microlotes de un solo productor. Pocas bolsas por temporada.',
+              title: 'Conocé los orígenes',
+              text: 'Conocé los productores, procesos y notas de los cafés de La Reserva.',
               to: '/tienda',
             },
           ].map((c, i) => (
@@ -186,11 +216,11 @@ export function HomePage() {
       <section className="bg-forest-deep text-forest-foreground">
         <Reveal className="mx-auto max-w-5xl px-5 py-28 text-center md:px-8 md:py-36">
           <h2 className="font-display text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-tight tracking-tight">
-            Pedi hoy. Tostamos manana.
+            Encontrá tu próxima taza
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-forest-foreground/80">
-            Tostamos cada pedido despues de confirmarlo y lo despachamos en 48 horas
-            a todo Honduras.
+            Empezá por un café de La Reserva. Compará sus notas, su origen y
+            su tueste, y elegí el que más te guste.
           </p>
           <Link
             to="/tienda"

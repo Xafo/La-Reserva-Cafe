@@ -1,6 +1,6 @@
-# LA RESERVA — Café y Tostadería
+# Directo Café — Nacido en La Reserva
 
-Portal público y administrativo para la gestión y comercialización de café de LA RESERVA, Honduras.
+Plataforma de café nacida en La Reserva, Honduras. La primera fase ofrece los cafés de la tostaduría; la incorporación de otros vendedores corresponde a un horizonte posterior.
 
 ## Estado
 
@@ -10,7 +10,9 @@ Portal público y administrativo para la gestión y comercialización de café d
 - Seguridad: contraseñas hasheadas, JWT de corta duración, refresh tokens rotativos en cookies HttpOnly y autorización por roles.
 - Ejecución local: frontend, API y PostgreSQL en Docker Compose.
 
-El alcance completo está en [docs/PLAN-DESARROLLO.md](docs/PLAN-DESARROLLO.md).
+La evolución a Directo Café se organiza en [diagnóstico y plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md), con cobertura contrastada contra el código y los dos documentos de negocio (21 de septiembre de 2026).
+
+El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes de La Reserva; sus checklists no sustituyen la validación del diagnóstico actual.
 
 ## Ejecutar con Docker
 
@@ -50,6 +52,8 @@ Cambiar estas credenciales antes de cualquier despliegue compartido o de producc
 
 ## Desarrollo y verificación
 
+Requisitos locales: **SDK .NET 10** y **Node.js 24** (o una versión compatible con los requisitos de Vite y ESLint del lockfile). Node 18 y SDK .NET 8 no permiten verificar este proyecto. La verificación del frontend no requiere levantar la API; las pruebas de negocio completas sí requieren API y PostgreSQL.
+
 ```bash
 dotnet tool restore
 dotnet restore backend/LaReserva.slnx
@@ -58,10 +62,17 @@ dotnet test backend/LaReserva.slnx --no-build
 
 cd frontend
 npm ci
+npm test
+npm run lint
 npm run build
 ```
 
 Las migraciones se aplican al iniciar la API y los CSV se importan solamente cuando la base está vacía.
+
+Para probar el quiz sin API: ejecutar `npm run dev` en `frontend` y abrir
+`/demo/quiz`. Usa siete cafés de escenario y guarda las respuestas únicamente
+en el navegador. Esa ruta y sus datos están excluidos de la compilación de producción.
+Contrato, reglas y límites: [entrega 1B](docs/DIRECTO-CAFE-ONBOARDING.md).
 
 ## Sesiones y autorización
 

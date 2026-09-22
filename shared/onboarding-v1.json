@@ -1,0 +1,569 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "value": "new",
+      "label": "Nuevo consumidor",
+      "hint": "Quiero descubrir qué café me gusta",
+      "enabled": true
+    },
+    {
+      "value": "enthusiast",
+      "label": "Apasionado / Entendido",
+      "hint": "Conozco mis gustos y métodos",
+      "enabled": true
+    },
+    {
+      "value": "business",
+      "label": "Empresa",
+      "hint": "Abastecimiento para mi equipo",
+      "enabled": true
+    },
+    {
+      "value": "cafe",
+      "label": "Cafetería",
+      "hint": "Una propuesta para mi cafetería",
+      "enabled": true
+    },
+    {
+      "value": "producer",
+      "label": "Productor / Tostador",
+      "hint": "Me interesa la futura apertura",
+      "enabled": true
+    }
+  ],
+  "questions": {
+    "new": [
+      {
+        "key": "n1",
+        "question": "¿Cómo tomas tu café hoy?",
+        "options": [
+          {
+            "value": "Solo negro",
+            "label": "Solo negro",
+            "hint": "Sin leche ni azúcar"
+          },
+          {
+            "value": "Con leche o crema",
+            "label": "Con leche o crema",
+            "hint": "Me gusta suavizado"
+          },
+          {
+            "value": "Dulce, con azúcar",
+            "label": "Dulce, con azúcar",
+            "hint": "Lo prefiero endulzado"
+          },
+          {
+            "value": "Varía según el día",
+            "label": "Varía según el día",
+            "hint": "Sin costumbre fija"
+          }
+        ]
+      },
+      {
+        "key": "n2",
+        "question": "¿Qué sabores disfrutas más?",
+        "options": [
+          {
+            "value": "Dulces y suaves",
+            "label": "Dulces y suaves",
+            "hint": "Chocolate, caramelo, vainilla"
+          },
+          {
+            "value": "Frescos y frutales",
+            "label": "Frescos y frutales",
+            "hint": "Naranja, durazno, mango"
+          },
+          {
+            "value": "Intensos y profundos",
+            "label": "Intensos y profundos",
+            "hint": "Cacao, nuez, tierra"
+          },
+          {
+            "value": "Florales y delicados",
+            "label": "Florales y delicados",
+            "hint": "Jazmín, lavanda, té"
+          }
+        ]
+      },
+      {
+        "key": "n3",
+        "question": "¿Qué tan intenso te gusta?",
+        "options": [
+          {
+            "value": "Suave y ligero",
+            "label": "Suave y ligero",
+            "hint": "Delicado, fácil de tomar"
+          },
+          {
+            "value": "Equilibrado",
+            "label": "Equilibrado",
+            "hint": "Ni muy fuerte ni muy suave"
+          },
+          {
+            "value": "Fuerte e intenso",
+            "label": "Fuerte e intenso",
+            "hint": "Con carácter y cuerpo"
+          },
+          {
+            "value": "Complejo y memorable",
+            "label": "Complejo y memorable",
+            "hint": "Que deje posgusto largo"
+          }
+        ]
+      },
+      {
+        "key": "n4",
+        "question": "¿Cómo preparas tu café?",
+        "options": [
+          {
+            "value": "Cafetera eléctrica",
+            "label": "Cafetera eléctrica",
+            "hint": "La clásica de goteo"
+          },
+          {
+            "value": "Espresso o moka",
+            "label": "Espresso o moka",
+            "hint": "Concentrado e intenso"
+          },
+          {
+            "value": "Método manual",
+            "label": "Método manual",
+            "hint": "V60, prensa, chemex"
+          },
+          {
+            "value": "Quiero aprender",
+            "label": "Quiero aprender",
+            "hint": "Soy nuevo en esto"
+          }
+        ]
+      },
+      {
+        "key": "n5",
+        "question": "¿Qué buscas en Directo Café?",
+        "options": [
+          {
+            "value": "Descubrir algo nuevo",
+            "label": "Descubrir algo nuevo",
+            "hint": "Explorar y sorprenderme"
+          },
+          {
+            "value": "Mejor café en casa",
+            "label": "Mejor café en casa",
+            "hint": "Elevar mi rutina diaria"
+          },
+          {
+            "value": "Un regalo especial",
+            "label": "Un regalo especial",
+            "hint": "Para alguien que amo"
+          },
+          {
+            "value": "Mi café de siempre",
+            "label": "Mi café de siempre",
+            "hint": "Algo confiable y regular"
+          }
+        ]
+      }
+    ],
+    "enthusiast": [
+      {
+        "key": "a1",
+        "question": "¿Qué tipo de tueste prefieres?",
+        "options": [
+          {
+            "value": "Tueste claro",
+            "label": "Tueste claro",
+            "hint": "Frutal, ácido, complejo"
+          },
+          {
+            "value": "Tueste medio",
+            "label": "Tueste medio",
+            "hint": "Equilibrado, versátil"
+          },
+          {
+            "value": "Tueste oscuro",
+            "label": "Tueste oscuro",
+            "hint": "Intenso, robusto"
+          },
+          {
+            "value": "Depende del origen",
+            "label": "Depende del origen",
+            "hint": "Lo elijo por variedad"
+          }
+        ]
+      },
+      {
+        "key": "a2",
+        "question": "¿Cómo prefieres tu café?",
+        "options": [
+          {
+            "value": "En grano",
+            "label": "En grano",
+            "hint": "Muelo al momento"
+          },
+          {
+            "value": "Molido",
+            "label": "Molido",
+            "hint": "Listo para preparar"
+          },
+          {
+            "value": "Ambos",
+            "label": "Ambos",
+            "hint": "Flexible según ocasión"
+          }
+        ]
+      },
+      {
+        "key": "a3",
+        "question": "¿Qué perfil sensorial te atrae?",
+        "options": [
+          {
+            "value": "Frutal y brillante",
+            "label": "Frutal y brillante",
+            "hint": "Cítrico, baya, trópico"
+          },
+          {
+            "value": "Dulce y achocolatado",
+            "label": "Dulce y achocolatado",
+            "hint": "Cacao, panela, nuez"
+          },
+          {
+            "value": "Floral y delicado",
+            "label": "Floral y delicado",
+            "hint": "Jazmín, lavanda, té blanco"
+          },
+          {
+            "value": "Complejo y fermentado",
+            "label": "Complejo y fermentado",
+            "hint": "Vino, tabaco, especias"
+          }
+        ]
+      },
+      {
+        "key": "a4",
+        "question": "¿Qué tipo de molido usas?",
+        "options": [
+          {
+            "value": "Grueso",
+            "label": "Grueso",
+            "hint": "Prensa francesa, cold brew"
+          },
+          {
+            "value": "Medio",
+            "label": "Medio",
+            "hint": "V60, chemex, goteo"
+          },
+          {
+            "value": "Fino",
+            "label": "Fino",
+            "hint": "Espresso, aeropress"
+          },
+          {
+            "value": "Extra grueso",
+            "label": "Extra grueso",
+            "hint": "Cold brew largo"
+          }
+        ]
+      },
+      {
+        "key": "a5",
+        "question": "¿Cuál es tu método favorito?",
+        "options": [
+          {
+            "value": "V60 / Chemex",
+            "label": "V60 / Chemex",
+            "hint": "Filtrado limpio y brillante"
+          },
+          {
+            "value": "Espresso",
+            "label": "Espresso",
+            "hint": "Concentrado e intenso"
+          },
+          {
+            "value": "Prensa francesa",
+            "label": "Prensa francesa",
+            "hint": "Cuerpo completo"
+          },
+          {
+            "value": "Aeropress / Moka",
+            "label": "Aeropress / Moka",
+            "hint": "Versátil y concentrado"
+          }
+        ]
+      }
+    ],
+    "business": [
+      {
+        "key": "e1",
+        "question": "¿Cuántas personas consumen café?",
+        "options": [
+          {
+            "value": "1 a 10 personas",
+            "label": "1 a 10 personas",
+            "hint": ""
+          },
+          {
+            "value": "11 a 50 personas",
+            "label": "11 a 50 personas",
+            "hint": ""
+          },
+          {
+            "value": "51 a 100 personas",
+            "label": "51 a 100 personas",
+            "hint": ""
+          },
+          {
+            "value": "Más de 100",
+            "label": "Más de 100",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "e2",
+        "question": "¿Con qué frecuencia necesitas abastecerte?",
+        "options": [
+          {
+            "value": "Semanal",
+            "label": "Semanal",
+            "hint": ""
+          },
+          {
+            "value": "Quincenal",
+            "label": "Quincenal",
+            "hint": ""
+          },
+          {
+            "value": "Mensual",
+            "label": "Mensual",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "e3",
+        "question": "¿Qué presupuesto mensual manejas?",
+        "options": [
+          {
+            "value": "Menos de $50",
+            "label": "Menos de $50",
+            "hint": ""
+          },
+          {
+            "value": "$50 – $150",
+            "label": "$50 – $150",
+            "hint": ""
+          },
+          {
+            "value": "$150 – $300",
+            "label": "$150 – $300",
+            "hint": ""
+          },
+          {
+            "value": "Más de $300",
+            "label": "Más de $300",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "e4",
+        "question": "¿Qué presentación necesitas?",
+        "options": [
+          {
+            "value": "Molido",
+            "label": "Molido",
+            "hint": ""
+          },
+          {
+            "value": "En grano",
+            "label": "En grano",
+            "hint": ""
+          },
+          {
+            "value": "No importa",
+            "label": "No importa",
+            "hint": ""
+          }
+        ]
+      }
+    ],
+    "cafe": [
+      {
+        "key": "c1",
+        "question": "¿Cuántos kilos de café usas al mes?",
+        "options": [
+          {
+            "value": "Menos de 5 kg",
+            "label": "Menos de 5 kg",
+            "hint": ""
+          },
+          {
+            "value": "5 a 15 kg",
+            "label": "5 a 15 kg",
+            "hint": ""
+          },
+          {
+            "value": "15 a 30 kg",
+            "label": "15 a 30 kg",
+            "hint": ""
+          },
+          {
+            "value": "Más de 30 kg",
+            "label": "Más de 30 kg",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "c2",
+        "question": "¿Qué métodos de preparación manejas?",
+        "options": [
+          {
+            "value": "Espresso",
+            "label": "Espresso",
+            "hint": ""
+          },
+          {
+            "value": "Métodos filtrados",
+            "label": "Métodos filtrados",
+            "hint": ""
+          },
+          {
+            "value": "Ambos",
+            "label": "Ambos",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "c3",
+        "question": "¿Buscas exclusividad en alguna variedad?",
+        "options": [
+          {
+            "value": "Sí, quiero exclusividad",
+            "label": "Sí, quiero exclusividad",
+            "hint": ""
+          },
+          {
+            "value": "No, prefiero flexibilidad",
+            "label": "No, prefiero flexibilidad",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "c4",
+        "question": "¿Qué es más importante para ti?",
+        "options": [
+          {
+            "value": "Consistencia",
+            "label": "Consistencia",
+            "hint": ""
+          },
+          {
+            "value": "Variedad",
+            "label": "Variedad",
+            "hint": ""
+          },
+          {
+            "value": "Precio",
+            "label": "Precio",
+            "hint": ""
+          },
+          {
+            "value": "Origen trazable",
+            "label": "Origen trazable",
+            "hint": ""
+          }
+        ]
+      }
+    ],
+    "producer": [
+      {
+        "key": "p1",
+        "question": "¿Cómo describes tu situación?",
+        "options": [
+          {
+            "value": "Soy productor",
+            "label": "Soy productor",
+            "hint": ""
+          },
+          {
+            "value": "Soy tostador",
+            "label": "Soy tostador",
+            "hint": ""
+          },
+          {
+            "value": "Soy ambos",
+            "label": "Soy ambos",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "p2",
+        "question": "¿En qué país produces o tuestas?",
+        "options": [
+          {
+            "value": "Honduras",
+            "label": "Honduras",
+            "hint": ""
+          },
+          {
+            "value": "Guatemala",
+            "label": "Guatemala",
+            "hint": ""
+          },
+          {
+            "value": "Costa Rica",
+            "label": "Costa Rica",
+            "hint": ""
+          },
+          {
+            "value": "Otro país",
+            "label": "Otro país",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "p3",
+        "question": "¿Cuántos kilos puedes ofrecer al mes?",
+        "options": [
+          {
+            "value": "Menos de 50 kg",
+            "label": "Menos de 50 kg",
+            "hint": ""
+          },
+          {
+            "value": "50 a 200 kg",
+            "label": "50 a 200 kg",
+            "hint": ""
+          },
+          {
+            "value": "Más de 200 kg",
+            "label": "Más de 200 kg",
+            "hint": ""
+          }
+        ]
+      },
+      {
+        "key": "p4",
+        "question": "¿Ya tienes marca propia?",
+        "options": [
+          {
+            "value": "Sí, tengo marca",
+            "label": "Sí, tengo marca",
+            "hint": ""
+          },
+          {
+            "value": "No todavía",
+            "label": "No todavía",
+            "hint": ""
+          }
+        ]
+      }
+    ]
+  }
+}

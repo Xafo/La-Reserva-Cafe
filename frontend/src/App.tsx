@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext'
 import { CartProvider } from './context/CartContext'
@@ -21,10 +21,15 @@ import { QualityPage } from './pages/admin/QualityPage'
 import { CustomersPage } from './pages/admin/CustomersPage'
 import { ReportsPage } from './pages/admin/ReportsPage'
 import { UsersPage } from './pages/admin/UsersPage'
+import { CommercialRequestsPage } from './pages/admin/CommercialRequestsPage'
+
+const OnboardingDemoPage = import.meta.env.DEV ? lazy(() => import('./pages/store/OnboardingDemoPage')) : null
 
 function ScrollToTop() {
   const { pathname } = useLocation()
-  useEffect(() => window.scrollTo(0, 0), [pathname])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
   return null
 }
 
@@ -50,6 +55,7 @@ function App() {
               <ScrollToTop />
               <CartDrawer />
               <Routes>
+                {OnboardingDemoPage && <Route path="/demo/quiz" element={<Suspense fallback={<p role="status">Cargando demostración…</p>}><OnboardingDemoPage /></Suspense>} />}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/tienda" element={<ShopPage />} />
                 <Route path="/tienda/:id" element={<ProductDetailPage />} />
@@ -64,6 +70,7 @@ function App() {
                 <Route path="/admin/ordenes" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
                 <Route path="/admin/calidad" element={<ProtectedRoute><QualityPage /></ProtectedRoute>} />
                 <Route path="/admin/clientes" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+                <Route path="/admin/solicitudes" element={<ProtectedRoute><CommercialRequestsPage /></ProtectedRoute>} />
                 <Route path="/admin/reportes" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
                 <Route path="/admin/usuarios" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />

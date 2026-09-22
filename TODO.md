@@ -1,5 +1,14 @@
 # TODO — CafeStore
 
+## Seguimiento vigente — 21 de septiembre de 2026
+
+El backlog actual está en [Directo Café: plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md).
+La entrega 1A adapta identidad y contenido. Catálogo oficial, contactos y condiciones
+siguen en [conciliación](docs/DIRECTO-CAFE-CATALOGO-Y-CONDICIONES.md).
+El backend y la integración API ya existen; no rehacerlos siguiendo las casillas antiguas.
+
+## Registro histórico (no usar como estado actual)
+
 Estado al 2026-06-10. Frontend completo; backend pendiente.
 
 ---

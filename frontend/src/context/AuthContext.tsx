@@ -3,8 +3,8 @@ import type { User } from '../types'
 import { authService } from '../services'
 import { revokeSession } from '../config/api'
 
-// TODO(backend .NET 10): al conectar /api/auth este contexto vuelve al patron
-// DotForge original (accessToken + refresh en localStorage via config/api.ts).
+// Sesión del equipo mediante API; access token en sessionStorage y refresh
+// en cookie HttpOnly, gestionados por config/api.ts.
 
 interface AuthContextType {
   user: User | null

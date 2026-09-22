@@ -8,6 +8,8 @@ import type {
   CartItem,
   CustomerAccount,
   PreferenceProfile,
+  OnboardingProfile,
+  CommercialRequest,
 } from '../types'
 import { api, saveSession } from '../config/api'
 
@@ -147,6 +149,11 @@ export const accountService = {
   async getAccounts(): Promise<CustomerAccount[]> {
     return api<CustomerAccount[]>('/accounts', undefined, 'team')
   },
+  async updateOnboarding(accountId: string, onboarding: OnboardingProfile, recommendedProductId: string | null): Promise<CustomerAccount> {
+    return api<CustomerAccount>(`/accounts/${encodeURIComponent(accountId)}/onboarding`, {
+      method: 'PUT', body: JSON.stringify({ onboarding, recommendedProductId }),
+    }, 'customer')
+  },
 }
 
 export const reportService = {
@@ -175,4 +182,19 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
 
 export function hasPermission(role: Role, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role].includes(permission)
+}
+
+export const commercialService = {
+  async assignees(): Promise<{ id: string; name: string; role: string }[]> {
+    return api('/commercial-requests/assignees', undefined, 'team')
+  },
+  async updateWorkflow(id: string, update: { status: string; assignedUserId: string | null; version: string; note: string }): Promise<CommercialRequest> {
+    return api(`/commercial-requests/${encodeURIComponent(id)}/workflow`, { method: 'PATCH', body: JSON.stringify(update) }, 'team')
+  },
+  async submit(accountId: string, profile: string): Promise<Pick<CommercialRequest, 'id' | 'profile' | 'status' | 'createdAt' | 'updatedAt' | 'externalMessageSent'>> {
+    return api(`/accounts/${encodeURIComponent(accountId)}/commercial-requests/${encodeURIComponent(profile)}`, { method: 'PUT' }, 'customer')
+  },
+  async list(page = 1): Promise<{ items: CommercialRequest[]; hasMore: boolean }> {
+    return api(`/commercial-requests?page=${page}`, undefined, 'team')
+  },
 }

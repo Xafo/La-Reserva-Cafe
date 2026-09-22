@@ -1,5 +1,12 @@
 # Backend .NET Core 10 — Pendientes
 
+> Estado vigente (21 de septiembre de 2026): la API .NET 10 y la conexión del
+> frontend ya existen. Este inventario es histórico. Seguir el
+> [diagnóstico por fases](DIRECTO-CAFE-PLAN-POR-FASES.md): faltan onboarding por
+> perfil, solicitudes comerciales, datos completos de entrega, reglas de stock,
+> correcciones de reportes, recuperación de acceso y auditoría. La pasarela sigue
+> fuera del alcance inicial; no añadirla por la fila histórica de esta tabla.
+
 El frontend ya define el contrato completo en `frontend/src/services/index.ts`
 (buscar `TODO(backend)`) y los DTOs en `frontend/src/types/index.ts`.
 La base sera el backbone DotForge (Clean Architecture: Domain / Application /

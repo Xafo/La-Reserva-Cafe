@@ -1,4 +1,18 @@
-# Contexto del proyecto — CafeStore
+# Contexto del proyecto — Directo Café
+
+## Contexto vigente — 21 de septiembre de 2026
+
+Leer primero [PRODUCT.md](../PRODUCT.md) y el [plan por fases](DIRECTO-CAFE-PLAN-POR-FASES.md).
+Hay frontend React integrado con API .NET 10 y PostgreSQL. La identidad pública
+se adapta a Directo Café; La Reserva sigue siendo la tostaduría inicial.
+Los nombres de solución, esquemas y claves de sesión se conservan para evitar
+rupturas de datos. El siguiente alcance es onboarding; aún no existe marketplace.
+
+Para retomar: consultar el estado de entregas al final del plan, ejecutar desde
+la raíz real de esta carpeta y usar Node 24 / SDK .NET 10. No usar las credenciales,
+rutas o afirmaciones de autenticación mock del snapshot histórico siguiente.
+
+## Snapshot histórico — únicamente como antecedente
 
 Snapshot generado: 2026-06-10
 Estado: **frontend completo con mocks, backend pendiente**

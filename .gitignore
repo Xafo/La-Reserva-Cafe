@@ -9,4 +9,8 @@ dist/
 Thumbs.db
 appsettings.Local.json
 .env
+.env.*
+!.env.example
 *.log
+.tools/
+tmp/

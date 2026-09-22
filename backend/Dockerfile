@@ -7,6 +7,7 @@ COPY backend/src/LaReserva.Infrastructure/LaReserva.Infrastructure.csproj backen
 COPY backend/src/LaReserva.Api/LaReserva.Api.csproj backend/src/LaReserva.Api/
 RUN dotnet restore backend/src/LaReserva.Api/LaReserva.Api.csproj
 COPY backend/src backend/src
+COPY shared shared
 RUN dotnet publish backend/src/LaReserva.Api/LaReserva.Api.csproj --no-restore -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

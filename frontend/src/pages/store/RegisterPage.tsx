@@ -1,11 +1,14 @@
+import { CommercialResult } from '../../components/store/CommercialResult'
+import { commercialService } from '../../services'
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import type { PreferenceProfile, Recommendation } from '../../types'
+import type { OnboardingProfile, Recommendation } from '../../types'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
-import { catalogService, recommendationService } from '../../services'
+import { catalogService } from '../../services'
+import { isConsumer, recommendOnboarding } from '../../services/onboarding'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
-import { PreferenceQuiz } from '../../components/store/PreferenceQuiz'
+import { OnboardingQuiz } from '../../components/store/OnboardingQuiz'
 import { RecommendationResult } from '../../components/store/RecommendationResult'
 
 // Registro publico: crear cuenta -> quiz de preferencias -> cafe recomendado.
@@ -21,14 +24,15 @@ const FIELDS = [
 ]
 
 export function RegisterPage() {
-  const { account, register, savePreferences } = useCustomerAuth()
+  const { account, register, saveOnboarding } = useCustomerAuth()
   const [phase, setPhase] = useState<Phase>(account ? 'quiz' : 'cuenta')
+  const [alreadyComplete] = useState(!!account?.onboarding)
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   // Cuenta existente con preferencias completas: su lugar es /cuenta.
-  if (account?.preferences && phase !== 'resultado') return <Navigate to="/cuenta" replace />
+  if (alreadyComplete) return <Navigate to="/cuenta" replace />
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -51,15 +55,18 @@ export function RegisterPage() {
     }
   }
 
-  const handleQuizComplete = async (profile: PreferenceProfile) => {
+  const handleQuizComplete = async (profile: OnboardingProfile) => {
     setSubmitting(true)
+    setError(null)
     try {
-      const products = await catalogService.getProducts(true)
-      const recs = recommendationService.recommend(profile, products)
-      await savePreferences(profile, recs[0]?.product.id ?? null)
+      const products = isConsumer(profile.profile) ? await catalogService.getProducts(true) : []
+      const recs = isConsumer(profile.profile) ? recommendOnboarding(profile, products) : []
+      await saveOnboarding(profile, recs[0]?.product.id ?? null)
       setRecommendations(recs)
       setPhase('resultado')
       window.scrollTo(0, 0)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No pudimos guardar tu perfil. Tus respuestas siguen aquí para reintentar.')
     } finally {
       setSubmitting(false)
     }
@@ -73,7 +80,7 @@ export function RegisterPage() {
           <>
             <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Crear cuenta</h1>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              Contanos que buscas y te decimos exactamente que cafe es para vos. Toma menos de un minuto.
+              Creá tu cuenta y contanos qué disfrutás. Tus respuestas nos ayudan a sugerirte un café.
             </p>
             <form onSubmit={handleRegister} className="mt-10 max-w-md space-y-5">
               {FIELDS.map((f) => (
@@ -114,10 +121,11 @@ export function RegisterPage() {
           <>
             <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Tu perfil de cafe</h1>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              Seis preguntas rapidas para encontrar la opcion mas exacta de nuestra carta.
+              Elegí tu perfil y respondé las preguntas de tu recorrido para encontrar cafés afines a tus gustos.
             </p>
             <div className="mt-10">
-              <PreferenceQuiz submitting={submitting} onComplete={handleQuizComplete} />
+              <OnboardingQuiz submitting={submitting} onComplete={handleQuizComplete} />
+              {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
             </div>
           </>
         )}
@@ -128,10 +136,10 @@ export function RegisterPage() {
               Listo, {account?.name.split(' ')[0]}
             </h1>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              Cruzamos tus respuestas con los perfiles de taza de nuestra carta. Este es tu match.
+              Guardamos tus respuestas. Este es el siguiente paso para tu perfil.
             </p>
             <div className="mt-10">
-              <RecommendationResult recommendations={recommendations} />
+              {account?.onboarding && !isConsumer(account.onboarding.profile) ? <CommercialResult key={account.onboarding.updatedAt} profile={account.onboarding} onSubmit={async () => (await commercialService.submit(account.id, account.onboarding!.profile)).id} /> : <RecommendationResult recommendations={recommendations} />}
             </div>
           </>
         )}

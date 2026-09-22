@@ -106,6 +106,33 @@ export interface CustomerAccount {
   createdAt: string
   preferences: PreferenceProfile | null
   recommendedProductId: string | null
+  onboarding?: OnboardingProfile | null
+}
+
+export type ConsumerProfile = 'new' | 'enthusiast'
+export interface CommercialRequest {
+  assignedUserId: string | null
+  version: string
+  history: { at: string; actorId: string; actorType: string; previousStatus: string; status: string; previousAssignee: string | null; assignee: string | null; note: string; previousOnboarding: OnboardingProfile | null }[]
+  id: string
+  accountId: string
+  profile: 'business' | 'cafe' | 'producer'
+  onboarding: OnboardingProfile
+  name: string
+  email: string
+  phone: string
+  city: string
+  status: string
+  createdAt: string
+  updatedAt: string
+  externalMessageSent: boolean
+}
+export type OnboardingProfileId = ConsumerProfile | 'business' | 'cafe' | 'producer'
+export interface OnboardingProfile {
+  version: 1
+  profile: OnboardingProfileId
+  answers: Record<string, string>
+  updatedAt: string
 }
 
 export interface Recommendation {

@@ -42,17 +42,21 @@ function FilterGroup<T extends string>({ label, options, value, onChange }: {
 export function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [attempt, setAttempt] = useState(0)
   const [params, setParams] = useSearchParams()
 
   const process = (params.get('proceso') as CoffeeProcess) || null
   const roast = (params.get('tueste') as RoastLevel) || null
 
   useEffect(() => {
-    catalogService.getProducts(true).then((p) => {
-      setProducts(p)
-      setLoading(false)
-    })
-  }, [])
+    let cancelled = false
+    catalogService.getProducts(true)
+      .then((p) => { if (!cancelled) setProducts(p) })
+      .catch(() => { if (!cancelled) setError(true) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [attempt])
 
   const setFilter = (key: string, value: string | null) => {
     const next = new URLSearchParams(params)
@@ -71,11 +75,11 @@ export function ShopPage() {
       <StoreNav />
       <section className="mx-auto max-w-7xl px-5 pb-28 pt-28 md:px-8 md:pt-36">
         <h1 className="max-w-4xl font-display text-[clamp(2.6rem,5vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight">
-          La carta de temporada
+          Los cafés de La Reserva
         </h1>
         <p className="mt-4 max-w-xl text-muted-foreground">
-          Microlotes de Olancho y Francisco Morazan, con blends de casa para tu
-          espresso de cada dia. Cada lote catado antes de entrar a la carta.
+          Nuestra primera selección en Directo Café. Compará notas de sabor,
+          procesos y tuestes para elegir tu próxima taza.
         </p>
 
         <div className="mt-10 flex flex-col gap-4 border-y border-border py-5 md:flex-row md:items-center md:gap-10">
@@ -93,12 +97,23 @@ export function ShopPage() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <div className="mt-14 max-w-md">
+            <p role="alert">No pudimos cargar el catálogo. Volvé a intentarlo.</p>
+            <button type="button" onClick={() => {
+              setError(false)
+              setLoading(true)
+              setAttempt((value) => value + 1)
+            }} className="mt-5 cursor-pointer rounded-full bg-primary px-6 py-2.5 font-semibold text-primary-foreground hover:bg-forest">
+              Reintentar
+            </button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="mt-20 max-w-md">
             <h2 className="font-display text-2xl font-bold">Sin resultados con esos filtros</h2>
             <p className="mt-2 text-muted-foreground">
-              Esa combinacion no esta en la cosecha actual. Quita un filtro o
-              escribinos y te avisamos cuando entre.
+              No hay cafés disponibles con esa combinación. Quitá un filtro
+              para explorar otras opciones.
             </p>
             <button
               onClick={() => setParams({}, { replace: true })}

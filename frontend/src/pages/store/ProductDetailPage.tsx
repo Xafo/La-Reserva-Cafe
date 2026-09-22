@@ -67,7 +67,7 @@ export function ProductDetailPage() {
           </div>
 
           <div className="flex flex-col">
-            <p className="text-sm font-medium text-muted-foreground">{product.origin} · Cordillera {product.region}</p>
+            <p className="text-sm font-medium text-muted-foreground">{product.origin} · {product.region}</p>
             <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight md:text-5xl">{product.name}</h1>
             <p className="mt-3 flex flex-wrap gap-2">
               {q.notes.map((n) => (
@@ -118,7 +118,7 @@ export function ProductDetailPage() {
             <p className="mt-3 text-xs text-muted-foreground">
               {product.stock < 15
                 ? `Quedan ${product.stock} unidades de esta cosecha.`
-                : 'Tostado despues de tu pedido. Despacho en 48 horas.'}
+                : 'Café de La Reserva. Consultá su origen, proceso y presentación en esta ficha.'}
             </p>
           </div>
         </div>

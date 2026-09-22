@@ -14,10 +14,24 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
     public DbSet<CustomerAccount> CustomerAccounts => Set<CustomerAccount>();
     public DbSet<CustomerPreference> CustomerPreferences => Set<CustomerPreference>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<CommercialRequest> CommercialRequests => Set<CommercialRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("la_reserva");
+
+        modelBuilder.Entity<CommercialRequest>(entity =>
+        {
+            entity.ToTable("commercial_requests");
+            entity.HasKey(value => value.Id);
+            entity.HasIndex(value => new { value.AccountId, value.Profile }).IsUnique();
+            entity.Property(value => value.OnboardingJson).HasColumnType("jsonb");
+            entity.Property(value => value.HistoryJson).HasColumnType("jsonb").HasDefaultValue("[]");
+            entity.Property(value => value.Status).HasDefaultValue("Nueva");
+            entity.Property(value => value.Version).IsConcurrencyToken();
+            entity.HasOne<User>().WithMany().HasForeignKey(value => value.AssignedUserId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<CustomerAccount>().WithMany().HasForeignKey(value => value.AccountId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<Product>(entity =>
         {
@@ -70,6 +84,7 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
 
         modelBuilder.Entity<CustomerAccount>(entity =>
         {
+            entity.Property(value => value.OnboardingJson).HasColumnType("jsonb");
             entity.ToTable("customer_accounts");
             entity.HasKey(value => value.Id);
             entity.HasIndex(value => value.Email).IsUnique();
