@@ -83,6 +83,7 @@ public sealed class CustomerAccount
     public DateTimeOffset CreatedAt { get; set; }
     public string? RecommendedProductId { get; set; }
     public CustomerPreference? Preferences { get; set; }
+    public string? OnboardingJson { get; set; }
 }
 
 public sealed class CustomerPreference

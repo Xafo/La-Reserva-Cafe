@@ -33,11 +33,11 @@ export function StoreNav({ overHero = false }: { overHero?: boolean }) {
         !overHero && 'sticky'
       )}
     >
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
-        <Link to="/" aria-label="Inicio">
+      <nav aria-label="Navegación principal" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 md:px-8">
+        <Link to="/" aria-label="Directo Café, inicio">
           <BrandMark dark={onDark} />
         </Link>
-        <div className="flex items-center gap-1 md:gap-6">
+        <div className="order-last flex w-full items-center justify-center gap-4 sm:order-none sm:w-auto md:gap-6">
           {links.map((l) => (
             <NavLink
               key={l.to}
@@ -56,6 +56,8 @@ export function StoreNav({ overHero = false }: { overHero?: boolean }) {
               {l.label}
             </NavLink>
           ))}
+        </div>
+        <div className="flex items-center gap-1 md:gap-3">
           {!account && (
             <NavLink
               to="/registro"

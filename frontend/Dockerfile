@@ -1,8 +1,10 @@
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ .
+COPY shared /shared
+COPY scenarios /scenarios
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.29-alpine

@@ -13,7 +13,7 @@ export function RecommendationResult({ recommendations }: { recommendations: Rec
   const { add, open } = useCart()
   const [winner, ...runnerUps] = recommendations
 
-  if (!winner) return null
+  if (!winner) return <div role="status" className="rounded-lg border border-border p-6"><h2 className="font-display text-xl font-bold">No hay cafés disponibles para recomendar</h2><p className="mt-3 text-muted-foreground">Tu perfil queda guardado. Podés volver a consultar cuando haya disponibilidad.</p><Link to="/tienda" className="mt-4 inline-block font-semibold text-primary">Ver catálogo</Link></div>
   const { product, matchPct, reasons } = winner
 
   return (
@@ -24,7 +24,7 @@ export function RecommendationResult({ recommendations }: { recommendations: Rec
           <Link to={`/tienda/${product.id}`} className="relative block aspect-[4/5] overflow-hidden rounded-lg bg-muted">
             <img src={product.imageUrl} alt={product.imageAlt} className="h-full w-full object-cover" />
             <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1.5 text-sm font-bold text-forest-deep">
-              {matchPct}% compatible
+              {matchPct}% de afinidad
             </span>
           </Link>
           <div className="flex flex-col">
@@ -46,6 +46,8 @@ export function RecommendationResult({ recommendations }: { recommendations: Rec
                 </li>
               ))}
             </ul>
+            <p className="mt-4 leading-relaxed text-muted-foreground">{product.description}</p>
+            <p className="mt-3 text-sm text-muted-foreground">Afinidad orientativa calculada con tus respuestas y las características del café; no garantiza que te guste. Presentación y molienda se coordinan al atender el pedido.</p>
             <div className="mt-auto flex flex-wrap items-center gap-4 pt-7">
               <button
                 onClick={() => {

@@ -1,5 +1,10 @@
 # Storage CSV — placeholder de la base de datos
 
+> Nota vigente (21 de septiembre de 2026): esta página describe la antigua demo.
+> `frontend/src/services/index.ts` ahora utiliza la API; los CSV se conservan como
+> semillas importadas por `CsvDataSeeder`. No representan el inventario vivo de
+> producción. El esquema actual está en entidades, DbContext y migraciones.
+
 Sin backend todavia, los datos del demo viven en una capa de repositorios
 (`frontend/src/storage/`) que simula una base de datos:
 

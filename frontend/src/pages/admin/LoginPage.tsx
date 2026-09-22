@@ -31,7 +31,7 @@ export function LoginPage() {
         <Link to="/" className="mb-12 w-fit"><BrandMark /></Link>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">Portal interno</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Acceso seguro para el equipo autorizado de LA RESERVA.
+          Acceso para el equipo de Directo Café y La Reserva.
         </p>
         <form onSubmit={handleSubmit} className="mt-9 max-w-sm space-y-4">
           <div>

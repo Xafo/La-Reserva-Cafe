@@ -44,8 +44,8 @@ export function CheckoutPage() {
           </span>
           <h1 className="mt-7 font-display text-4xl font-extrabold tracking-tight">Pedido recibido</h1>
           <p className="mt-4 text-muted-foreground">
-            Tu pedido <span className="font-semibold text-foreground">{orderId}</span> esta en cola de tueste.
-            Te contactaremos para coordinar la entrega y el pago.
+            Registramos tu pedido <span className="font-semibold text-foreground">{orderId}</span> como pendiente.
+            Esta confirmación no acredita un pago ni confirma una fecha de entrega.
           </p>
           <Link to="/tienda" className="mt-9 inline-block rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground hover:bg-forest">
             Seguir explorando
@@ -121,7 +121,7 @@ export function CheckoutPage() {
               {submitting ? 'Registrando pedido...' : `Confirmar — ${lps(totalLps)}`}
             </button>
             <p className="text-xs text-muted-foreground">
-              Pago contra entrega o transferencia. El pago en linea estara disponible proximamente.
+              El pago se coordina fuera de la plataforma. Este formulario registra tu pedido, no realiza un cobro.
             </p>
           </form>
 

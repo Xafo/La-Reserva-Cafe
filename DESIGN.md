@@ -1,5 +1,13 @@
 # DESIGN.md
 
+## Identidad vigente — entrega 1A
+
+Directo Café identifica la plataforma; La Reserva identifica la tostaduría inicial.
+Se conserva el sistema visual y la fotografía existente. El encabezado utiliza un
+wordmark tipográfico transitorio y el favicon una inicial D; no se reutiliza el
+isotipo de La Reserva como supuesto logo oficial de Directo Café.
+La relación entre las marcas debe quedar visible en navegación, historia y footer.
+
 ## Estrategia de color
 
 **Committed** en storefront (el verde carga hero, footer y superficies de identidad),
@@ -42,6 +50,7 @@ meta-labels ("SECCION 01"), mono como disfraz tecnico, emojis en codigo.
 
 ## Imagenes
 
-Unsplash verificadas con curl antes de usarse (IDs en `src/data/images.ts`).
-Filtros CSS (contrast, saturate, wash verde) para coherencia de marca.
-Alt text con voz: "Cafetal en Marcala bajo niebla matinal", no "cafe".
+Fotografías locales de La Reserva en `frontend/public/marca/`, referenciadas desde
+`frontend/src/data/images.ts`. Conservar su atribución a la tostaduría.
+Los textos alternativos deben describir la imagen real; las claves históricas
+como `heroFog` ya no implican que la foto sea un bosque o una finca.

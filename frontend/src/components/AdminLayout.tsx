@@ -14,6 +14,7 @@ const navItems: { path: string; label: string; icon: typeof Package; permission?
   { path: '/admin/calidad', label: 'Calidad', icon: FlaskConical, permission: 'calidad' },
   { path: '/admin/ordenes', label: 'Ordenes', icon: ClipboardList, permission: 'ordenes' },
   { path: '/admin/clientes', label: 'Clientes y proveedores', icon: Users, permission: 'clientes' },
+  { path: '/admin/solicitudes', label: 'Solicitudes comerciales', icon: ClipboardList, permission: 'clientes' },
   { path: '/admin/reportes', label: 'Reporteria', icon: BarChart3, permission: 'reportes' },
   { path: '/admin/usuarios', label: 'Usuarios y roles', icon: ShieldCheck, permission: 'usuarios' },
 ]

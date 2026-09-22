@@ -22,6 +22,7 @@ public static partial class ApiEndpoints
         MapUsers(routes.MapGroup("/api/users"));
         MapAccounts(routes.MapGroup("/api/accounts"));
         MapReports(routes.MapGroup("/api/reports"));
+        MapCommercialRequests(routes);
         return routes;
     }
 
@@ -410,6 +411,30 @@ public static partial class ApiEndpoints
             account.Preferences.Intensity = request.Preferences.Intensity;
             account.Preferences.Budget = request.Preferences.Budget;
             account.Preferences.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Ok(account.ToDto());
+        }).RequireAuthorization();
+
+        group.MapPut("/{id}/onboarding", async (
+            string id, UpdateOnboardingRequest request, ClaimsPrincipal principal,
+            LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            if (principal.FindFirstValue("subject_type") != "customer" || principal.FindFirstValue("sub") != id)
+                return Results.Forbid();
+            var error = OnboardingRules.Validate(request.Onboarding);
+            if (error is not null) return Results.BadRequest(new { error });
+            if (IsCommercial(request.Onboarding!.Profile) && request.RecommendedProductId is not null)
+                return Results.BadRequest(new { error = "Los perfiles comerciales no reciben recomendación de sabor." });
+            var account = await db.CustomerAccounts.Include(value => value.Preferences)
+                .SingleOrDefaultAsync(value => value.Id == id, cancellationToken);
+            if (account is null) return Results.NotFound();
+            if (request.RecommendedProductId is not null && !await db.Products.AnyAsync(
+                value => value.Id == request.RecommendedProductId && value.Active && value.Stock > 0, cancellationToken))
+                return Results.BadRequest(new { error = "El café recomendado ya no está disponible. Volvé a calcularlo." });
+            var onboarding = request.Onboarding! with { UpdatedAt = DateTimeOffset.UtcNow };
+            account.OnboardingJson = System.Text.Json.JsonSerializer.Serialize(onboarding);
+            account.RecommendedProductId = request.RecommendedProductId;
+            // Las preferencias previas se conservan; no se infiere un perfil a partir de ellas.
             await db.SaveChangesAsync(cancellationToken);
             return Results.Ok(account.ToDto());
         }).RequireAuthorization();

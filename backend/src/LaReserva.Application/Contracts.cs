@@ -50,7 +50,11 @@ public sealed record CustomerAccountDto(
     string City,
     DateTimeOffset CreatedAt,
     PreferenceProfileDto? Preferences,
-    string? RecommendedProductId);
+    string? RecommendedProductId,
+    OnboardingDto? Onboarding = null);
+
+public sealed record OnboardingDto(int Version, string Profile, Dictionary<string, string> Answers, DateTimeOffset UpdatedAt);
+public sealed record UpdateOnboardingRequest(OnboardingDto? Onboarding, string? RecommendedProductId);
 
 public sealed record LoginRequest(string Email, string Password);
 public sealed record SessionRequest(string Session);
@@ -102,5 +106,6 @@ public static class DtoMapper
             value.Preferences.Goals, value.Preferences.BrewMethods, value.Preferences.DrinkStyles,
             value.Preferences.FlavorFamilies, value.Preferences.Intensity,
             value.Preferences.Budget, value.Preferences.UpdatedAt),
-        value.RecommendedProductId);
+        value.RecommendedProductId,
+        value.OnboardingJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<OnboardingDto>(value.OnboardingJson));
 }

@@ -23,6 +23,72 @@ namespace LaReserva.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("LaReserva.Domain.CommercialRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("AssignedUserId")
+                        .HasColumnType("text")
+                        .HasColumnName("assigned_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("HistoryJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValue("[]")
+                        .HasColumnName("history_json");
+
+                    b.Property<string>("OnboardingJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("onboarding_json");
+
+                    b.Property<string>("Profile")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("profile");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Nueva")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_commercial_requests");
+
+                    b.HasIndex("AssignedUserId")
+                        .HasDatabaseName("ix_commercial_requests_assigned_user_id");
+
+                    b.HasIndex("AccountId", "Profile")
+                        .IsUnique()
+                        .HasDatabaseName("ix_commercial_requests_account_id_profile");
+
+                    b.ToTable("commercial_requests", "la_reserva");
+                });
+
             modelBuilder.Entity("LaReserva.Domain.Customer", b =>
                 {
                     b.Property<string>("Id")
@@ -92,6 +158,10 @@ namespace LaReserva.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<string>("OnboardingJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("onboarding_json");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -448,6 +518,22 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasDatabaseName("ix_users_email");
 
                     b.ToTable("users", "la_reserva");
+                });
+
+            modelBuilder.Entity("LaReserva.Domain.CommercialRequest", b =>
+                {
+                    b.HasOne("LaReserva.Domain.CustomerAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_commercial_requests_customer_accounts_account_id");
+
+                    b.HasOne("LaReserva.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_commercial_requests_users_assigned_user_id");
                 });
 
             modelBuilder.Entity("LaReserva.Domain.CustomerAccount", b =>

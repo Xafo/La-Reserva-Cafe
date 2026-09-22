@@ -1,9 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { cn } from '../../lib/utils'
 
-// Revela al entrar al viewport. El contenido es visible sin JS/animacion
-// (la clase .reveal solo oculta dentro de prefers-reduced-motion: no-preference,
-// y el observer la marca visible de inmediato si ya esta en pantalla).
+// El contenido siempre es visible; el observer solo mejora su posición de entrada.
 export function Reveal({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
 

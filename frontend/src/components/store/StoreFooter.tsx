@@ -9,9 +9,9 @@ export function StoreFooter() {
           <div className="max-w-sm space-y-4">
             <BrandMark dark />
             <p className="text-sm leading-relaxed text-forest-foreground/70">
-              Cafe de especialidad y tostaduria en Honduras. Microlotes de
-              productores de Olancho y Francisco Morazan, tostados en tandas
-              pequenas y enviados a tu puerta.
+              Directo Café nace en La Reserva, nuestra tostaduría en Honduras.
+              Empezamos con sus cafés y un compromiso: que lo que leés en cada
+              descripción se cumpla en tu taza.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-12 text-sm">
@@ -19,23 +19,22 @@ export function StoreFooter() {
               <p className="font-display font-bold">Explorar</p>
               <ul className="space-y-2 text-forest-foreground/70">
                 <li><Link to="/tienda" className="hover:text-forest-foreground">Tienda</Link></li>
-                <li><Link to="/origen" className="hover:text-forest-foreground">Origen</Link></li>
+                <li><Link to="/origen" className="hover:text-forest-foreground">Nuestra historia</Link></li>
                 <li><Link to="/admin/login" className="hover:text-forest-foreground">Portal interno</Link></li>
               </ul>
             </div>
             <div className="space-y-3">
-              <p className="font-display font-bold">Contacto</p>
+              <p className="font-display font-bold">Tu café</p>
               <ul className="space-y-2 text-forest-foreground/70">
-                {/* TODO(copy): confirmar datos reales de contacto con el cliente */}
-                <li>Tegucigalpa, Honduras</li>
-                <li>hola@lareserva.hn</li>
-                <li>+504 0000-0000</li>
+                <li><Link to="/cuenta" className="hover:text-forest-foreground">Mi cuenta</Link></li>
+                <li><Link to="/registro" className="hover:text-forest-foreground">Crear cuenta</Link></li>
+                <li>Desde Honduras</li>
               </ul>
             </div>
           </div>
         </div>
         <p className="mt-14 border-t border-white/10 pt-6 text-xs text-forest-foreground/50">
-          {new Date().getFullYear()} LA RESERVA — Cafe y Tostaduria. Todos los derechos reservados.
+          {new Date().getFullYear()} Directo Café. Nacido en La Reserva, Honduras.
         </p>
       </div>
     </footer>
