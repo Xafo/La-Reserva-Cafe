@@ -77,7 +77,7 @@ export function CartDrawer() {
                 <span>Total</span>
                 <span>{lps(totalLps)}</span>
               </div>
-              <p className="text-xs text-muted-foreground">Envio calculado al confirmar. Pago contra entrega disponible.</p>
+              <p className="text-xs text-muted-foreground">Envío, disponibilidad y forma de pago sujetos a confirmación.</p>
               <button
                 onClick={() => { close(); navigate('/checkout') }}
                 className="w-full cursor-pointer rounded-full bg-primary py-3 font-semibold text-primary-foreground transition-colors hover:bg-forest"

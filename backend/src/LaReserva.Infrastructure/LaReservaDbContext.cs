@@ -16,6 +16,13 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<CommercialRequest> CommercialRequests => Set<CommercialRequest>();
 
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var entry in ChangeTracker.Entries<Product>().Where(e => e.State == EntityState.Modified))
+            entry.Entity.Version = Guid.NewGuid();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("la_reserva");
@@ -36,6 +43,7 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
         modelBuilder.Entity<Product>(entity =>
         {
             entity.ToTable("products");
+            entity.Property(value => value.Version).IsConcurrencyToken();
             entity.HasKey(value => value.Id);
             entity.Property(value => value.PriceLps).HasPrecision(12, 2);
             entity.HasOne(value => value.Quality).WithOne()
@@ -54,7 +62,9 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
         modelBuilder.Entity<Order>(entity =>
         {
             entity.ToTable("orders");
+            entity.Property(value => value.Status).IsConcurrencyToken();
             entity.HasKey(value => value.Id);
+            entity.HasOne<CustomerAccount>().WithMany().HasForeignKey(value => value.AccountId).OnDelete(DeleteBehavior.SetNull);
             entity.Property(value => value.TotalLps).HasPrecision(12, 2);
             entity.HasMany(value => value.Items).WithOne()
                 .HasForeignKey(value => value.OrderId)

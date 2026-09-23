@@ -81,34 +81,28 @@ export const productCodec: EntityCodec<Product> = {
   }),
 }
 
-const encodeItems = (items: OrderItem[]) =>
-  items
-    .map((i) => [i.productId, i.productName, i.quantity, i.unitPriceLps].join(ITEM_SEP))
-    .join(SEP)
+const encodeItems = (items: OrderItem[]) => JSON.stringify(items)
 
-const decodeItems = (value: string): OrderItem[] =>
-  splitList(value).map((chunk) => {
+const decodeItems = (value: string): OrderItem[] => {
+  if (value.startsWith('[')) return JSON.parse(value) as OrderItem[]
+  return splitList(value).map(chunk => {
     const [productId, productName, quantity, unitPriceLps] = chunk.split(ITEM_SEP)
-    return { productId, productName, quantity: Number(quantity), unitPriceLps: Number(unitPriceLps) }
+    return { productId, productName, quantity: Number(quantity), unitPriceLps: Number(unitPriceLps), presentationGrams: null, roast: null, grind: null }
   })
+}
 
 export const orderCodec: EntityCodec<Order> = {
-  headers: ['id', 'customerName', 'items', 'status', 'createdAt', 'totalLps'],
-  fromRow: (r) => ({
-    id: r.id,
-    customerName: r.customerName,
-    items: decodeItems(r.items),
-    status: r.status as OrderStatus,
-    createdAt: r.createdAt,
-    totalLps: Number(r.totalLps),
+  headers: ['id', 'customerName', 'items', 'status', 'createdAt', 'totalLps', 'phone', 'deliveryAddress', 'city', 'deliveryNotes', 'accountId'],
+  fromRow: r => ({
+    id: r.id, customerName: r.customerName, items: decodeItems(r.items),
+    status: r.status as OrderStatus, createdAt: r.createdAt, totalLps: Number(r.totalLps),
+    phone: r.phone || null, deliveryAddress: r.deliveryAddress || null, city: r.city || null,
+    deliveryNotes: r.deliveryNotes || null, accountId: r.accountId || null,
   }),
-  toRow: (o) => ({
-    id: o.id,
-    customerName: o.customerName,
-    items: encodeItems(o.items),
-    status: o.status,
-    createdAt: o.createdAt,
-    totalLps: String(o.totalLps),
+  toRow: o => ({
+    id: o.id, customerName: o.customerName, items: encodeItems(o.items), status: o.status,
+    createdAt: o.createdAt, totalLps: String(o.totalLps), phone: o.phone ?? '',
+    deliveryAddress: o.deliveryAddress ?? '', city: o.city ?? '', deliveryNotes: o.deliveryNotes ?? '', accountId: o.accountId ?? '',
   }),
 }
 

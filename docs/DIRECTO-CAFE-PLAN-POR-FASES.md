@@ -556,3 +556,97 @@ resolvió la aceptación visual pendiente de los cambios ya verificados.
    pendientes o cancelados con ventas realizadas.
 5. **Aceptación 1D:** pruebas con PostgreSQL de pedido completo, aprobación, cancelación,
    concurrencia y exportaciones. Mantener las comunicaciones como simulación.
+
+
+## 15. Fase 1D.1 — datos completos del pedido (22 de septiembre de 2026)
+
+### Hallazgo y alcance cubierto
+
+El checkout capturaba teléfono, dirección, ciudad y notas, pero enviaba únicamente
+nombre y productos. Se cerró este primer bloque de 1D en todos sus puntos:
+
+- DTO, entidad y migración aditiva `20260922205854_CaptureOrderFulfillment`.
+- Teléfono, dirección, ciudad y notas persistidos; nombre/teléfono/dirección/ciudad
+  obligatorios para nuevos pedidos, con límites de longitud y cantidades.
+- Cuenta asociada desde la sesión autenticada; se rechaza asociar una cuenta ajena
+  o asociarla sin autenticación. Los invitados conservan `accountId = null`.
+- Preparación por café: en grano, espresso, filtro o prensa francesa. Es una
+  selección operativa para el escenario; no confirma disponibilidad comercial.
+- Presentación, tueste, nombre y precio se copian del catálogo del servidor al
+  crear cada línea. No se alteran al editar después el catálogo. La presentación
+  es la del producto adquirido: aún no existe un selector de variantes de peso.
+- Administración muestra contacto, entrega, notas y preparación, y solicita los
+  mismos datos al crear pedidos manuales. Los fallos de guardado son visibles;
+  el estado mostrado cambia solo después de confirmación de la API.
+- PDF con identidad Directo Café, relación con La Reserva, datos de entrega y
+  preparación. No acredita un pago ni fija costo/plazo de envío.
+- Compatibilidad de CSV antiguo; los nuevos registros conservan los campos y
+  líneas mediante JSON dentro de CSV. Pedidos anteriores muestran datos faltantes
+  explícitamente; no se reconstruyen a partir del catálogo actual.
+- Checkout móvil: resumen/molienda antes del formulario y de la confirmación.
+  Carrito ya no promete pago contra entrega ni cálculo de envío no implementados.
+
+### Validación realizada
+
+- Frontend: compilación de producción, ESLint y 12 pruebas existentes correctas.
+- Backend: 6 pruebas correctas, incluidas validación de datos, sesión/cuenta,
+  creación invitada/autenticada, persistencia tras cambiar el catálogo y PDF
+  actual/antiguo. La prueba nueva se ejecutó también con PostgreSQL real aislado.
+- Para reproducir PostgreSQL: `DIRECTO_ORDER_TEST_CONNECTION` usa una base nueva
+  cuyo nombre comience con `directo_test_`, host `127.0.0.1`. Es distinta de
+  `DIRECTO_TEST_CONNECTION` (onboarding), para evitar compartir fixtures/migraciones.
+- La migración se aplicó además a la base local de demostración con datos previos.
+- Revisión visual del checkout en escritorio y 360 px, selección de molienda,
+  detalle administrativo y formulario manual. PDF generado, renderizado e inspeccionado.
+- Pedido ficticio local `OC-2026-560523991254`, marcado «PRUEBA LOCAL. No preparar
+  ni despachar», usado solo para comprobar administración/PDF. Sin cobro ni mensajes.
+
+### Siguiente bloque: 1D.2 y 1D.3
+
+1. Condiciones versionadas de escenario, zona/cobertura y costos/descuentos claros.
+2. Reservar stock al aprobar; liberar al cancelar; transiciones válidas,
+   concurrencia, prevención de sobreventa y reintentos sin duplicar pedidos.
+3. Reportes de ventas y rankings por período/estado, inventario y exportaciones;
+   objetivos medibles de validación del primer horizonte.
+4. Aceptación de todo 1D con PostgreSQL y paso posterior a 1E.
+
+**Estado:** 1D.1 completada. La aprobación/cancelación de stock, condiciones y
+medición siguen pendientes; este avance no autoriza operación comercial real.
+
+
+## 16. Fase 1D.2 — reservas e inventario (23 de septiembre de 2026)
+
+### Cubierto
+
+- Pendiente → Aprobada o Cancelada; Aprobada → Finalizada o Cancelada.
+  Cancelada y Finalizada son terminales. Repetir el mismo estado no repite movimientos.
+- Aprobar comprueba todos los cafés activos y sus existencias, agregando cantidades
+  de líneas del mismo café aunque tengan distintas moliendas. Reserva todo en una
+  sola transacción; ante falta de stock o conflicto no guarda cambios parciales.
+- Cancelar devuelve solo existencias cuya reserva quedó registrada. Finalizar
+  conserva el descuento realizado al aprobar. Los pedidos previos no reciben
+  reservas ficticias ni devoluciones automáticas sin evidencia.
+- Concurrencia optimista en productos y estado del pedido. Dos aprobaciones de las
+  últimas unidades no pueden guardarse ambas. Un conflicto devuelve HTTP 409.
+- El catálogo entrega una versión que se requiere al editar. Una edición antigua
+  no puede reponer accidentalmente stock reservado después de cargar la pantalla.
+- Supervisor consulta estados; Administrador, Compras y Ventas pueden modificarlos.
+  La UI ofrece únicamente transiciones válidas, informa errores y permite recargar.
+- Migración `ReserveOrderInventory` aditiva: versión del producto y evidencia de
+  reserva. No modifica existencias históricas.
+
+### Evidencia y límites
+
+La prueba HTTP de pedidos pasó con PostgreSQL real en una base nueva. Comprueba
+permisos, aprobación, stock insuficiente, cancelación repetida, estado obsoleto,
+finalización y rechazo de edición de catálogo obsoleta. Dos contextos independientes
+leen las mismas últimas unidades antes de guardar: el segundo recibe conflicto;
+la base conserva su pedido pendiente y sin reserva, y solo descuenta el primero.
+Frontend: build, lint y 12 pruebas correctas. Se agregaron pruebas específicas de
+agregación de líneas, producto inactivo y cancelación de pedidos históricos.
+
+Este bloque cierra **reservas y transiciones**, no toda 1D. Permanecen pendientes:
+condiciones comerciales versionadas (envíos/descuentos/cobertura), idempotencia de
+creación frente a reintentos de red, reportes por fecha/estado y métricas de negocio.
+Las devoluciones posteriores a una venta finalizada requieren un flujo separado;
+no se representan reabriendo la orden. Confirmar datos oficiales sigue pendiente.

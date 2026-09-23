@@ -11,20 +11,25 @@ public static class ReportDocuments
     public static byte[] OrderPdf(Order order) => Document.Create(document => document.Page(page =>
     {
         page.Margin(36);
-        page.Header().Text("LA RESERVA · Orden de compra").FontSize(18).SemiBold();
+        page.Header().Text("DIRECTO CAFÉ · Pedido").FontSize(18).SemiBold();
         page.Content().Column(column =>
         {
             column.Spacing(8);
             column.Item().Text($"Orden: {order.Id}");
             column.Item().Text($"Cliente: {order.CustomerName}");
+            column.Item().Text($"Teléfono: {order.Phone ?? "No registrado (pedido anterior)"}");
+            column.Item().Text($"Entrega: {order.DeliveryAddress ?? "No registrada"} · {order.City ?? "Ciudad no registrada"}");
+            if (!string.IsNullOrEmpty(order.DeliveryNotes)) column.Item().Text($"Notas: {order.DeliveryNotes}");
+            column.Item().Text($"Estado: {order.Status}");
             column.Item().Text($"Fecha: {order.CreatedAt:yyyy-MM-dd HH:mm}");
             column.Item().Table(table =>
             {
                 table.ColumnsDefinition(columns => { columns.RelativeColumn(4); columns.RelativeColumn(); columns.RelativeColumn(); });
                 table.Header(header => { header.Cell().Text("Producto").SemiBold(); header.Cell().Text("Cant.").SemiBold(); header.Cell().Text("Total").SemiBold(); });
-                foreach (var item in order.Items) { table.Cell().Text(item.ProductName); table.Cell().Text(item.Quantity.ToString()); table.Cell().Text($"L {item.UnitPriceLps * item.Quantity:N2}"); }
+                foreach (var item in order.Items) { table.Cell().Text($"{item.ProductName}\n{(item.PresentationGrams is null ? "Presentación no registrada" : $"{item.PresentationGrams} g")} · {item.Roast ?? "Tueste no registrado"} · {item.Grind ?? "Molienda no registrada"}"); table.Cell().Text(item.Quantity.ToString()); table.Cell().Text($"L {item.UnitPriceLps * item.Quantity:N2}"); }
             });
-            column.Item().AlignRight().Text($"Total: L {order.TotalLps:N2}").FontSize(14).SemiBold();
+            column.Item().AlignRight().Text($"Productos: L {order.TotalLps:N2}").FontSize(14).SemiBold();
+            column.Item().Text("Nacido en La Reserva. Este documento no acredita un pago. Entrega y envío sujetos a confirmación.").FontSize(10);
         });
     })).GeneratePdf();
 

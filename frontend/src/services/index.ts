@@ -10,6 +10,8 @@ import type {
   PreferenceProfile,
   OnboardingProfile,
   CommercialRequest,
+  OrderContact,
+  Grind,
 } from '../types'
 import { api, saveSession } from '../config/api'
 
@@ -54,22 +56,22 @@ export const orderService = {
   async getOrders(): Promise<Order[]> {
     return api<Order[]>('/orders', undefined, 'team')
   },
-  async createOrder(customerName: string, items: CartItem[]): Promise<Order> {
+  async createOrder(contact: OrderContact, items: CartItem[], grinds: Record<string, Grind>): Promise<Order> {
     return api<Order>('/orders', {
       method: 'POST',
       body: JSON.stringify({
-        customerName,
-        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+        ...contact,
+        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity, grind: grinds[item.product.id] ?? 'En grano' })),
       }),
-    })
+    }, contact.accountId ? 'customer' : undefined)
   },
-  async createManualOrder(customerName: string, items: { productId: string; quantity: number }[]): Promise<Order> {
-    return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ customerName, items }) }, 'team')
+  async createManualOrder(contact: OrderContact, items: { productId: string; quantity: number; grind: Grind }[]): Promise<Order> {
+    return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ ...contact, items }) }, 'team')
   },
-  async updateStatus(id: string, status: OrderStatus): Promise<void> {
+  async updateStatus(id: string, status: OrderStatus, expectedStatus: OrderStatus): Promise<void> {
     return api<void>(`/orders/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, expectedStatus }),
     }, 'team')
   },
 }

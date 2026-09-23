@@ -2,6 +2,7 @@ namespace LaReserva.Domain;
 
 public sealed class Product
 {
+    public Guid Version { get; set; } = Guid.NewGuid();
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Origin { get; set; }
@@ -33,8 +34,14 @@ public sealed class QualityProfile
 
 public sealed class Order
 {
+    public bool StockReserved { get; set; }
     public required string Id { get; set; }
     public required string CustomerName { get; set; }
+    public string? AccountId { get; set; }
+    public string? Phone { get; set; }
+    public string? DeliveryAddress { get; set; }
+    public string? City { get; set; }
+    public string? DeliveryNotes { get; set; }
     public required string Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public decimal TotalLps { get; set; }
@@ -47,6 +54,9 @@ public sealed class OrderItem
     public required string OrderId { get; set; }
     public required string ProductId { get; set; }
     public required string ProductName { get; set; }
+    public int? PresentationGrams { get; set; }
+    public string? Roast { get; set; }
+    public string? Grind { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPriceLps { get; set; }
 }

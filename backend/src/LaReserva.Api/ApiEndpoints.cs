@@ -157,6 +157,8 @@ public static partial class ApiEndpoints
             if (!DateOnly.TryParseExact(request.Quality.HarvestDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var harvestDate))
                 return Results.BadRequest(new { error = "harvestDate debe usar yyyy-MM-dd." });
             if (!ValidProduct(request)) return Results.BadRequest(new { error = "Los datos del producto son inválidos." });
+            if (request.Version != product.Version)
+                return Results.Conflict(new { error = "El producto o su inventario cambió. Recargá antes de editar." });
 
             product.Name = request.Name;
             product.Origin = request.Origin;
@@ -178,7 +180,8 @@ public static partial class ApiEndpoints
             product.Quality.Grade = request.Quality.Grade;
             product.Quality.CuppingScore = request.Quality.CuppingScore;
             product.Quality.Notes = request.Quality.Notes;
-            await db.SaveChangesAsync(cancellationToken);
+            try { await db.SaveChangesAsync(cancellationToken); }
+            catch (DbUpdateConcurrencyException) { return Results.Conflict(new { error = "El producto cambió durante el guardado. Recargá e intentá de nuevo." }); }
             return Results.Ok(product.ToDto());
         }).RequireAuthorization("ProductsWrite");
     }
@@ -192,10 +195,16 @@ public static partial class ApiEndpoints
             return Results.Ok(orders.Select(value => value.ToDto()));
         }).RequireAuthorization("Team");
 
-        group.MapPost("/", async (CreateOrderRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
-            if (string.IsNullOrWhiteSpace(request.CustomerName) || request.Items.Length == 0 || request.Items.Any(value => value.Quantity <= 0))
-                return Results.BadRequest(new { error = "La orden requiere cliente e items con cantidad válida." });
+            var error = OrderRules.Validate(request);
+            if (error is not null) return Results.BadRequest(new { error });
+            // The account link comes from a verified session, never a client-supplied owner alone.
+            if (request.AccountId is not null && (principal.FindFirstValue("subject_type") != "customer"
+                || principal.FindFirstValue("sub") != request.AccountId)) return Results.Unauthorized();
+            var accountId = principal.FindFirstValue("subject_type") == "customer" ? principal.FindFirstValue("sub") : null;
+            if (accountId is not null && !await db.CustomerAccounts.AnyAsync(a => a.Id == accountId, cancellationToken))
+                return Results.Unauthorized();
 
             var requestedIds = request.Items.Select(value => value.ProductId).Distinct().ToArray();
             var products = await db.Products.Where(value => requestedIds.Contains(value.Id) && value.Active)
@@ -208,6 +217,11 @@ public static partial class ApiEndpoints
             {
                 Id = orderId,
                 CustomerName = request.CustomerName.Trim(),
+                AccountId = accountId,
+                Phone = request.Phone!.Trim(),
+                DeliveryAddress = request.DeliveryAddress!.Trim(),
+                City = request.City!.Trim(),
+                DeliveryNotes = string.IsNullOrWhiteSpace(request.DeliveryNotes) ? null : request.DeliveryNotes.Trim(),
                 Status = "Pendiente",
                 CreatedAt = DateTimeOffset.UtcNow,
                 TotalLps = request.Items.Sum(value => products[value.ProductId].PriceLps * value.Quantity),
@@ -216,6 +230,9 @@ public static partial class ApiEndpoints
                     OrderId = orderId,
                     ProductId = value.ProductId,
                     ProductName = products[value.ProductId].Name,
+                    PresentationGrams = products[value.ProductId].PresentationGrams,
+                    Roast = products[value.ProductId].Roast,
+                    Grind = value.Grind,
                     Quantity = value.Quantity,
                     UnitPriceLps = products[value.ProductId].PriceLps,
                 }).ToList(),
@@ -228,12 +245,20 @@ public static partial class ApiEndpoints
         group.MapPatch("/{id}/status", async (string id, UpdateOrderStatusRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (!OrderStatuses.Contains(request.Status)) return Results.BadRequest(new { error = "Estado inválido." });
-            var order = await db.Orders.FindAsync([id], cancellationToken);
+            var order = await db.Orders.Include(o => o.Items).SingleOrDefaultAsync(o => o.Id == id, cancellationToken);
             if (order is null) return Results.NotFound();
-            order.Status = request.Status;
-            await db.SaveChangesAsync(cancellationToken);
+            if (request.Status == order.Status) return Results.NoContent();
+            if (request.ExpectedStatus != order.Status)
+                return Results.Conflict(new { error = "El estado cambió. Recargá los pedidos antes de continuar." });
+            var ids = order.Items.Select(i => i.ProductId).Distinct().ToArray();
+            var products = await db.Products.Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, cancellationToken);
+            var error = OrderInventory.Apply(order, request.Status, products);
+            if (error is not null) return Results.Conflict(new { error });
+            // One SaveChanges transaction persists every stock change and the status, or none.
+            try { await db.SaveChangesAsync(cancellationToken); }
+            catch (DbUpdateConcurrencyException) { return Results.Conflict(new { error = "Otro proceso cambió el pedido o las existencias. Recargá e intentá de nuevo." }); }
             return Results.NoContent();
-        }).RequireAuthorization("Team");
+        }).RequireAuthorization("Team", "CustomersWrite");
 
         group.MapGet("/{id}/pdf", async (string id, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {

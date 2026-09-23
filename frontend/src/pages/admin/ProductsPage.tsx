@@ -19,8 +19,11 @@ export function ProductsPage() {
 
   const toggleActive = async (product: Product) => {
     const updated = { ...product, active: !product.active }
-    setProducts((prev) => prev.map((p) => (p.id === product.id ? updated : p)))
-    await catalogService.updateProduct(updated)
+    setError(null)
+    try {
+      const saved = await catalogService.updateProduct(updated)
+      setProducts(prev => prev.map(p => p.id === saved.id ? saved : p))
+    } catch (failure) { setError(failure instanceof Error ? failure.message : 'No se pudo guardar. Recargá el catálogo.') }
   }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -38,6 +41,7 @@ export function ProductsPage() {
 
   return (
     <AdminLayout title="Catalogo de productos">
+      {error && !open && <p role="alert" className="mb-4 text-destructive">{error}</p>}
       <div className="rounded-lg border border-border bg-background">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <p className="text-sm text-muted-foreground">{products.length} productos registrados</p>

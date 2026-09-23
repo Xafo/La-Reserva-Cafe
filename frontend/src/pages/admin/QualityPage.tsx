@@ -8,6 +8,7 @@ import type { Product } from '../../types'
 export function QualityPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<Product | null>(null)
 
   useEffect(() => {
@@ -19,8 +20,11 @@ export function QualityPage() {
     if (!editing) return
     const form = new FormData(event.currentTarget)
     const updated = { ...editing, quality: { ...editing.quality, grainType: String(form.get('grainType')), altitudeMasl: Number(form.get('altitude')), humidityPct: Number(form.get('humidity')), harvestDate: String(form.get('harvestDate')), producer: String(form.get('producer')), cuppingScore: Number(form.get('cupping')), grade: String(form.get('grade')) as Product['quality']['grade'] } }
-    const saved = await catalogService.updateProduct(updated)
-    setProducts((items) => items.map((item) => item.id === saved.id ? saved : item)); setEditing(null)
+    setError(null)
+    try {
+      const saved = await catalogService.updateProduct(updated)
+      setProducts(items => items.map(item => item.id === saved.id ? saved : item)); setEditing(null)
+    } catch (failure) { setError(failure instanceof Error ? failure.message : 'No se pudo guardar. Recargá el catálogo.') }
   }
 
   return (
@@ -67,6 +71,7 @@ export function QualityPage() {
         )}
       </div>
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+        {error && <p role="alert" className="mb-3 text-destructive">{error}</p>}
         {editing && <form onSubmit={submit} className="space-y-3"><h2 className="font-display text-xl font-bold">Ficha de calidad</h2><p className="text-sm text-muted-foreground">{editing.name}</p><input name="grainType" required defaultValue={editing.quality.grainType} placeholder="Variedad" className="w-full rounded border border-input p-2" /><input name="altitude" required type="number" defaultValue={editing.quality.altitudeMasl} placeholder="Altura" className="w-full rounded border border-input p-2" /><input name="humidity" required type="number" step="0.1" defaultValue={editing.quality.humidityPct} placeholder="Humedad" className="w-full rounded border border-input p-2" /><input name="harvestDate" required type="date" defaultValue={editing.quality.harvestDate} className="w-full rounded border border-input p-2" /><input name="producer" required defaultValue={editing.quality.producer} placeholder="Productor" className="w-full rounded border border-input p-2" /><input name="cupping" required type="number" step="0.1" defaultValue={editing.quality.cuppingScore} placeholder="Puntaje" className="w-full rounded border border-input p-2" /><select name="grade" defaultValue={editing.quality.grade} className="w-full rounded border border-input p-2"><option>Premium</option><option>Exportacion</option><option>Estandar</option></select><button className="w-full rounded bg-primary py-2 font-semibold text-primary-foreground">Guardar</button></form>}
       </Dialog>
     </AdminLayout>

@@ -7,6 +7,7 @@ import { orderService } from '../../services'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
 import { lps } from '../../lib/format'
+import { GRINDS, type Grind } from '../../types'
 
 export function CheckoutPage() {
   const { items, totalLps, clear } = useCart()
@@ -15,6 +16,7 @@ export function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false)
   const [orderId, setOrderId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [grinds, setGrinds] = useState<Record<string, Grind>>({})
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -22,13 +24,15 @@ export function CheckoutPage() {
     setSubmitting(true)
     setError(null)
     try {
-      // TODO(backend): integrar pasarela de pago (tarjeta / transferencia).
-      // Por ahora el pedido se registra como Pendiente y se paga contra entrega.
-      const order = await orderService.createOrder(String(data.get('nombre')), items)
+      const order = await orderService.createOrder({
+        customerName: String(data.get('nombre')), phone: String(data.get('telefono')),
+        deliveryAddress: String(data.get('direccion')), city: String(data.get('ciudad')),
+        deliveryNotes: String(data.get('notas')), accountId: account?.id,
+      }, items, grinds)
       clear()
       setOrderId(order.id)
-    } catch {
-      setError('No pudimos registrar tu pedido. Intenta de nuevo.')
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : 'No pudimos registrar tu pedido. Intenta de nuevo.')
     } finally {
       setSubmitting(false)
     }
@@ -79,7 +83,33 @@ export function CheckoutPage() {
         <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Confirmar pedido</h1>
 
         <div className="mt-12 grid gap-14 md:grid-cols-[1fr_380px]">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <aside className="h-fit md:col-start-2 md:row-start-1 rounded-lg border border-border p-6">
+            <h2 className="font-display text-lg font-bold">Resumen</h2>
+            <ul className="mt-4 space-y-3 text-sm">
+              {items.map(({ product, quantity }) => (
+                <li key={product.id} className="space-y-2 border-b border-border pb-3">
+                  <div className="flex justify-between gap-3"><span>
+                    {quantity} × {product.name}
+                    <span className="block text-xs text-muted-foreground">{product.presentationGrams} g · {product.roast}</span>
+                  </span>
+                  <span className="font-medium">{lps(product.priceLps * quantity)}</span></div>
+                  <label htmlFor={`grind-${product.id}`} className="block text-sm">Preparación de {product.name}</label>
+                  <select id={`grind-${product.id}`} form="checkout" disabled={submitting}
+                    value={grinds[product.id] ?? 'En grano'}
+                    onChange={event => setGrinds(current => ({ ...current, [product.id]: event.target.value as Grind }))}
+                    className="w-full rounded border border-input bg-background px-3 py-2">
+                    {GRINDS.map(grind => <option key={grind}>{grind}</option>)}
+                  </select>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5 flex justify-between border-t border-border pt-4 font-display text-lg font-bold">
+              <span>Productos</span>
+              <span>{lps(totalLps)}</span>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">Envío y disponibilidad sujetos a confirmación. El importe mostrado corresponde a los productos.</p>
+          </aside>
+          <form id="checkout" onSubmit={handleSubmit} className="space-y-5 md:col-start-1 md:row-start-1">
             {[
               { name: 'nombre', label: 'Nombre completo', type: 'text', autoComplete: 'name', defaultValue: account?.name },
               { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel', defaultValue: account?.phone },
@@ -95,6 +125,8 @@ export function CheckoutPage() {
                   name={f.name}
                   type={f.type}
                   required
+                  maxLength={f.name === 'direccion' ? 500 : f.name === 'telefono' ? 40 : f.name === 'ciudad' ? 120 : 150}
+                  disabled={submitting}
                   autoComplete={f.autoComplete}
                   defaultValue={f.defaultValue}
                   className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
@@ -109,6 +141,8 @@ export function CheckoutPage() {
                 id="notas"
                 name="notas"
                 rows={3}
+                maxLength={1000}
+                disabled={submitting}
                 className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
               />
             </div>
@@ -125,24 +159,7 @@ export function CheckoutPage() {
             </p>
           </form>
 
-          <aside className="h-fit rounded-lg border border-border p-6">
-            <h2 className="font-display text-lg font-bold">Resumen</h2>
-            <ul className="mt-4 space-y-3 text-sm">
-              {items.map(({ product, quantity }) => (
-                <li key={product.id} className="flex justify-between gap-3">
-                  <span>
-                    {quantity} × {product.name}
-                    <span className="block text-xs text-muted-foreground">{product.presentationGrams} g · {product.roast}</span>
-                  </span>
-                  <span className="font-medium">{lps(product.priceLps * quantity)}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-5 flex justify-between border-t border-border pt-4 font-display text-lg font-bold">
-              <span>Total</span>
-              <span>{lps(totalLps)}</span>
-            </div>
-          </aside>
+
         </div>
       </section>
       <StoreFooter />
