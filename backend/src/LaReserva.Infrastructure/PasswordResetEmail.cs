@@ -36,7 +36,7 @@ public sealed class PasswordResetEmail(IOptions<EmailOptions> options, HttpClien
         if (!Enabled) throw new InvalidOperationException("El correo de recuperación no está configurado.");
         // El fragmento no se transmite al servidor ni a los registros del proxy.
         var link = $"{settings.ResetUrl}#token={Uri.EscapeDataString(token)}";
-        const string subject = "Restablecer contraseña — LA RESERVA";
+        const string subject = "Restablecer contraseña — Directo Cafe";
         var body = $"Para cambiar tu contraseña, abre este enlace:\n\n{link}\n\nEl enlace vence en 30 minutos y solo puede usarse una vez. Si no lo solicitaste, ignora este correo.";
 
         if (settings.Provider == "Brevo")
@@ -45,7 +45,7 @@ public sealed class PasswordResetEmail(IOptions<EmailOptions> options, HttpClien
             request.Headers.Add("api-key", settings.ApiKey);
             request.Content = JsonContent.Create(new
             {
-                sender = new { email = settings.From, name = "LA RESERVA" },
+                sender = new { email = settings.From, name = "Directo Cafe" },
                 to = new[] { new { email } },
                 subject,
                 textContent = body,

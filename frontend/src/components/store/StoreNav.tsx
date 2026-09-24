@@ -34,7 +34,7 @@ export function StoreNav({ overHero = false }: { overHero?: boolean }) {
       )}
     >
       <nav aria-label="Navegación principal" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 md:px-8">
-        <Link to="/" aria-label="Directo Café, inicio">
+        <Link to="/" aria-label="Directo Cafe, inicio">
           <BrandMark dark={onDark} />
         </Link>
         <div className="order-last flex w-full items-center justify-center gap-4 sm:order-none sm:w-auto md:gap-6">

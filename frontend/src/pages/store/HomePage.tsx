@@ -46,7 +46,7 @@ export function HomePage() {
             Buen café. Desde el origen.
           </h1>
           <p className="hero-rise-late mx-auto mt-6 max-w-xl text-balance text-lg text-forest-foreground/85">
-            Somos Directo Café. Nacimos en La Reserva, una tostaduría hondureña,
+            Somos Directo Cafe. Nacimos en La Reserva, una tostaduría hondureña,
             para acercarte café que cumpla en la taza lo que promete.
           </p>
           <div className="hero-rise-late mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -90,7 +90,7 @@ export function HomePage() {
           </Link>
         </Reveal>
         <p className="mt-5 max-w-xl text-muted-foreground">
-          Los cafés de nuestra tostaduría son el primer paso de Directo Café.
+          Los cafés de nuestra tostaduría son el primer paso de Directo Cafe.
           Explorá sus orígenes, procesos y notas de sabor.
         </p>
         {loading ? (
@@ -143,7 +143,7 @@ export function HomePage() {
                 a más personas, empezando por lo que conocemos.
               </p>
               <p>
-                Así nace Directo Café: con los cafés de La Reserva y el compromiso
+                Así nace Directo Cafe: con los cafés de La Reserva y el compromiso
                 de acercar el origen a quien lo disfruta. Nuestra misión es que
                 cada compra se sienta confiable, desde la descripción hasta el primer sorbo.
               </p>
@@ -152,7 +152,7 @@ export function HomePage() {
               to="/origen"
               className="mt-9 inline-flex items-center gap-2 rounded-full border border-forest-foreground/40 px-7 py-3 font-semibold transition-colors hover:bg-white/10"
             >
-              De La Reserva a Directo Café
+              De La Reserva a Directo Cafe
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Reveal>

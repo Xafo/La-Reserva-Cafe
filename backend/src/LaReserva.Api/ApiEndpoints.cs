@@ -95,11 +95,12 @@ public static partial class ApiEndpoints
             return Results.NoContent();
         });
 
-        group.MapPost("/forgot-password", async (ForgotPasswordRequest request, LaReservaDbContext db, IPasswordResetEmail emailSender, ILogger<Program> logger, CancellationToken cancellationToken) =>
+        group.MapPost("/forgot-password", async (ForgotPasswordRequest request, LaReservaDbContext db, IServiceProvider services, ILogger<Program> logger, CancellationToken cancellationToken) =>
         {
             if (string.IsNullOrWhiteSpace(request.Email) || !EmailPattern().IsMatch(request.Email.Trim()))
                 return Results.BadRequest(new { error = "Escribe un correo válido." });
-            if (!emailSender.Enabled)
+            var emailSender = services.GetService<IPasswordResetEmail>();
+            if (emailSender is null || !emailSender.Enabled)
                 return Results.Json(new { error = "La recuperación por correo aún no está disponible. Contacta al administrador." }, statusCode: 503);
             var user = await db.Users.SingleOrDefaultAsync(value => value.Email == NormalizeEmail(request.Email), cancellationToken);
             if (user is { Active: true })
@@ -184,7 +185,7 @@ public static partial class ApiEndpoints
             return Results.Created($"/api/products/{id}", product.ToDto());
         }).RequireAuthorization("ProductsWrite").DisableAntiforgery();
 
-        group.MapPost("/{id}/image", async (string id, IFormFile file, ProductImageStorage storage, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPost("/{id}/image", async (string id, IFormFile file, IServiceProvider services, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (file.Length is <= 0 or > 5_000_000 || !new[] { "image/jpeg", "image/png", "image/webp" }.Contains(file.ContentType))
                 return Results.BadRequest(new { error = "La imagen debe ser JPG, PNG o WebP y pesar menos de 5 MB." });
@@ -193,6 +194,7 @@ public static partial class ApiEndpoints
             if (product is null) return Results.NotFound();
             var extension = file.ContentType switch { "image/jpeg" => ".jpg", "image/png" => ".png", _ => ".webp" };
             var filename = $"{Guid.NewGuid():N}{extension}";
+            var storage = services.GetRequiredService<ProductImageStorage>();
             product.ImageUrl = await storage.SaveAsync(file, filename, cancellationToken);
             await db.SaveChangesAsync(cancellationToken);
             return Results.Ok(product.ToDto());
@@ -530,7 +532,7 @@ public static partial class ApiEndpoints
             var products = await db.Products.AsNoTracking().ToListAsync(cancellationToken);
             var orders = await db.Orders.AsNoTracking().Include(value => value.Items).ToListAsync(cancellationToken);
             if (format == "xlsx") return Results.File(ReportDocuments.Excel(type, products, orders), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx");
-            var document = ReportDocuments.OrderPdf(new Order { Id = $"Reporte {type}", CustomerName = "LA RESERVA", Status = "", CreatedAt = DateTimeOffset.UtcNow, TotalLps = orders.Sum(value => value.TotalLps), Items = orders.SelectMany(value => value.Items).ToList() });
+            var document = ReportDocuments.OrderPdf(new Order { Id = $"Reporte {type}", CustomerName = "Directo Cafe", Status = "", CreatedAt = DateTimeOffset.UtcNow, TotalLps = orders.Sum(value => value.TotalLps), Items = orders.SelectMany(value => value.Items).ToList() });
             return Results.File(document, "application/pdf", $"{type}.pdf");
         }).RequireAuthorization("ReportsView");
     }
