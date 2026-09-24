@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using LaReserva.Api;
+using LaReserva.Application;
 using LaReserva.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -11,12 +12,19 @@ using QuestPDF.Infrastructure;
 
 QuestPDF.Settings.License = LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
+if (builder.Configuration["RENDER_EXTERNAL_HOSTNAME"] is { Length: > 0 } renderHostname)
+{
+    builder.Configuration["AllowedHosts"] = renderHostname + ";localhost;127.0.0.1";
+    builder.Configuration["Email:ResetUrl"] ??= $"https://{renderHostname}/admin/reset-password";
+}
 var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("Falta la configuración JWT.");
 if (string.IsNullOrWhiteSpace(jwt.SigningKey) || Encoding.UTF8.GetByteCount(jwt.SigningKey) < 32)
     throw new InvalidOperationException("Jwt:SigningKey debe configurarse con al menos 32 bytes.");
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHttpClient<IPasswordResetEmail, PasswordResetEmail>(client => client.Timeout = TimeSpan.FromSeconds(20));
+builder.Services.AddHttpClient<ProductImageStorage>(client => client.Timeout = TimeSpan.FromSeconds(30));
 builder.Services.AddProblemDetails();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -88,9 +96,15 @@ app.UseCors();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(uploadsPath), RequestPath = "/uploads" });
 app.MapHealthChecks("/health");
 app.MapLaReservaEndpoints();
+if (Directory.Exists(Path.Combine(app.Environment.ContentRootPath, "wwwroot")))
+{
+    app.MapFallback("/api/{**path}", () => Results.NotFound());
+    app.MapFallbackToFile("index.html");
+}
 
 await using (var scope = app.Services.CreateAsyncScope())
 {

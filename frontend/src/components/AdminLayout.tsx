@@ -16,6 +16,7 @@ const navItems: { path: string; label: string; icon: typeof Package; permission?
   { path: '/admin/clientes', label: 'Clientes y proveedores', icon: Users, permission: 'clientes' },
   { path: '/admin/solicitudes', label: 'Solicitudes comerciales', icon: ClipboardList, permission: 'clientes' },
   { path: '/admin/reportes', label: 'Reporteria', icon: BarChart3, permission: 'reportes' },
+  { path: '/admin/auditoria', label: 'Auditoría', icon: ClipboardList, permission: 'usuarios' },
   { path: '/admin/usuarios', label: 'Usuarios y roles', icon: ShieldCheck, permission: 'usuarios' },
 ]
 

@@ -9,7 +9,7 @@ export function StoreFooter() {
           <div className="max-w-sm space-y-4">
             <BrandMark dark />
             <p className="text-sm leading-relaxed text-forest-foreground/70">
-              Directo Café nace en La Reserva, nuestra tostaduría en Honduras.
+              Directo Cafe nace en La Reserva, nuestra tostaduría en Honduras.
               Empezamos con sus cafés y un compromiso: que lo que leés en cada
               descripción se cumpla en tu taza.
             </p>
@@ -34,7 +34,7 @@ export function StoreFooter() {
           </div>
         </div>
         <p className="mt-14 border-t border-white/10 pt-6 text-xs text-forest-foreground/50">
-          {new Date().getFullYear()} Directo Café. Nacido en La Reserva, Honduras.
+          {new Date().getFullYear()} Directo Cafe. Nacido en La Reserva, Honduras.
         </p>
       </div>
     </footer>

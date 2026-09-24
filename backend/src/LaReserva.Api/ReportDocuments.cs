@@ -11,7 +11,7 @@ public static class ReportDocuments
     public static byte[] OrderPdf(Order order) => Document.Create(document => document.Page(page =>
     {
         page.Margin(36);
-        page.Header().Text("LA RESERVA · Orden de compra").FontSize(18).SemiBold();
+        page.Header().Text("Directo Cafe · Orden de compra").FontSize(18).SemiBold();
         page.Content().Column(column =>
         {
             column.Spacing(8);

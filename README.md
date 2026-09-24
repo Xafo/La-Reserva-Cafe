@@ -1,4 +1,4 @@
-# Directo Café — Nacido en La Reserva
+# Directo Cafe — Nacido en La Reserva
 
 Plataforma de café nacida en La Reserva, Honduras. La primera fase ofrece los cafés de la tostaduría; la incorporación de otros vendedores corresponde a un horizonte posterior.
 
@@ -10,7 +10,7 @@ Plataforma de café nacida en La Reserva, Honduras. La primera fase ofrece los c
 - Seguridad: contraseñas hasheadas, JWT de corta duración, refresh tokens rotativos en cookies HttpOnly y autorización por roles.
 - Ejecución local: frontend, API y PostgreSQL en Docker Compose.
 
-La evolución a Directo Café se organiza en [diagnóstico y plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md), con cobertura contrastada contra el código y los dos documentos de negocio (21 de septiembre de 2026).
+La evolución a Directo Cafe se organiza en [diagnóstico y plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md), con cobertura contrastada contra el código y los dos documentos de negocio (21 de septiembre de 2026).
 
 El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes de La Reserva; sus checklists no sustituyen la validación del diagnóstico actual.
 

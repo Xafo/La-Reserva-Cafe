@@ -31,7 +31,7 @@ export function LoginPage() {
         <Link to="/" className="mb-12 w-fit"><BrandMark /></Link>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">Portal interno</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Acceso para el equipo de Directo Café y La Reserva.
+          Acceso para el equipo de Directo Cafe y La Reserva.
         </p>
         <form onSubmit={handleSubmit} className="mt-9 max-w-sm space-y-4">
           <div>
@@ -47,7 +47,7 @@ export function LoginPage() {
               id="password" name="password" type="password" required autoComplete="current-password"
               className="w-full rounded-lg border border-input bg-background px-4 py-2.5 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
             />
-            {/* TODO(backend): flujo de recuperacion de contrasena (/api/auth/forgot-password) */}
+            <Link to="/admin/forgot-password" className="mt-2 inline-block text-sm font-medium text-primary hover:underline">¿Olvidaste tu contraseña?</Link>
           </div>
           {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
           <button

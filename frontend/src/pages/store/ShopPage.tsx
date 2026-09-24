@@ -78,7 +78,7 @@ export function ShopPage() {
           Los cafés de La Reserva
         </h1>
         <p className="mt-4 max-w-xl text-muted-foreground">
-          Nuestra primera selección en Directo Café. Compará notas de sabor,
+          Nuestra primera selección en Directo Cafe. Compará notas de sabor,
           procesos y tuestes para elegir tu próxima taza.
         </p>
 
