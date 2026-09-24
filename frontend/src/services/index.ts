@@ -101,6 +101,19 @@ export const userService = {
   },
 }
 
+export interface AuditEntry {
+  id: number
+  actorId: string
+  action: string
+  entity: string
+  entityId: string
+  occurredAt: string
+}
+
+export const auditService = {
+  getEntries: () => api<AuditEntry[]>('/audit-log', undefined, 'team'),
+}
+
 export const authService = {
   async login(email: string, password: string): Promise<User> {
     const response = await api<TeamAuthResponse>('/auth/login', {
@@ -109,6 +122,9 @@ export const authService = {
     })
     saveSession('team', response.accessToken)
     return response.user
+  },
+  async resetPassword(token: string, password: string): Promise<void> {
+    await api<void>('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) })
   },
   async requestPasswordReset(email: string): Promise<void> {
     await api<void>('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })

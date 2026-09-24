@@ -3,14 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { BrandMark } from '../../components/store/BrandMark'
 import { IMG } from '../../data/images'
-import { authService } from '../../services'
 
 export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [resetSent, setResetSent] = useState(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -25,13 +23,6 @@ export function LoginPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const requestReset = async () => {
-    const email = (document.getElementById('email') as HTMLInputElement | null)?.value
-    if (!email) { setError('Escribe tu correo para solicitar recuperación.'); return }
-    await authService.requestPasswordReset(email)
-    setResetSent(true)
   }
 
   return (
@@ -56,10 +47,9 @@ export function LoginPage() {
               id="password" name="password" type="password" required autoComplete="current-password"
               className="w-full rounded-lg border border-input bg-background px-4 py-2.5 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
             />
-            <button type="button" onClick={() => void requestReset()} className="mt-2 text-sm font-medium text-primary hover:underline">¿Olvidaste tu contraseña?</button>
+            <Link to="/admin/forgot-password" className="mt-2 inline-block text-sm font-medium text-primary hover:underline">¿Olvidaste tu contraseña?</Link>
           </div>
           {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
-          {resetSent && <p className="text-sm text-primary">Si la cuenta existe, recibirás instrucciones de recuperación.</p>}
           <button
             type="submit" disabled={loading}
             className="w-full cursor-pointer rounded-lg bg-primary py-3 font-semibold text-primary-foreground transition-colors duration-150 hover:bg-forest disabled:opacity-60"
