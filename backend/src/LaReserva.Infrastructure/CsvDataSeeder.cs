@@ -50,6 +50,11 @@ public sealed class CsvDataSeeder(
                 Notes = Split(row["quality_notes"]),
             },
         }).ToArray();
+        if (configuration.GetValue<bool>("Commerce:ScenarioEnabled"))
+        {
+            using var stream = typeof(CsvDataSeeder).Assembly.GetManifestResourceStream("demo-products-v1.json")!;
+            products = System.Text.Json.JsonSerializer.Deserialize<Product[]>(stream, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        }
         dbContext.Products.AddRange(products);
 
         var orders = Read("orders.csv", seedPath).Select(row => new Order

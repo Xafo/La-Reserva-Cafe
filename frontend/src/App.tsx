@@ -9,6 +9,7 @@ import { HomePage } from './pages/store/HomePage'
 import { ShopPage } from './pages/store/ShopPage'
 import { ProductDetailPage } from './pages/store/ProductDetailPage'
 import { CheckoutPage } from './pages/store/CheckoutPage'
+import { BusinessCatalogPage } from './pages/store/BusinessCatalogPage'
 import { OriginPage } from './pages/store/OriginPage'
 import { RegisterPage } from './pages/store/RegisterPage'
 import { CustomerLoginPage } from './pages/store/CustomerLoginPage'
@@ -60,6 +61,7 @@ function App() {
                 <Route path="/tienda" element={<ShopPage />} />
                 <Route path="/tienda/:id" element={<ProductDetailPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/empresas" element={<BusinessCatalogPage />} />
                 <Route path="/origen" element={<OriginPage />} />
                 <Route path="/registro" element={<RegisterPage />} />
                 <Route path="/ingresar" element={<CustomerLoginPage />} />

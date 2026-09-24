@@ -49,3 +49,8 @@ wholesale.tiers.forEach((tier, index) => {
 })
 console.log(`Escenario válido: ${ids.size} cafés, ${scenario.cases.length} casos, 5 perfiles, imágenes locales y contactos sin envío externo.`)
 console.log('Verifica la coherencia de los datos; no prueba todavía la implementación del quiz, los descuentos o los pedidos.')
+
+const commerce = JSON.parse(await readFile(new URL('../../shared/commerce-scenario-v1.json', import.meta.url), 'utf8'))
+assert.deepEqual(commerce.commercial, scenario.commercial, 'Las condiciones ejecutables deben coincidir con el escenario autorizado')
+const products = JSON.parse(await readFile(new URL('../../shared/demo-products-v1.json', import.meta.url), 'utf8'))
+assert.deepEqual(products.map(p => { const { productId, ...quality } = p.quality; assert.equal(productId, p.id); return { ...p, quality } }), scenario.products)

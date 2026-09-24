@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <EmbeddedResource Include="../../../shared/commerce-scenario-v1.json" LogicalName="commerce-scenario-v1.json" />
     <EmbeddedResource Include="../../../shared/onboarding-v1.json" LogicalName="onboarding-v1.json" />
     <ProjectReference Include="..\LaReserva.Domain\LaReserva.Domain.csproj" />
   </ItemGroup>

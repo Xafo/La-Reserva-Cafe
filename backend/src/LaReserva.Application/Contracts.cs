@@ -31,7 +31,7 @@ public sealed record ProductDto(
 
 public sealed record OrderItemDto(string ProductId, string ProductName, int Quantity, decimal UnitPriceLps, int? PresentationGrams, string? Roast, string? Grind);
 public sealed record OrderDto(string Id, string CustomerName, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps,
-    string? Phone, string? DeliveryAddress, string? City, string? DeliveryNotes, string? AccountId);
+    string? Phone, string? DeliveryAddress, string? City, string? DeliveryNotes, string? AccountId, OrderTerms? Terms, DateTimeOffset? CompletedAt);
 public sealed record CustomerDto(string Id, string Name, string Email, string Phone, string Type, string City, int TotalOrders);
 public sealed record UserDto(string Id, string Name, string Email, string Role, bool Active);
 
@@ -66,7 +66,8 @@ public sealed record RefreshResponse(string AccessToken);
 public sealed record RegisterAccountRequest(string Name, string Email, string Password, string Phone, string City);
 public sealed record UpdatePreferencesRequest(PreferenceProfileDto Preferences, string? RecommendedProductId);
 public sealed record CreateOrderRequest(string CustomerName, CreateOrderItemRequest[] Items,
-    string? Phone = null, string? DeliveryAddress = null, string? City = null, string? DeliveryNotes = null, string? AccountId = null);
+    string? Phone = null, string? DeliveryAddress = null, string? City = null, string? DeliveryNotes = null, string? AccountId = null,
+    Guid? RequestId = null, bool Wholesale = false, string? QuoteToken = null);
 public sealed record CreateOrderItemRequest(string ProductId, int Quantity, string? Grind = null);
 public sealed record UpdateOrderStatusRequest(string Status, string? ExpectedStatus = null);
 public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
@@ -78,7 +79,7 @@ public sealed record ReportSummaryDto(
     int ActiveProducts,
     ProductDto[] LowStock,
     OrderDto[] RecentOrders,
-    TopProductDto[] TopProducts);
+    TopProductDto[] TopProducts, string From, string To, int UndatedFinalizedOrders);
 
 public sealed record TopProductDto(string Name, int Units);
 
@@ -96,7 +97,8 @@ public static class DtoMapper
     public static OrderDto ToDto(this Order value) => new(
         value.Id, value.CustomerName,
         value.Items.Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPriceLps, item.PresentationGrams, item.Roast, item.Grind)).ToArray(),
-        value.Status, value.CreatedAt, value.TotalLps, value.Phone, value.DeliveryAddress, value.City, value.DeliveryNotes, value.AccountId);
+        value.Status, value.CreatedAt, value.TotalLps, value.Phone, value.DeliveryAddress, value.City, value.DeliveryNotes, value.AccountId,
+        value.TermsJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<OrderTerms>(value.TermsJson), value.CompletedAt);
 
     public static CustomerDto ToDto(this Customer value) =>
         new(value.Id, value.Name, value.Email, value.Phone, value.Type, value.City, value.TotalOrders);

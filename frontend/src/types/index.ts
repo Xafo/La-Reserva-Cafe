@@ -45,6 +45,11 @@ export interface OrderContact {
   deliveryNotes: string
   accountId?: string
 }
+export interface OrderTerms {
+  version: string; scenario: boolean; subtotalLps: number; discountLps: number
+  shippingLps: number | null; totalLps: number; kilograms: number; wholesale: boolean; deliveryNote: string | null
+}
+export interface OrderQuote { terms: OrderTerms; token: string }
 
 export interface OrderItem {
   productId: string
@@ -57,6 +62,8 @@ export interface OrderItem {
 }
 
 export interface Order {
+  terms?: OrderTerms | null
+  completedAt?: string | null
   id: string
   customerName: string
   phone: string | null

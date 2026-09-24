@@ -62,6 +62,9 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
         modelBuilder.Entity<Order>(entity =>
         {
             entity.ToTable("orders");
+            entity.HasIndex(value => value.RequestId).IsUnique();
+            entity.Property(value => value.HistoryJson).HasDefaultValue("[]");
+            entity.Property(value => value.TermsJson).IsConcurrencyToken();
             entity.Property(value => value.Status).IsConcurrencyToken();
             entity.HasKey(value => value.Id);
             entity.HasOne<CustomerAccount>().WithMany().HasForeignKey(value => value.AccountId).OnDelete(DeleteBehavior.SetNull);

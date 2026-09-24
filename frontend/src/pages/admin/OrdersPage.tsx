@@ -6,6 +6,7 @@ import { Dialog } from '../../components/ui/dialog'
 import { downloadTeamFile } from '../../config/api'
 import { catalogService, orderService } from '../../services'
 import { useAuth } from '../../context/AuthContext'
+import { OrderFollowUp } from '../../components/OrderFollowUp'
 import { lps, shortDate } from '../../lib/format'
 import { GRINDS, type Grind, type Order, type OrderStatus, type Product } from '../../types'
 
@@ -60,6 +61,7 @@ export function OrdersPage() {
   return (
     <AdminLayout title="Ordenes de compra">
       <p className="mb-4 text-sm text-muted-foreground">Aprobar reserva existencias. Cancelar devuelve la reserva registrada. Los pedidos finalizados o cancelados no se reabren.</p>
+      {orderService.hasPendingOrder() && <button disabled={saving} className="mb-4 underline" onClick={async () => { setSaving(true); try { await orderService.recoverOrder(); setOrders(await orderService.getOrders()); setOpen(false) } catch (failure) { setError(failure instanceof Error ? failure.message : 'No se pudo verificar.') } finally { setSaving(false) } }}>Verificar envío anterior</button>}
       {error && !open && <div className="mb-4"><p role="alert" className="text-destructive">{error}</p><button onClick={() => window.location.reload()} className="mt-2 underline">Recargar pedidos</button></div>}
       <div className="rounded-lg border border-border bg-background">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -146,6 +148,7 @@ export function OrdersPage() {
                             </li>
                           ))}
                         </ul>
+                        <OrderFollowUp order={o} canWrite={canWrite} onSaved={saved => setOrders(current => current.map(item => item.id === saved.id ? saved : item))} />
                       </td>
                     </tr>
                   )}

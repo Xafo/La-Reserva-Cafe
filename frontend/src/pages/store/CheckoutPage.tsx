@@ -7,7 +7,7 @@ import { orderService } from '../../services'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
 import { lps } from '../../lib/format'
-import { GRINDS, type Grind } from '../../types'
+import { GRINDS, type Grind, type OrderQuote } from '../../types'
 
 export function CheckoutPage() {
   const { items, totalLps, clear } = useCart()
@@ -16,6 +16,8 @@ export function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false)
   const [orderId, setOrderId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [quote, setQuote] = useState<OrderQuote | null>(null)
+  const [wholesale, setWholesale] = useState(false)
   const [grinds, setGrinds] = useState<Record<string, Grind>>({})
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -24,14 +26,19 @@ export function CheckoutPage() {
     setSubmitting(true)
     setError(null)
     try {
+      if (!quote) {
+        setQuote(await orderService.quote(items.map(i => ({ productId: i.product.id, quantity: i.quantity })), String(data.get('ciudad')), wholesale))
+        return
+      }
       const order = await orderService.createOrder({
         customerName: String(data.get('nombre')), phone: String(data.get('telefono')),
         deliveryAddress: String(data.get('direccion')), city: String(data.get('ciudad')),
         deliveryNotes: String(data.get('notas')), accountId: account?.id,
-      }, items, grinds)
+      }, items, grinds, quote)
       clear()
       setOrderId(order.id)
     } catch (failure) {
+      setQuote(null)
       setError(failure instanceof Error ? failure.message : 'No pudimos registrar tu pedido. Intenta de nuevo.')
     } finally {
       setSubmitting(false)
@@ -82,6 +89,7 @@ export function CheckoutPage() {
       <section className="mx-auto max-w-5xl px-5 pb-28 pt-28 md:px-8 md:pt-36">
         <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Confirmar pedido</h1>
 
+        {orderService.hasPendingOrder() && <div className="mt-6 rounded border border-border p-4"><p>Hay un envío anterior por verificar. Se recuperará con sus datos originales.</p><button disabled={submitting} className="mt-2 underline" onClick={async () => { setSubmitting(true); try { const order = await orderService.recoverOrder(); clear(); setOrderId(order.id) } catch (failure) { setError(failure instanceof Error ? failure.message : 'No se pudo verificar.') } finally { setSubmitting(false) } }}>Verificar envío anterior</button></div>}
         <div className="mt-12 grid gap-14 md:grid-cols-[1fr_380px]">
           <aside className="h-fit md:col-start-2 md:row-start-1 rounded-lg border border-border p-6">
             <h2 className="font-display text-lg font-bold">Resumen</h2>
@@ -96,7 +104,7 @@ export function CheckoutPage() {
                   <label htmlFor={`grind-${product.id}`} className="block text-sm">Preparación de {product.name}</label>
                   <select id={`grind-${product.id}`} form="checkout" disabled={submitting}
                     value={grinds[product.id] ?? 'En grano'}
-                    onChange={event => setGrinds(current => ({ ...current, [product.id]: event.target.value as Grind }))}
+                    onChange={event => { setQuote(null); setGrinds(current => ({ ...current, [product.id]: event.target.value as Grind })) }}
                     className="w-full rounded border border-input bg-background px-3 py-2">
                     {GRINDS.map(grind => <option key={grind}>{grind}</option>)}
                   </select>
@@ -107,9 +115,11 @@ export function CheckoutPage() {
               <span>Productos</span>
               <span>{lps(totalLps)}</span>
             </div>
+            <label className="mt-4 flex items-start gap-2 text-sm"><input type="checkbox" checked={wholesale} disabled={submitting} onChange={event => { setWholesale(event.target.checked); setQuote(null) }} />Solicitar tarifa mayorista del escenario (mínimo 5 kg; cafés empresariales).</label>
+            {quote && <div role="status" className="mt-4 space-y-2 border-t border-border pt-4 text-sm"><p className="font-semibold">{quote.terms.scenario ? 'ESCENARIO DE PRUEBA · ' : ''}{quote.terms.version}</p><p>Subtotal: {lps(quote.terms.subtotalLps)}</p><p>Descuento: {lps(quote.terms.discountLps)}</p><p>Envío: {quote.terms.shippingLps === null ? 'Por cotizar antes de aprobar' : lps(quote.terms.shippingLps)}</p><p className="font-bold">{quote.terms.shippingLps === null ? 'Importe conocido' : 'Total'}: {lps(quote.terms.totalLps)}</p></div>}
             <p className="mt-3 text-sm text-muted-foreground">Envío y disponibilidad sujetos a confirmación. El importe mostrado corresponde a los productos.</p>
           </aside>
-          <form id="checkout" onSubmit={handleSubmit} className="space-y-5 md:col-start-1 md:row-start-1">
+          <form id="checkout" onChange={() => setQuote(null)} onSubmit={handleSubmit} className="space-y-5 md:col-start-1 md:row-start-1">
             {[
               { name: 'nombre', label: 'Nombre completo', type: 'text', autoComplete: 'name', defaultValue: account?.name },
               { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel', defaultValue: account?.phone },
@@ -149,10 +159,10 @@ export function CheckoutPage() {
             {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || orderService.hasPendingOrder()}
               className="w-full cursor-pointer rounded-full bg-primary py-4 font-semibold text-primary-foreground transition-colors hover:bg-forest disabled:opacity-60"
             >
-              {submitting ? 'Registrando pedido...' : `Confirmar — ${lps(totalLps)}`}
+              {submitting ? 'Procesando…' : quote ? `Confirmar pedido — ${lps(quote.terms.totalLps)}` : 'Revisar importes y condiciones'}
             </button>
             <p className="text-xs text-muted-foreground">
               El pago se coordina fuera de la plataforma. Este formulario registra tu pedido, no realiza un cobro.

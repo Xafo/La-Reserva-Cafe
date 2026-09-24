@@ -1,0 +1,212 @@
+[
+  {
+    "id": "p-blend",
+    "name": "La Reserva Blend",
+    "origin": "Campamento, Olancho",
+    "region": "Olancho",
+    "process": "Lavado",
+    "roast": "Medio",
+    "presentationGrams": 340,
+    "priceLps": 320,
+    "stock": 120,
+    "active": true,
+    "description": "Escenario de demostración: La Reserva Blend. Perfil cítrico, caramelo, balanceado. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/bolsa-blend.jpg",
+    "imageAlt": "Fotografía de referencia de La Reserva para La Reserva Blend",
+    "quality": {
+      "grainType": "Lempira / IHCAFE 90 / Obata",
+      "altitudeMasl": 1250,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Tostaduría La Reserva",
+      "grade": "Exportacion",
+      "cuppingScore": 84.5,
+      "notes": [
+        "Cítrico",
+        "Caramelo",
+        "Balanceado"
+      ],
+      "productId": "p-blend"
+    }
+  },
+  {
+    "id": "p-josuegalo",
+    "name": "Josue Galo",
+    "origin": "Guaimaca, Francisco Morazán",
+    "region": "Francisco Morazán",
+    "process": "Honey",
+    "roast": "Claro",
+    "presentationGrams": 340,
+    "priceLps": 420,
+    "stock": 45,
+    "active": true,
+    "description": "Escenario de demostración: Josue Galo. Perfil lima, panela, compacto. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/bolsa-josuegalo.jpg",
+    "imageAlt": "Fotografía de referencia de La Reserva para Josue Galo",
+    "quality": {
+      "grainType": "Parainema",
+      "altitudeMasl": 1350,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Josue Galo",
+      "grade": "Premium",
+      "cuppingScore": 86.5,
+      "notes": [
+        "Lima",
+        "Panela",
+        "Compacto"
+      ],
+      "productId": "p-josuegalo"
+    }
+  },
+  {
+    "id": "p-nahun",
+    "name": "Nahun Vidal Sanchez",
+    "origin": "El Zurzular, Cantarranas",
+    "region": "Francisco Morazán",
+    "process": "Natural",
+    "roast": "Claro",
+    "presentationGrams": 340,
+    "priceLps": 450,
+    "stock": 30,
+    "active": true,
+    "description": "Escenario de demostración: Nahun Vidal Sanchez. Perfil cacao, piña, miel. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/bolsa-nahun.jpg",
+    "imageAlt": "Fotografía de referencia de La Reserva para Nahun Vidal Sanchez",
+    "quality": {
+      "grainType": "Catuai",
+      "altitudeMasl": 1420,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Nahun Vidal Sanchez",
+      "grade": "Premium",
+      "cuppingScore": 87.5,
+      "notes": [
+        "Cacao",
+        "Piña",
+        "Miel"
+      ],
+      "productId": "p-nahun"
+    }
+  },
+  {
+    "id": "p-espresso",
+    "name": "Espresso de Casa",
+    "origin": "Blend hondureño",
+    "region": "Olancho",
+    "process": "Lavado",
+    "roast": "Oscuro",
+    "presentationGrams": 340,
+    "priceLps": 340,
+    "stock": 90,
+    "active": true,
+    "description": "Escenario de demostración: Espresso de Casa. Perfil chocolate oscuro, nuez, panela. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/espresso.jpg",
+    "imageAlt": "Fotografía de referencia de La Reserva para Espresso de Casa",
+    "quality": {
+      "grainType": "Catuai / Lempira",
+      "altitudeMasl": 1200,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Tostaduría La Reserva",
+      "grade": "Exportacion",
+      "cuppingScore": 83.5,
+      "notes": [
+        "Chocolate oscuro",
+        "Nuez",
+        "Panela"
+      ],
+      "productId": "p-espresso"
+    }
+  },
+  {
+    "id": "demo-carolina-claros",
+    "name": "Carolina Claros",
+    "origin": "Origen de prueba, Honduras",
+    "region": "Región de prueba",
+    "process": "Lavado",
+    "roast": "Claro",
+    "presentationGrams": 340,
+    "priceLps": 680,
+    "stock": 16,
+    "active": true,
+    "description": "Escenario de demostración: Carolina Claros. Perfil jazmín, té blanco, bergamota. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/cupping-tazas.jpg",
+    "imageAlt": "Fotografía ilustrativa de La Reserva; no representa el producto simulado",
+    "quality": {
+      "grainType": "Geisha",
+      "altitudeMasl": 1650,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Carolina Claros",
+      "grade": "Premium",
+      "cuppingScore": 89,
+      "notes": [
+        "Jazmín",
+        "Té blanco",
+        "Bergamota"
+      ],
+      "productId": "demo-carolina-claros"
+    }
+  },
+  {
+    "id": "demo-miguel-angel",
+    "name": "Miguel Angel",
+    "origin": "Origen de prueba, Honduras",
+    "region": "Región de prueba",
+    "process": "Natural",
+    "roast": "Medio",
+    "presentationGrams": 340,
+    "priceLps": 490,
+    "stock": 28,
+    "active": true,
+    "description": "Escenario de demostración: Miguel Angel. Perfil vino, frutos rojos, especias. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/granos.jpg",
+    "imageAlt": "Fotografía ilustrativa de La Reserva; no representa el producto simulado",
+    "quality": {
+      "grainType": "Catuai",
+      "altitudeMasl": 1450,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Miguel Angel",
+      "grade": "Premium",
+      "cuppingScore": 88,
+      "notes": [
+        "Vino",
+        "Frutos rojos",
+        "Especias"
+      ],
+      "productId": "demo-miguel-angel"
+    }
+  },
+  {
+    "id": "demo-roberto-lopez",
+    "name": "Roberto Lopez",
+    "origin": "Origen de prueba, Honduras",
+    "region": "Región de prueba",
+    "process": "Lavado",
+    "roast": "Oscuro",
+    "presentationGrams": 340,
+    "priceLps": 390,
+    "stock": 55,
+    "active": true,
+    "description": "Escenario de demostración: Roberto Lopez. Perfil chocolate, nuez, panela. Precio, disponibilidad y ficha para pruebas; no constituyen una oferta comercial.",
+    "imageUrl": "/marca/espresso.jpg",
+    "imageAlt": "Fotografía ilustrativa de La Reserva; no representa el producto simulado",
+    "quality": {
+      "grainType": "Bourbon",
+      "altitudeMasl": 1400,
+      "humidityPct": 11,
+      "harvestDate": "2026-02-01",
+      "producer": "Roberto Lopez",
+      "grade": "Premium",
+      "cuppingScore": 86,
+      "notes": [
+        "Chocolate",
+        "Nuez",
+        "Panela"
+      ],
+      "productId": "demo-roberto-lopez"
+    }
+  }
+]

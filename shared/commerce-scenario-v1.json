@@ -1,0 +1,71 @@
+{
+  "version": "demo-v1",
+  "commercial": {
+    "currency": "HNL",
+    "corporateBudgetCurrency": "USD",
+    "budgetPolicy": "USD es una hipótesis exclusiva de esta demo para conservar los rangos del PDF; no se convierte ni se mezcla con precios HNL.",
+    "shipping": {
+      "coverage": [
+        "Tegucigalpa"
+      ],
+      "feeLps": 80,
+      "freeFromProductSubtotalLps": 1000,
+      "estimatedBusinessDays": {
+        "min": 2,
+        "max": 4
+      },
+      "outsideCoverage": "manual-quote"
+    },
+    "payment": {
+      "mode": "simulated-offline-coordination",
+      "chargeEnabled": false
+    },
+    "stock": {
+      "policy": "reserve-on-approval-release-on-cancellation",
+      "allowOverselling": false
+    },
+    "corporate": {
+      "frequency": [
+        "weekly",
+        "fortnightly",
+        "monthly"
+      ],
+      "monthlyBilling": "subject-to-manual-approval",
+      "automaticSubscription": false
+    },
+    "wholesale": {
+      "scopeProductIds": [
+        "p-blend",
+        "p-espresso",
+        "demo-roberto-lopez"
+      ],
+      "minimumKg": 5,
+      "rounding": "HALF_UP_2_DECIMALS",
+      "tiers": [
+        {
+          "minKg": 5,
+          "maxKgExclusive": 15,
+          "discountPct": 5
+        },
+        {
+          "minKg": 15,
+          "maxKgExclusive": 30,
+          "discountPct": 8
+        },
+        {
+          "minKg": 30,
+          "maxKgExclusive": null,
+          "discountPct": 10
+        }
+      ],
+      "exclusivity": "request-only-no-automatic-grant",
+      "priorityDelivery": "subject-to-manual-quote"
+    },
+    "producer": {
+      "status": "candidate-only",
+      "sellingEnabled": false,
+      "launchPhase": 2,
+      "firstMonthCommissionWaiver": "future-demo-proposal-not-active"
+    }
+  }
+}

@@ -30,6 +30,6 @@ export function CommercialResult({ profile, onSubmit, demo = false, children }: 
       finally { setBusy(false) }
     }} className="mt-6 cursor-pointer rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50">{busy ? 'Guardando…' : summary.action}</button>}
     {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
-    <div className="mt-5"><Link className="font-medium text-primary underline underline-offset-4" to={profile.profile === 'producer' ? '/origen' : '/tienda'}>{profile.profile === 'producer' ? 'Conocer el proyecto y sus etapas' : 'Ver catálogo disponible'}</Link></div>
+    <div className="mt-5"><Link className="font-medium text-primary underline underline-offset-4" to={profile.profile === 'producer' ? '/origen' : '/empresas'}>{profile.profile === 'producer' ? 'Conocer el proyecto y sus etapas' : 'Ver catálogo empresarial'}</Link></div>
   </section>
 }

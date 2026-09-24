@@ -250,6 +250,10 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("city");
 
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -267,9 +271,24 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("delivery_notes");
 
+                    b.Property<string>("HistoryJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("[]")
+                        .HasColumnType("text")
+                        .HasColumnName("history_json");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text")
                         .HasColumnName("phone");
+
+                    b.Property<string>("RequestHash")
+                        .HasColumnType("text")
+                        .HasColumnName("request_hash");
+
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("request_id");
 
                     b.Property<string>("Status")
                         .IsConcurrencyToken()
@@ -281,6 +300,11 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("stock_reserved");
 
+                    b.Property<string>("TermsJson")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text")
+                        .HasColumnName("terms_json");
+
                     b.Property<decimal>("TotalLps")
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)")
@@ -291,6 +315,10 @@ namespace LaReserva.Infrastructure.Migrations
 
                     b.HasIndex("AccountId")
                         .HasDatabaseName("ix_orders_account_id");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_orders_request_id");
 
                     b.ToTable("orders", "la_reserva");
                 });

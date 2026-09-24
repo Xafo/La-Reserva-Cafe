@@ -34,6 +34,11 @@ public sealed class QualityProfile
 
 public sealed class Order
 {
+    public Guid? RequestId { get; set; }
+    public string? RequestHash { get; set; }
+    public string? TermsJson { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public string HistoryJson { get; set; } = "[]";
     public bool StockReserved { get; set; }
     public required string Id { get; set; }
     public required string CustomerName { get; set; }

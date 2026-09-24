@@ -4,16 +4,20 @@ import { ShoppingBag, UserRound } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { BrandMark } from './BrandMark'
+import { api } from '../../config/api'
 import { cn } from '../../lib/utils'
 
 const links = [
   { to: '/tienda', label: 'Tienda' },
+  { to: '/empresas', label: 'Empresas' },
   { to: '/origen', label: 'Origen' },
 ]
 
 export function StoreNav({ overHero = false }: { overHero?: boolean }) {
   const { count, open } = useCart()
   const { account } = useCustomerAuth()
+  const [scenario, setScenario] = useState(false)
+  useEffect(() => { api<{ scenarioEnabled: boolean }>('/commerce').then(c => setScenario(c.scenarioEnabled)).catch(() => undefined) }, [])
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -97,6 +101,7 @@ export function StoreNav({ overHero = false }: { overHero?: boolean }) {
           </button>
         </div>
       </nav>
+      {scenario && <p role="status" className="bg-primary px-5 py-2 text-center text-xs text-primary-foreground">Entorno de simulación: catálogo y condiciones de prueba. Sin cobros ni entregas reales.</p>}
     </header>
   )
 }

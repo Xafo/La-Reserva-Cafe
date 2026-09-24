@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
@@ -18,6 +19,7 @@ public static partial class ApiEndpoints
         MapAuth(routes.MapGroup("/api/auth"));
         MapProducts(routes.MapGroup("/api/products"));
         MapOrders(routes.MapGroup("/api/orders"));
+        MapCommerce(routes);
         MapCustomers(routes.MapGroup("/api/customers"));
         MapUsers(routes.MapGroup("/api/users"));
         MapAccounts(routes.MapGroup("/api/accounts"));
@@ -195,7 +197,7 @@ public static partial class ApiEndpoints
             return Results.Ok(orders.Select(value => value.ToDto()));
         }).RequireAuthorization("Team");
 
-        group.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal principal, IConfiguration configuration, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             var error = OrderRules.Validate(request);
             if (error is not null) return Results.BadRequest(new { error });
@@ -206,16 +208,30 @@ public static partial class ApiEndpoints
             if (accountId is not null && !await db.CustomerAccounts.AnyAsync(a => a.Id == accountId, cancellationToken))
                 return Results.Unauthorized();
 
+            if (request.RequestId is null || request.RequestId == Guid.Empty)
+                return Results.BadRequest(new { error = "El pedido requiere una clave de reintento válida." });
+            var requestHash = CommerceRules.Hash(JsonSerializer.Serialize(new { request, accountId }));
+            var previous = await db.Orders.AsNoTracking().Include(o => o.Items).SingleOrDefaultAsync(o => o.RequestId == request.RequestId, cancellationToken);
+            if (previous is not null)
+                return previous.RequestHash == requestHash ? Results.Ok(previous.ToDto()) : Results.Conflict(new { error = "Esta clave ya corresponde a otro contenido. Revisá el pedido antes de iniciar uno nuevo." });
+
             var requestedIds = request.Items.Select(value => value.ProductId).Distinct().ToArray();
             var products = await db.Products.Where(value => requestedIds.Contains(value.Id) && value.Active)
                 .ToDictionaryAsync(value => value.Id, cancellationToken);
             if (products.Count != requestedIds.Length)
                 return Results.BadRequest(new { error = "Uno o más productos no existen o están inactivos." });
 
+            OrderQuote quote;
+            try { quote = CommerceRules.Quote(new(request.Items, request.City!, request.Wholesale), products, configuration.GetValue<bool>("Commerce:ScenarioEnabled")); }
+            catch (ArgumentException exception) { return Results.BadRequest(new { error = exception.Message }); }
+            if (request.QuoteToken != quote.Token)
+                return Results.Conflict(new { error = "La cotización cambió. Revisá los importes y volvé a confirmar." });
+
             var orderId = $"OC-{DateTimeOffset.UtcNow.Year}-{Guid.NewGuid():N}"[..20].ToUpperInvariant();
             var order = new Order
             {
                 Id = orderId,
+                RequestId = request.RequestId, RequestHash = requestHash, TermsJson = JsonSerializer.Serialize(quote.Terms),
                 CustomerName = request.CustomerName.Trim(),
                 AccountId = accountId,
                 Phone = request.Phone!.Trim(),
@@ -224,7 +240,7 @@ public static partial class ApiEndpoints
                 DeliveryNotes = string.IsNullOrWhiteSpace(request.DeliveryNotes) ? null : request.DeliveryNotes.Trim(),
                 Status = "Pendiente",
                 CreatedAt = DateTimeOffset.UtcNow,
-                TotalLps = request.Items.Sum(value => products[value.ProductId].PriceLps * value.Quantity),
+                TotalLps = quote.Terms.TotalLps,
                 Items = request.Items.Select(value => new OrderItem
                 {
                     OrderId = orderId,
@@ -237,12 +253,20 @@ public static partial class ApiEndpoints
                     UnitPriceLps = products[value.ProductId].PriceLps,
                 }).ToList(),
             };
+            CommerceRules.Record(order, accountId ?? "guest", "Pedido registrado.");
             db.Orders.Add(order);
-            await db.SaveChangesAsync(cancellationToken);
+            try { await db.SaveChangesAsync(cancellationToken); }
+            catch (DbUpdateException exception) when (exception.InnerException is Npgsql.PostgresException { SqlState: "23505" })
+            {
+                db.ChangeTracker.Clear();
+                var duplicate = await db.Orders.AsNoTracking().Include(o => o.Items).SingleOrDefaultAsync(o => o.RequestId == request.RequestId, cancellationToken);
+                if (duplicate?.RequestHash == requestHash) return Results.Ok(duplicate.ToDto());
+                return Results.Conflict(new { error = "La clave de pedido ya fue utilizada. Revisá su contenido." });
+            }
             return Results.Created($"/api/orders/{order.Id}", order.ToDto());
         });
 
-        group.MapPatch("/{id}/status", async (string id, UpdateOrderStatusRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPatch("/{id}/status", async (string id, UpdateOrderStatusRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (!OrderStatuses.Contains(request.Status)) return Results.BadRequest(new { error = "Estado inválido." });
             var order = await db.Orders.Include(o => o.Items).SingleOrDefaultAsync(o => o.Id == id, cancellationToken);
@@ -250,10 +274,14 @@ public static partial class ApiEndpoints
             if (request.Status == order.Status) return Results.NoContent();
             if (request.ExpectedStatus != order.Status)
                 return Results.Conflict(new { error = "El estado cambió. Recargá los pedidos antes de continuar." });
+            if (request.Status == "Aprobada" && order.TermsJson is not null && order.ToDto().Terms!.ShippingLps is null)
+                return Results.Conflict(new { error = "Registrá primero la cotización de envío acordada con el cliente." });
             var ids = order.Items.Select(i => i.ProductId).Distinct().ToArray();
             var products = await db.Products.Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, cancellationToken);
             var error = OrderInventory.Apply(order, request.Status, products);
             if (error is not null) return Results.Conflict(new { error });
+            if (request.Status == "Finalizada") order.CompletedAt = DateTimeOffset.UtcNow;
+            CommerceRules.Record(order, principal.FindFirstValue("sub") ?? "team", $"Estado: {request.ExpectedStatus} → {request.Status}");
             // One SaveChanges transaction persists every stock change and the status, or none.
             try { await db.SaveChangesAsync(cancellationToken); }
             catch (DbUpdateConcurrencyException) { return Results.Conflict(new { error = "Otro proceso cambió el pedido o las existencias. Recargá e intentá de nuevo." }); }
@@ -474,33 +502,34 @@ public static partial class ApiEndpoints
 
     private static void MapReports(RouteGroupBuilder group)
     {
-        group.MapGet("/summary", async (LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapGet("/summary", async (string? from, string? to, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
-            var products = await db.Products.AsNoTracking().Include(value => value.Quality).ToListAsync(cancellationToken);
-            var orders = await db.Orders.AsNoTracking().Include(value => value.Items)
-                .OrderByDescending(value => value.CreatedAt).ToListAsync(cancellationToken);
-            var topProducts = orders.SelectMany(value => value.Items)
-                .GroupBy(value => value.ProductName)
-                .Select(grouping => new TopProductDto(grouping.Key, grouping.Sum(value => value.Quantity)))
-                .OrderByDescending(value => value.Units).Take(5).ToArray();
-            return Results.Ok(new ReportSummaryDto(
-                orders.Where(value => value.Status == "Finalizada").Sum(value => value.TotalLps),
-                orders.Count(value => value.Status == "Pendiente"),
-                products.Count(value => value.Active),
-                products.Where(value => value.Stock < 25).Select(value => value.ToDto()).ToArray(),
-                orders.Take(5).Select(value => value.ToDto()).ToArray(),
-                topProducts));
+            ReportPeriod period;
+            try { period = ReportRules.Period(from, to, DateTimeOffset.UtcNow); }
+            catch (ArgumentException error) { return Results.BadRequest(new { error = error.Message }); }
+            var products = await db.Products.AsNoTracking().Include(p => p.Quality).ToListAsync(cancellationToken);
+            var orders = await db.Orders.AsNoTracking().Include(o => o.Items).OrderByDescending(o => o.CreatedAt).ToListAsync(cancellationToken);
+            var sales = ReportRules.Sales(orders, period);
+            return Results.Ok(new ReportSummaryDto(sales.Sum(o => o.TotalLps), orders.Count(o => o.Status == "Pendiente"),
+                products.Count(p => p.Active), products.Where(p => p.Active && p.Stock < 25).Select(p => p.ToDto()).ToArray(),
+                orders.Take(5).Select(o => o.ToDto()).ToArray(), ReportRules.Ranking(sales).Take(5).ToArray(),
+                period.From.ToString("yyyy-MM-dd"), period.To.ToString("yyyy-MM-dd"), orders.Count(o => o.Status == "Finalizada" && o.CompletedAt == null)));
         }).RequireAuthorization("ReportsView");
 
-        group.MapGet("/export", async (string type, string format, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapGet("/export", async (string type, string format, string? from, string? to, string? status, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
-            if (!new[] { "productos", "ordenes", "ventas", "inventario", "mas-vendidos", "movimientos" }.Contains(type) || !new[] { "pdf", "xlsx" }.Contains(format))
-                return Results.BadRequest(new { error = "Tipo o formato inválido." });
+            if (!new[] { "productos", "ordenes", "ventas", "inventario", "mas-vendidos", "movimientos" }.Contains(type)
+                || !new[] { "pdf", "xlsx" }.Contains(format) || status is not null && !OrderStatuses.Contains(status))
+                return Results.BadRequest(new { error = "Tipo, formato o estado inválido." });
+            ReportPeriod period;
+            try { period = ReportRules.Period(from, to, DateTimeOffset.UtcNow); }
+            catch (ArgumentException error) { return Results.BadRequest(new { error = error.Message }); }
             var products = await db.Products.AsNoTracking().ToListAsync(cancellationToken);
-            var orders = await db.Orders.AsNoTracking().Include(value => value.Items).ToListAsync(cancellationToken);
-            if (format == "xlsx") return Results.File(ReportDocuments.Excel(type, products, orders), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx");
-            var document = ReportDocuments.OrderPdf(new Order { Id = $"Reporte {type}", CustomerName = "LA RESERVA", Status = "", CreatedAt = DateTimeOffset.UtcNow, TotalLps = orders.Sum(value => value.TotalLps), Items = orders.SelectMany(value => value.Items).ToList() });
-            return Results.File(document, "application/pdf", $"{type}.pdf");
+            var orders = await db.Orders.AsNoTracking().Include(o => o.Items).ToListAsync(cancellationToken);
+            var table = ReportDocuments.BuildReport(type, products, orders, period, status);
+            return format == "xlsx"
+                ? Results.File(ReportDocuments.ReportExcel(table), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx")
+                : Results.File(ReportDocuments.ReportPdf(table), "application/pdf", $"{type}.pdf");
         }).RequireAuthorization("ReportsView");
     }
 

@@ -6,6 +6,9 @@ import { lps, shortDate } from '../../lib/format'
 import type { Order, Product } from '../../types'
 
 interface Summary {
+  from: string
+  to: string
+  undatedFinalizedOrders: number
   salesLps: number
   pendingOrders: number
   activeProducts: number
@@ -15,14 +18,16 @@ interface Summary {
 }
 
 export function DashboardPage() {
+  const [error, setError] = useState(false)
   const [summary, setSummary] = useState<Summary | null>(null)
 
   useEffect(() => {
-    reportService.getSummary().then(setSummary)
+    reportService.getSummary().then(setSummary).catch(() => setError(true))
   }, [])
 
   return (
     <AdminLayout title="Dashboard">
+      {error && <p role="alert">No se pudo cargar el resumen. Recargá para reintentar.</p>}
       {!summary ? (
         <div className="grid gap-4 md:grid-cols-3" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -30,7 +35,7 @@ export function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-8"><p className="text-sm">Ventas y ranking: {summary.from} a {summary.to}, Honduras (UTC−6). Pendientes e inventario: actuales. Pedidos finalizados históricos sin fecha, excluidos: {summary.undatedFinalizedOrders}.</p>
           <div className="grid gap-4 md:grid-cols-3">
             {[
               { label: 'Ventas finalizadas (mes)', value: lps(summary.salesLps) },
