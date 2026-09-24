@@ -23,7 +23,7 @@ export function OriginPage() {
       <section className="relative bg-forest-deep text-forest-foreground">
         <img src={IMG.cuppingMesa} alt="Mesa de catación en La Reserva, donde comienza nuestra historia" className="absolute inset-0 h-full w-full object-cover opacity-25" />
         <div className="relative mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-36">
-          <h1 className="max-w-4xl font-display text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.08] tracking-tight">De La Reserva a Directo Café</h1>
+          <h1 className="max-w-4xl font-display text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.08] tracking-tight">De La Reserva a Directo Cafe</h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-forest-foreground/90">Nuestra historia empieza en una tostaduría hondureña, sirviendo una taza de café con cuidado.</p>
         </div>
       </section>
@@ -33,8 +33,8 @@ export function OriginPage() {
           <h2 id="story-heading" className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">La frescura nos abrió una pregunta</h2>
           <div className="mt-6 max-w-prose space-y-5 leading-relaxed text-muted-foreground">
             <p>Empezamos vendiendo café en La Reserva. Taza tras taza, nuestros clientes notaban una diferencia: la frescura. Eso nos hizo preguntarnos qué pasaría si pudiéramos llevar esa experiencia a más personas.</p>
-            <p>Al mismo tiempo, veíamos un mercado lleno de historias que no siempre se cumplían al probar el café. Directo Café nace de esas dos experiencias: lo que aprendimos tostando y el deseo de que cada producto cumpla lo que promete.</p>
-            <p>La Reserva es nuestra tostaduría y nuestro punto de partida. Directo Café es la plataforma que nace de ella: comenzamos con sus cafés y queremos abrir, más adelante, un espacio para otras fincas y tostadurías.</p>
+            <p>Al mismo tiempo, veíamos un mercado lleno de historias que no siempre se cumplían al probar el café. Directo Cafe nace de esas dos experiencias: lo que aprendimos tostando y el deseo de que cada producto cumpla lo que promete.</p>
+            <p>La Reserva es nuestra tostaduría y nuestro punto de partida. Directo Cafe es la plataforma que nace de ella: comenzamos con sus cafés y queremos abrir, más adelante, un espacio para otras fincas y tostadurías.</p>
           </div>
         </Reveal>
         <Reveal delay={100}>

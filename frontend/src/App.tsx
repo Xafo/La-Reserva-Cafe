@@ -14,6 +14,8 @@ import { OriginPage } from './pages/store/OriginPage'
 import { RegisterPage } from './pages/store/RegisterPage'
 import { CustomerLoginPage } from './pages/store/CustomerLoginPage'
 import { AccountPage } from './pages/store/AccountPage'
+import { PasswordRecoveryPage } from './pages/admin/PasswordRecoveryPage'
+import { AuditPage } from './pages/admin/AuditPage'
 import { LoginPage } from './pages/admin/LoginPage'
 import { DashboardPage } from './pages/admin/DashboardPage'
 import { ProductsPage } from './pages/admin/ProductsPage'
@@ -66,6 +68,9 @@ function App() {
                 <Route path="/registro" element={<RegisterPage />} />
                 <Route path="/ingresar" element={<CustomerLoginPage />} />
                 <Route path="/cuenta" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
+                <Route path="/admin/forgot-password" element={<PasswordRecoveryPage />} />
+                <Route path="/admin/reset-password" element={<PasswordRecoveryPage reset />} />
+                <Route path="/admin/auditoria" element={<ProtectedRoute><AuditPage /></ProtectedRoute>} />
                 <Route path="/admin/login" element={<LoginPage />} />
                 <Route path="/admin" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                 <Route path="/admin/productos" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />

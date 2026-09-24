@@ -72,6 +72,9 @@ public sealed record CreateOrderItemRequest(string ProductId, int Quantity, stri
 public sealed record UpdateOrderStatusRequest(string Status, string? ExpectedStatus = null);
 public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
 public sealed record SaveUserRequest(string Name, string Email, string Role, string? InitialPassword, bool Active = true);
+public sealed record ForgotPasswordRequest(string Email);
+public sealed record ResetPasswordRequest(string Token, string Password);
+public sealed record AuditEntryDto(long Id, string ActorId, string Action, string Entity, string EntityId, DateTimeOffset OccurredAt);
 
 public sealed record ReportSummaryDto(
     decimal SalesLps,
@@ -79,7 +82,7 @@ public sealed record ReportSummaryDto(
     int ActiveProducts,
     ProductDto[] LowStock,
     OrderDto[] RecentOrders,
-    TopProductDto[] TopProducts, string From, string To, int UndatedFinalizedOrders);
+    TopProductDto[] TopProducts, string From, string To, int UndatedFinalizedOrders, AuditEntryDto[] RecentActivity);
 
 public sealed record TopProductDto(string Name, int Units);
 
@@ -104,6 +107,7 @@ public static class DtoMapper
         new(value.Id, value.Name, value.Email, value.Phone, value.Type, value.City, value.TotalOrders);
 
     public static UserDto ToDto(this User value) => new(value.Id, value.Name, value.Email, value.Role, value.Active);
+    public static AuditEntryDto ToDto(this AuditEntry value) => new(value.Id, value.ActorId, value.Action, value.Entity, value.EntityId, value.OccurredAt);
 
     public static CustomerAccountDto ToDto(this CustomerAccount value) => new(
         value.Id, value.Name, value.Email, value.Phone, value.City, value.CreatedAt,

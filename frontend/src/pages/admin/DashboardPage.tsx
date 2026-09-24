@@ -15,6 +15,7 @@ interface Summary {
   lowStock: Product[]
   recentOrders: Order[]
   topProducts: { name: string; units: number }[]
+  recentActivity: { id: number; actorId: string; action: string; entity: string; entityId: string; occurredAt: string }[]
 }
 
 export function DashboardPage() {
@@ -98,6 +99,11 @@ export function DashboardPage() {
                     )
                   })}
                 </ul>
+              </section>
+
+              <section className="rounded-lg border border-border bg-background p-5">
+                <h2 className="font-display font-bold">Actividad reciente</h2>
+                <ul className="mt-3 space-y-2 text-sm">{summary.recentActivity.length ? summary.recentActivity.map((entry) => <li key={entry.id}><span className="font-medium">{entry.action}</span><span className="text-muted-foreground"> · {shortDate(entry.occurredAt)}</span></li>) : <li className="text-muted-foreground">Sin actividad registrada.</li>}</ul>
               </section>
 
               <section className="rounded-lg border border-border bg-background p-5">
