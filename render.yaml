@@ -1,10 +1,10 @@
 services:
   - type: web
-    name: la-reserva-cafe
+    name: directo-cafe
     runtime: docker
     plan: free
     region: virginia
-    branch: Astra
+    branch: main
     dockerfilePath: ./deploy/Dockerfile.render
     healthCheckPath: /health
     autoDeployTrigger: off
