@@ -94,32 +94,51 @@ public static partial class ApiEndpoints
             return Results.NoContent();
         });
 
-        group.MapPost("/forgot-password", async (ForgotPasswordRequest request, LaReservaDbContext db, ILogger<Program> logger, CancellationToken cancellationToken) =>
+        group.MapPost("/forgot-password", async (ForgotPasswordRequest request, LaReservaDbContext db, IPasswordResetEmail emailSender, ILogger<Program> logger, CancellationToken cancellationToken) =>
         {
+            if (string.IsNullOrWhiteSpace(request.Email) || !EmailPattern().IsMatch(request.Email.Trim()))
+                return Results.BadRequest(new { error = "Escribe un correo válido." });
+            if (!emailSender.Enabled)
+                return Results.Json(new { error = "La recuperación por correo aún no está disponible. Contacta al administrador." }, statusCode: 503);
             var user = await db.Users.SingleOrDefaultAsync(value => value.Email == NormalizeEmail(request.Email), cancellationToken);
-            if (user is not null)
+            if (user is { Active: true })
             {
                 var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
-                db.PasswordResetTokens.Add(new PasswordResetToken { Id = Guid.NewGuid(), UserId = user.Id, TokenHash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(rawToken))), ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(30) });
+                var reset = new PasswordResetToken { Id = Guid.NewGuid(), UserId = user.Id, TokenHash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(rawToken))), ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(30) };
+                db.PasswordResetTokens.Add(reset);
                 await db.SaveChangesAsync(cancellationToken);
-                logger.LogInformation("Password reset requested for user {UserId}; configure a transactional email provider to deliver the token.", user.Id);
+                try
+                {
+                    await emailSender.SendAsync(user.Email, rawToken, cancellationToken);
+                }
+                catch (Exception exception) when (exception is HttpRequestException or System.Net.Mail.SmtpException or OperationCanceledException)
+                {
+                    // No registrar el mensaje del proveedor: puede contener destinatarios o tokens.
+                    logger.LogError("No se pudo entregar el correo de recuperación. Tipo: {FailureType}", exception.GetType().Name);
+                    db.PasswordResetTokens.Remove(reset);
+                    await db.SaveChangesAsync(CancellationToken.None);
+                }
             }
             return Results.NoContent();
         }).RequireRateLimiting("auth");
 
         group.MapPost("/reset-password", async (ResetPasswordRequest request, LaReservaDbContext db, IPasswordHasher<User> passwordHasher, CancellationToken cancellationToken) =>
         {
-            if (string.IsNullOrWhiteSpace(request.Token) || request.Password.Length < 12) return Results.BadRequest(new { error = "Solicitud inválida." });
+            if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrEmpty(request.Password) || request.Password.Length < 12) return Results.BadRequest(new { error = "Usa una contraseña de al menos 12 caracteres y un enlace válido." });
+            await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, cancellationToken);
             var hash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(request.Token)));
             var reset = await db.PasswordResetTokens.SingleOrDefaultAsync(value => value.TokenHash == hash && value.UsedAt == null && value.ExpiresAt > DateTimeOffset.UtcNow, cancellationToken);
             if (reset is null) return Results.BadRequest(new { error = "Solicitud inválida o expirada." });
             var user = await db.Users.FindAsync([reset.UserId], cancellationToken);
-            if (user is null) return Results.BadRequest(new { error = "Solicitud inválida." });
+            if (user is not { Active: true }) return Results.BadRequest(new { error = "Solicitud inválida." });
             user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
             reset.UsedAt = DateTimeOffset.UtcNow;
+            var otherTokens = await db.PasswordResetTokens.Where(value => value.UserId == user.Id && value.UsedAt == null).ToListAsync(cancellationToken);
+            foreach (var token in otherTokens) token.UsedAt = reset.UsedAt;
             db.RefreshTokens.RemoveRange(db.RefreshTokens.Where(value => value.SubjectId == user.Id && value.SubjectType == "team"));
             db.AuditEntries.Add(new AuditEntry { ActorId = user.Id, Action = "Restablecer contraseña", Entity = "Usuario", EntityId = user.Id, OccurredAt = DateTimeOffset.UtcNow });
             await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
             return Results.NoContent();
         }).RequireRateLimiting("auth");
     }
@@ -164,7 +183,7 @@ public static partial class ApiEndpoints
             return Results.Created($"/api/products/{id}", product.ToDto());
         }).RequireAuthorization("ProductsWrite").DisableAntiforgery();
 
-        group.MapPost("/{id}/image", async (string id, IFormFile file, IConfiguration configuration, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPost("/{id}/image", async (string id, IFormFile file, ProductImageStorage storage, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (file.Length is <= 0 or > 5_000_000 || !new[] { "image/jpeg", "image/png", "image/webp" }.Contains(file.ContentType))
                 return Results.BadRequest(new { error = "La imagen debe ser JPG, PNG o WebP y pesar menos de 5 MB." });
@@ -173,10 +192,7 @@ public static partial class ApiEndpoints
             if (product is null) return Results.NotFound();
             var extension = file.ContentType switch { "image/jpeg" => ".jpg", "image/png" => ".png", _ => ".webp" };
             var filename = $"{Guid.NewGuid():N}{extension}";
-            var path = Path.Combine(configuration["Uploads:Path"] ?? "/app/uploads", filename);
-            await using var stream = File.Create(path);
-            await file.CopyToAsync(stream, cancellationToken);
-            product.ImageUrl = $"/uploads/{filename}";
+            product.ImageUrl = await storage.SaveAsync(file, filename, cancellationToken);
             await db.SaveChangesAsync(cancellationToken);
             return Results.Ok(product.ToDto());
         }).RequireAuthorization("ProductsWrite").DisableAntiforgery();

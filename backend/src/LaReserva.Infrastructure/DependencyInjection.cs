@@ -20,6 +20,10 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IPasswordHasher<CustomerAccount>, PasswordHasher<CustomerAccount>>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddOptions<EmailOptions>()
+            .Bind(configuration.GetSection("Email"))
+            .Validate(options => options.IsValid(), "Revise Email:Provider, From, ResetUrl y las credenciales del proveedor.")
+            .ValidateOnStart();
         services.AddSingleton(TimeProvider.System);
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))

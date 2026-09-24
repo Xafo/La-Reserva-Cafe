@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: la-reserva-cafe
+    runtime: docker
+    plan: free
+    region: virginia
+    branch: Astra
+    dockerfilePath: ./deploy/Dockerfile.render
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__Postgres
+        sync: false
+      - key: Jwt__SigningKey
+        generateValue: true
+      - key: Seed__DataPath
+        value: /app/seed
+      - key: Seed__AdminPassword
+        generateValue: true
+      - key: Seed__CustomerPassword
+        generateValue: true
+      - key: Uploads__Provider
+        value: Supabase
+      - key: Uploads__SupabaseUrl
+        sync: false
+      - key: Uploads__SupabaseKey
+        sync: false
+      - key: Uploads__Bucket
+        value: product-images
+      - key: Email__Provider
+        value: Disabled
