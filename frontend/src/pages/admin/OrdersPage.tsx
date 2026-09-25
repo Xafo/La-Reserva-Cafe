@@ -8,7 +8,15 @@ import { catalogService, orderService } from '../../services'
 import { lps, shortDate } from '../../lib/format'
 import type { Order, OrderStatus, Product } from '../../types'
 
-const STATUSES: OrderStatus[] = ['Pendiente', 'En revisión', 'Confirmada', 'En preparación', 'Entregada', 'Cancelada', 'Vencida']
+const transitions: Record<OrderStatus, OrderStatus[]> = {
+  Pendiente: ['Pendiente', 'En revisión', 'Cancelada', 'Vencida'],
+  'En revisión': ['En revisión', 'Confirmada', 'Cancelada', 'Vencida'],
+  Confirmada: ['Confirmada', 'En preparación', 'Cancelada'],
+  'En preparación': ['En preparación', 'Entregada', 'Cancelada'],
+  Entregada: ['Entregada'],
+  Cancelada: ['Cancelada'],
+  Vencida: ['Vencida'],
+}
 
 export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -17,14 +25,19 @@ export function OrdersPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [open, setOpen] = useState(false)
   const [lines, setLines] = useState([{ productId: '', quantity: 1 }])
+  const [statusError, setStatusError] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([orderService.getOrders(), catalogService.getProducts(true)]).then(([o, p]) => { setOrders(o); setProducts(p); setLoading(false) })
   }, [])
 
   const changeStatus = async (id: string, status: OrderStatus) => {
+    const previous = orders.find((order) => order.id === id)?.status
+    if (!previous || previous === status) return
+    setStatusError(null)
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)))
-    await orderService.updateStatus(id, status)
+    try { await orderService.updateStatus(id, status) }
+    catch { setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: previous } : o))); setStatusError('No pudimos actualizar la orden. Revisá el inventario o intentá de nuevo.') }
   }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -46,6 +59,7 @@ export function OrdersPage() {
             </button>
           </div>
         </header>
+        {statusError && <p role="alert" className="px-5 pt-4 text-sm text-destructive">{statusError}</p>}
         {loading ? (
           <div className="space-y-2 p-5" aria-busy="true">
             {Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-12 animate-pulse rounded bg-muted" />)}
@@ -89,7 +103,7 @@ export function OrdersPage() {
                           aria-label={`Cambiar estado de ${o.id}`}
                           className="cursor-pointer rounded border border-input bg-background px-1.5 py-1 text-xs"
                         >
-                          {STATUSES.map((s) => <option key={s}>{s}</option>)}
+                          {transitions[o.status].map((s) => <option key={s}>{s}</option>)}
                         </select>
                       </div>
                     </td>
