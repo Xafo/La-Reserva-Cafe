@@ -54,11 +54,11 @@ export const orderService = {
   async getOrders(): Promise<Order[]> {
     return api<Order[]>('/orders', undefined, 'team')
   },
-  async createOrder(customerName: string, items: CartItem[]): Promise<Order> {
+  async createOrder(details: { customerName: string; customerEmail: string; customerPhone: string; deliveryAddress: string; deliveryCity: string; deliveryNotes: string }, items: CartItem[]): Promise<Order> {
     return api<Order>('/orders', {
       method: 'POST',
       body: JSON.stringify({
-        customerName,
+        ...details,
         items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
       }),
     })

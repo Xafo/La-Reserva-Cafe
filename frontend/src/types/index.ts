@@ -45,6 +45,11 @@ export interface OrderItem {
 export interface Order {
   id: string
   customerName: string
+  customerEmail: string | null
+  customerPhone: string | null
+  deliveryAddress: string | null
+  deliveryCity: string | null
+  deliveryNotes: string | null
   items: OrderItem[]
   status: OrderStatus
   createdAt: string

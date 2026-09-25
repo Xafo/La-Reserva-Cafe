@@ -29,7 +29,7 @@ public sealed record ProductDto(
     QualityProfileDto Quality);
 
 public sealed record OrderItemDto(string ProductId, string ProductName, int Quantity, decimal UnitPriceLps);
-public sealed record OrderDto(string Id, string CustomerName, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps);
+public sealed record OrderDto(string Id, string CustomerName, string? CustomerEmail, string? CustomerPhone, string? DeliveryAddress, string? DeliveryCity, string? DeliveryNotes, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps);
 public sealed record CustomerDto(string Id, string Name, string Email, string Phone, string Type, string City, int TotalOrders);
 public sealed record UserDto(string Id, string Name, string Email, string Role, bool Active);
 
@@ -63,7 +63,7 @@ public sealed record AccountAuthResponse(CustomerAccountDto Account, string Acce
 public sealed record RefreshResponse(string AccessToken);
 public sealed record RegisterAccountRequest(string Name, string Email, string Password, string Phone, string City);
 public sealed record UpdatePreferencesRequest(PreferenceProfileDto Preferences, string? RecommendedProductId);
-public sealed record CreateOrderRequest(string CustomerName, CreateOrderItemRequest[] Items);
+public sealed record CreateOrderRequest(string CustomerName, string? CustomerEmail, string? CustomerPhone, string? DeliveryAddress, string? DeliveryCity, string? DeliveryNotes, CreateOrderItemRequest[] Items);
 public sealed record CreateOrderItemRequest(string ProductId, int Quantity);
 public sealed record UpdateOrderStatusRequest(string Status);
 public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
@@ -95,7 +95,7 @@ public static class DtoMapper
             value.Quality.Grade, value.Quality.CuppingScore, value.Quality.Notes));
 
     public static OrderDto ToDto(this Order value) => new(
-        value.Id, value.CustomerName,
+        value.Id, value.CustomerName, value.CustomerEmail, value.CustomerPhone, value.DeliveryAddress, value.DeliveryCity, value.DeliveryNotes,
         value.Items.Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPriceLps)).ToArray(),
         value.Status, value.CreatedAt, value.TotalLps);
 

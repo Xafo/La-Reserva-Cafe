@@ -288,10 +288,30 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("CustomerEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_email");
+
                     b.Property<string>("CustomerName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("customer_name");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_phone");
+
+                    b.Property<string>("DeliveryAddress")
+                        .HasColumnType("text")
+                        .HasColumnName("delivery_address");
+
+                    b.Property<string>("DeliveryCity")
+                        .HasColumnType("text")
+                        .HasColumnName("delivery_city");
+
+                    b.Property<string>("DeliveryNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("delivery_notes");
 
                     b.Property<string>("Status")
                         .IsRequired()

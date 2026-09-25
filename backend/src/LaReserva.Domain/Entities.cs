@@ -35,6 +35,11 @@ public sealed class Order
 {
     public required string Id { get; set; }
     public required string CustomerName { get; set; }
+    public string? CustomerEmail { get; set; }
+    public string? CustomerPhone { get; set; }
+    public string? DeliveryAddress { get; set; }
+    public string? DeliveryCity { get; set; }
+    public string? DeliveryNotes { get; set; }
     public required string Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public decimal TotalLps { get; set; }

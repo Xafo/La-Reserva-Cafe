@@ -93,10 +93,15 @@ const decodeItems = (value: string): OrderItem[] =>
   })
 
 export const orderCodec: EntityCodec<Order> = {
-  headers: ['id', 'customerName', 'items', 'status', 'createdAt', 'totalLps'],
+  headers: ['id', 'customerName', 'customerEmail', 'customerPhone', 'deliveryAddress', 'deliveryCity', 'deliveryNotes', 'items', 'status', 'createdAt', 'totalLps'],
   fromRow: (r) => ({
     id: r.id,
     customerName: r.customerName,
+    customerEmail: r.customerEmail || null,
+    customerPhone: r.customerPhone || null,
+    deliveryAddress: r.deliveryAddress || null,
+    deliveryCity: r.deliveryCity || null,
+    deliveryNotes: r.deliveryNotes || null,
     items: decodeItems(r.items),
     status: r.status as OrderStatus,
     createdAt: r.createdAt,
@@ -105,6 +110,11 @@ export const orderCodec: EntityCodec<Order> = {
   toRow: (o) => ({
     id: o.id,
     customerName: o.customerName,
+    customerEmail: o.customerEmail ?? '',
+    customerPhone: o.customerPhone ?? '',
+    deliveryAddress: o.deliveryAddress ?? '',
+    deliveryCity: o.deliveryCity ?? '',
+    deliveryNotes: o.deliveryNotes ?? '',
     items: encodeItems(o.items),
     status: o.status,
     createdAt: o.createdAt,

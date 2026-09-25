@@ -261,6 +261,11 @@ public static partial class ApiEndpoints
             {
                 Id = orderId,
                 CustomerName = request.CustomerName.Trim(),
+                CustomerEmail = EmptyToNull(request.CustomerEmail),
+                CustomerPhone = EmptyToNull(request.CustomerPhone),
+                DeliveryAddress = EmptyToNull(request.DeliveryAddress),
+                DeliveryCity = EmptyToNull(request.DeliveryCity),
+                DeliveryNotes = EmptyToNull(request.DeliveryNotes),
                 Status = "Pendiente",
                 CreatedAt = DateTimeOffset.UtcNow,
                 TotalLps = request.Items.Sum(value => products[value.ProductId].PriceLps * value.Quantity),
@@ -538,6 +543,8 @@ public static partial class ApiEndpoints
     }
 
     private static string NormalizeEmail(string value) => value.Trim().ToLowerInvariant();
+
+    private static string? EmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private static bool ValidProduct(ProductDto product) =>
         product.PresentationGrams > 0 && product.PriceLps >= 0 && product.Stock >= 0 &&

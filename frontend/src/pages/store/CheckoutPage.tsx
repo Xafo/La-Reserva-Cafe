@@ -22,9 +22,14 @@ export function CheckoutPage() {
     setSubmitting(true)
     setError(null)
     try {
-      // TODO(backend): integrar pasarela de pago (tarjeta / transferencia).
-      // Por ahora el pedido se registra como Pendiente y se paga contra entrega.
-      const order = await orderService.createOrder(String(data.get('nombre')), items)
+      const order = await orderService.createOrder({
+        customerName: String(data.get('nombre')),
+        customerEmail: String(data.get('correo')),
+        customerPhone: String(data.get('telefono')),
+        deliveryAddress: String(data.get('direccion')),
+        deliveryCity: String(data.get('ciudad')),
+        deliveryNotes: String(data.get('notas')),
+      }, items)
       clear()
       setOrderId(order.id)
     } catch {
@@ -82,6 +87,7 @@ export function CheckoutPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {[
               { name: 'nombre', label: 'Nombre completo', type: 'text', autoComplete: 'name', defaultValue: account?.name },
+              { name: 'correo', label: 'Correo electrónico', type: 'email', autoComplete: 'email', defaultValue: account?.email },
               { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel', defaultValue: account?.phone },
               { name: 'direccion', label: 'Direccion de entrega', type: 'text', autoComplete: 'street-address', defaultValue: undefined },
               { name: 'ciudad', label: 'Ciudad', type: 'text', autoComplete: 'address-level2', defaultValue: account?.city },
