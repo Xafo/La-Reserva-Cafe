@@ -121,3 +121,20 @@ h1, h2, h3 {
 @media (prefers-reduced-motion: reduce) {
   .marquee { animation: none; }
 }
+
+.login-experience { cursor: url('/marca/cursor-grano.svg') 6 5, default; }
+.login-experience a, .login-experience button { cursor: url('/marca/cursor-grano.svg') 6 5, pointer; }
+.login-experience input { cursor: text; }
+.login-panel { background: oklch(0.23 0.055 135); }
+.login-panel::before { content: ''; position: absolute; inset: 0; opacity: .34; background-image: radial-gradient(oklch(0.76 0.13 80 / .26) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(120deg, black, transparent 68%); }
+.login-panel-orbit { position: absolute; border: 1px solid oklch(0.76 0.13 80 / .24); border-radius: 999px; pointer-events: none; }
+.login-panel-orbit-one { width: 36rem; height: 36rem; right: -18rem; top: -10rem; }
+.login-panel-orbit-two { width: 18rem; height: 18rem; left: -10rem; bottom: -7rem; }
+.login-field { display: flex; align-items: center; gap: .75rem; border: 1px solid oklch(0.96 0.01 120 / .25); border-radius: .75rem; background: oklch(1 0 0 / .09); padding: 0 .9rem; transition: border-color .2s var(--ease-out-quint), background-color .2s var(--ease-out-quint), box-shadow .2s var(--ease-out-quint); }
+.login-field:focus-within { border-color: var(--color-accent); background: oklch(1 0 0 / .14); box-shadow: 0 0 0 3px oklch(0.76 0.13 80 / .18); }
+.login-field svg { flex: none; color: oklch(0.76 0.13 80); }
+.login-field input { min-width: 0; width: 100%; border: 0; background: transparent; padding: .9rem 0; color: var(--color-forest-foreground); outline: 0; }
+.login-field input::placeholder { color: oklch(0.89 0.015 120 / .66); }
+.login-field button { display: grid; place-items: center; padding: .25rem; color: var(--color-forest-foreground); }
+.login-submit { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; box-shadow: 0 14px 30px oklch(0.05 0.02 135 / .22); }
+@media (prefers-reduced-motion: reduce) { .login-field, .login-submit, .login-submit svg { transition: none; } }
