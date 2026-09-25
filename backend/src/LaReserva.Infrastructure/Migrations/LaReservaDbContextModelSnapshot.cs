@@ -316,8 +316,8 @@ namespace LaReserva.Infrastructure.Migrations
                     b.Property<string>("HistoryJson")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue("[]")
                         .HasColumnType("text")
+                        .HasDefaultValue("[]")
                         .HasColumnName("history_json");
 
                     b.Property<string>("Phone")
@@ -659,6 +659,10 @@ namespace LaReserva.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("role");
+
+                    b.Property<Guid>("SessionVersion")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_version");
 
                     b.HasKey("Id")
                         .HasName("pk_users");

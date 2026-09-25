@@ -136,6 +136,7 @@ public static partial class ApiEndpoints
             var user = await db.Users.FindAsync([reset.UserId], cancellationToken);
             if (user is not { Active: true }) return Results.BadRequest(new { error = "Solicitud inválida." });
             user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
+            user.SessionVersion = Guid.NewGuid();
             reset.UsedAt = DateTimeOffset.UtcNow;
             var otherTokens = await db.PasswordResetTokens.Where(value => value.UserId == user.Id && value.UsedAt == null).ToListAsync(cancellationToken);
             foreach (var token in otherTokens) token.UsedAt = reset.UsedAt;
@@ -414,6 +415,11 @@ public static partial class ApiEndpoints
             if (user is null) return Results.NotFound();
             var email = NormalizeEmail(request.Email);
             if (await db.Users.AnyAsync(value => value.Id != id && value.Email == email, cancellationToken)) return Results.Conflict(new { error = "Ya existe un usuario con ese correo." });
+            if (user.Role != request.Role || user.Active != request.Active || !string.IsNullOrEmpty(request.InitialPassword))
+            {
+                user.SessionVersion = Guid.NewGuid();
+                db.RefreshTokens.RemoveRange(db.RefreshTokens.Where(t => t.SubjectId == user.Id && t.SubjectType == "team"));
+            }
             user.Name = request.Name.Trim(); user.Email = email; user.Role = request.Role; user.Active = request.Active;
             if (!string.IsNullOrEmpty(request.InitialPassword)) user.PasswordHash = passwordHasher.HashPassword(user, request.InitialPassword);
             AddAudit(db, principal, "Actualizar usuario", "Usuario", user.Id);

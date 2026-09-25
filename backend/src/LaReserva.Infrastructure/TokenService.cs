@@ -45,7 +45,7 @@ public sealed class TokenService(
             ExpiresAt = timeProvider.GetUtcNow().AddDays(_options.RefreshTokenDays),
         });
         await dbContext.SaveChangesAsync(cancellationToken);
-        return new TokenPair(CreateAccessToken(subjectId, email, role, subjectType), refreshToken);
+        return new TokenPair(await CreateAccessToken(subjectId, email, role, subjectType), refreshToken);
     }
 
     public async Task<TokenPair?> RefreshAsync(string refreshToken, CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public sealed class TokenService(
         if (current.SubjectType == "team")
         {
             var user = await dbContext.Users.FindAsync([current.SubjectId], cancellationToken);
-            if (user is null) return null;
+            if (user is null || !user.Active) return null;
             email = user.Email;
             role = user.Role;
         }
@@ -99,7 +99,7 @@ public sealed class TokenService(
         }
 
         return new TokenPair(
-            CreateAccessToken(current.SubjectId, email, role, current.SubjectType),
+            await CreateAccessToken(current.SubjectId, email, role, current.SubjectType),
             replacement);
     }
 
@@ -121,8 +121,9 @@ public sealed class TokenService(
         }
     }
 
-    private string CreateAccessToken(string subjectId, string email, string role, string subjectType)
+    private async Task<string> CreateAccessToken(string subjectId, string email, string role, string subjectType)
     {
+        var sessionVersion = subjectType == "team" ? (await dbContext.Users.FindAsync(subjectId))?.SessionVersion.ToString() : "customer";
         var now = timeProvider.GetUtcNow();
         var credentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SigningKey)),
@@ -136,6 +137,7 @@ public sealed class TokenService(
                 new Claim(JwtRegisteredClaimNames.Email, email),
                 new Claim(ClaimTypes.Role, role),
                 new Claim("subject_type", subjectType),
+                new Claim("session_version", sessionVersion ?? "missing"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             ]),
             NotBefore = now.UtcDateTime,

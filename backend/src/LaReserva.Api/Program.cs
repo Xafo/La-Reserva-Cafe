@@ -30,6 +30,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var db = context.HttpContext.RequestServices.GetRequiredService<LaReservaDbContext>();
+                var principal = context.Principal!;
+                var id = principal.FindFirst("sub")?.Value;
+                if (principal.FindFirst("subject_type")?.Value == "team")
+                {
+                    var user = await db.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id, context.HttpContext.RequestAborted);
+                    if (user is null || !user.Active || user.Role != principal.FindFirst("role")?.Value
+                        || user.SessionVersion.ToString() != principal.FindFirst("session_version")?.Value)
+                        context.Fail("La sesión fue revocada.");
+                }
+                else if (!await db.CustomerAccounts.AnyAsync(a => a.Id == id, context.HttpContext.RequestAborted))
+                    context.Fail("La cuenta ya no está disponible.");
+            },
+        };
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,

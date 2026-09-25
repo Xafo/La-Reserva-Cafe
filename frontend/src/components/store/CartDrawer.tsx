@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
@@ -7,27 +8,20 @@ import { lps } from '../../lib/format'
 export function CartDrawer() {
   const { items, isOpen, close, setQuantity, remove, totalLps } = useCart()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
-    if (isOpen) {
-      document.addEventListener('keydown', onKey)
-      document.body.style.overflow = 'hidden'
-    }
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [isOpen, close])
-
-  if (!isOpen) return null
+  const opener = useRef<HTMLElement | null>(null)
 
   return (
-    <div className="fixed inset-0 z-(--z-cart)" role="dialog" aria-modal="true" aria-label="Carrito de compras">
-      <button aria-label="Cerrar carrito" onClick={close} className="absolute inset-0 cursor-default bg-forest-deep/40" />
-      <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-background shadow-2xl">
+    <Dialog.Root open={isOpen} onOpenChange={(open) => { if (!open) close() }}>
+      <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 z-(--z-cart) bg-forest-deep/40" />
+      <Dialog.Content aria-describedby={undefined} asChild
+        onOpenAutoFocus={() => { opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null }}
+        onCloseAutoFocus={(event) => { event.preventDefault(); if (opener.current?.isConnected) opener.current.focus() }}>
+      <aside className="fixed inset-y-0 right-0 z-(--z-cart) flex w-full max-w-md flex-col bg-background shadow-2xl">
         <header className="flex items-center justify-between border-b border-border px-6 py-4">
+          <Dialog.Title asChild>
           <h2 className="font-display text-lg font-bold">Tu pedido</h2>
+          </Dialog.Title>
           <button onClick={close} aria-label="Cerrar" className="cursor-pointer rounded-full p-2 hover:bg-muted">
             <X className="h-5 w-5" />
           </button>
@@ -88,6 +82,8 @@ export function CartDrawer() {
           </>
         )}
       </aside>
-    </div>
+      </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

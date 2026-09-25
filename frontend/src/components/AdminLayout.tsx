@@ -29,14 +29,14 @@ export function AdminLayout({ children, title }: { children: ReactNode; title: s
   const visible = navItems.filter((i) => !i.permission || hasPermission(user.role, i.permission))
 
   return (
-    <div className="flex h-screen bg-muted/60">
-      <aside className="flex w-64 shrink-0 flex-col bg-forest-deep text-forest-foreground">
-        <div className="px-5 pb-5 pt-6">
+    <div className="flex h-dvh flex-col bg-muted/60 md:flex-row">
+      <aside className="flex w-full shrink-0 flex-col bg-forest-deep text-forest-foreground md:w-64">
+        <div className="px-4 py-3 md:px-5 md:pb-5 md:pt-6">
           <Link to="/" title="Ver tienda publica">
             <BrandMark dark className="[&>span:last-child]:text-forest-foreground" />
           </Link>
         </div>
-        <nav className="flex-1 space-y-0.5 px-3">
+        <nav aria-label="Administración" className="flex gap-1 overflow-x-auto px-3 pb-2 md:block md:flex-1 md:space-y-0.5 md:pb-0">
           {visible.map((item) => {
             const active =
               location.pathname === item.path ||
@@ -45,8 +45,9 @@ export function AdminLayout({ children, title }: { children: ReactNode; title: s
               <Link
                 key={item.path}
                 to={item.path}
+                aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150',
+                  'flex shrink-0 items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 md:whitespace-normal',
                   active
                     ? 'bg-white/12 text-forest-foreground'
                     : 'text-forest-foreground/65 hover:bg-white/6 hover:text-forest-foreground'
@@ -58,23 +59,23 @@ export function AdminLayout({ children, title }: { children: ReactNode; title: s
             )
           })}
         </nav>
-        <div className="border-t border-white/10 p-4">
-          <p className="truncate text-sm font-medium">{user.name}</p>
+        <div className="flex items-center gap-3 border-t border-white/10 px-4 py-2 md:block md:p-4">
+          <p className="min-w-0 truncate text-sm font-medium">{user.name}</p>
           <p className="text-xs text-forest-foreground/60">{user.role}</p>
           <button
             onClick={() => { logout(); navigate('/admin/login') }}
-            className="mt-3 inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-forest-foreground/65 transition-colors hover:text-forest-foreground"
+            className="ml-auto inline-flex shrink-0 cursor-pointer items-center gap-2 text-xs font-medium text-forest-foreground/65 transition-colors hover:text-forest-foreground md:ml-0 md:mt-3"
           >
             <LogOut className="h-3.5 w-3.5" /> Cerrar sesion
           </button>
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 shrink-0 items-center border-b border-border bg-background px-8">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex min-h-14 shrink-0 items-center border-b border-border bg-background px-4 py-2 md:px-8">
           <h1 className="font-display text-lg font-bold">{title}</h1>
         </header>
-        <main className="flex-1 overflow-auto p-8">{children}</main>
+        <main className="min-h-0 flex-1 overflow-auto p-4 md:p-8">{children}</main>
       </div>
     </div>
   )

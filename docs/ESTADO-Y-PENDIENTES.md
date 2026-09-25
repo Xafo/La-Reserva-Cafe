@@ -1,59 +1,57 @@
-# Directo Café — punto de control y pendientes
+# Directo Café — estado y próximos pasos
 
-Actualizado el 23 de septiembre de 2026. Resumen del plan por fases; las secciones
-10–16 de `DIRECTO-CAFE-PLAN-POR-FASES.md` conservan la evidencia detallada.
+Actualizado: 24 de septiembre de 2026. Los escenarios de siete cafés, contactos y
+condiciones fueron autorizados para desarrollar y probar. No son datos oficiales.
 
-## Cubierto hasta este punto
+## Estado por fase
 
-- Diagnóstico de ambos PDF y contraste con código existente.
-- Identidad Directo Café, historia, misión y relación con La Reserva.
-- Siete cafés, contactos y condiciones como escenarios autorizados, separados de
-  la semilla operativa. No constituyen catálogo o condiciones oficiales.
-- Cinco perfiles y sus 22 preguntas, respuestas versionadas, recomendaciones
-  deterministas para consumidores y resúmenes para las tres ramas comerciales.
-- Solicitudes comerciales con responsable, estados, notas, historial, permisos
-  y protección contra actualizaciones simultáneas.
-- Migraciones y pruebas de API con PostgreSQL aislado. Recorrido visual autorizado
-  de registro empresarial, solicitud, seguimiento y recarga completado.
+| Fase | Cubierto | Para cerrar la salida comercial |
+|---|---|---|
+| **1A — Identidad y catálogo** | Directo Café nace en La Reserva; historia, misión, siete cafés de escenario y fotografías identificadas como referencia. | Aprobar fichas, precios, existencias, fotos, origen/lote/tueste, contactos y condiciones reales. Cosecha no acredita tueste. |
+| **1B — Consumidores** | Cinco perfiles, 22 preguntas versionadas; reglas deterministas, alternativas, catálogo vacío, persistencia y edición. | Contrastar recomendaciones con catálogo definitivo. |
+| **1C — Solicitudes** | Tres ramas sin match de sabor; asignación, estados, historial y permisos; catálogo empresarial dedicado y simulador mayorista. | Responsables y canales reales; moneda y beneficios aprobados. No hay envío automático de solicitudes. |
+| **1D — Pedidos y medición** | Contacto/entrega/molienda, precios históricos, cotización versionada, cobertura y envío manual, reservas, cancelación, concurrencia, reintentos, ventas por período y PDF/Excel por tipo. **Cierre técnico con escenarios.** | Aprobar reglas reales y observar métricas del piloto. Finalizada no acredita pago. |
+| **1E — Verificación y operación** | API/PostgreSQL, pedido atendido desde navegador, migraciones aditivas, recuperación con correo simulado, bitácora, revocación, foco/teclado, respaldo/restauración local y manual. | Despliegue con configuración real, correo, almacenamiento externo si se elige, restauración en ese entorno y aceptación del operador. **Preparación local validada; salida operativa pendiente.** |
+| **2 — Otras fincas/tostadurías de Honduras** | Precandidaturas disponibles; secuencia de admisión, aislamiento y piloto documentada. | Validar fase 1; implementar vendedores, catálogo aislado, operación y piloto multivendedor. |
+| **3 — Expansión** | Horizonte y criterios de entrada definidos. | Elegir mercado/categoría con evidencia; concretar moneda, idioma, entrega y soporte; desarrollar y evaluar piloto. |
 
-- 1D.1: contacto y entrega persistidos, vínculo autenticado de cuenta/invitado,
-  molienda elegida y presentación/tueste históricos por línea; administración y PDF.
+## Evidencia de esta entrega
 
-- 1D.2: reserva al aprobar, devolución al cancelar, estados válidos, permisos y
-  protección de concurrencia en pedidos/catálogo; prueba con PostgreSQL.
+- Integración de `origin/main` hasta `5729221` en `codex/directo-cafe-fase-1d`.
+  Se conservaron recuperación, auditoría y despliegue de main, junto con comercio,
+  inventario y reportes de esta rama. Merge `ea1984f` subido.
+- Frontend: 12 pruebas, build y lint correctos. Backend: 17 pruebas de tokens, onboarding,
+  pedidos, stock, comercio y recuperación. Los tres recorridos HTTP se probaron
+  también en bases PostgreSQL distintas y aisladas.
+- Pedido ficticio `OC-2026-07AB69693B93`: pendiente → aprobado → finalizado,
+  una unidad reservada, L 320 + L 80 = L 400. Dashboard, PDF y Excel coinciden.
+- Reintentos seriales/simultáneos no duplican orden; contenido diferente con el
+  mismo identificador devuelve conflicto. Sin sobreventa al competir por stock.
+- JWT real: HTTP 200 antes de revocar y 401 después. Recuperación con token de un
+  uso, revocación de refresh y bitácora; emisor simulado, sin mensajes externos.
+- Respaldo PostgreSQL restaurado en otra base: coinciden 9 órdenes, 9 líneas,
+  L 25,890 en totales, 2 unidades de stock agregadas y 4 entradas de auditoría.
+  Son valores del fixture de pruebas, no resultados comerciales.
+- PDF de ventas, inventario y movimientos renderizados e inspeccionados; Excel
+  conserva importe numérico. Foco confinado y recuperado al cerrar formularios/carrito.
+  Panel administrativo adaptado a 360 px y catálogo empresarial revisado en móvil.
 
-## Qué falta, fase por fase
+## Siguiente orden
 
-| Fase | Pendientes concretos |
-|---|---|
-| **1A — Marca y catálogo** | Confirmar los siete cafés y fichas reales: precios, presentaciones, existencias y fotos. Completar evidencia de finca/lote/tueste y trazabilidad. Confirmar contactos, entrega y cobro. Validar identidad gráfica final si corresponde y encabezado del PDF operativo según quién lo emite. Los escenarios ya permiten desarrollar. |
-| **1B — Consumidores** | Implementación cubierta. Antes de operación real, recalibrar/validar las reglas contra el catálogo confirmado; completar aceptación transversal en 1E. La selección de molienda/presentación debe trasladarse al pedido en 1D. |
-| **1C — Solicitudes comerciales** | Flujo técnico cerrado con escenarios. Falta catálogo empresarial dedicado y tarifas mayoristas definitivas, moneda comercial confirmada y canales reales de atención. Integración de correo/CRM es opcional y requiere definición; hoy el seguimiento es interno, sin envíos automáticos. |
-| **1D — Pedidos y medición** | 1D.1 cubierta: contacto, dirección, ciudad, notas, molienda, presentación y vínculo de cuenta/invitado. Reservas, cancelaciones y protección de sobreventa cubiertas. Falta zona/cobertura, condiciones e idempotencia al crear pedidos. Corregir ventas por período/estado, rankings, inventario y exportaciones. Definir métricas y objetivos de validación del negocio. |
-| **1E — Salida operativa** | Prueba integral hasta pedido atendido; fallos de red y recuperación; permisos, recuperación de acceso y auditoría; móvil, teclado y accesibilidad. Migraciones con datos previos, imágenes persistentes, backups/restauración, configuración de despliegue y manual operativo. Ya existen pruebas parciales, pero no está cerrada la aceptación completa. |
-| **2 — Otras fincas y tostadurías de Honduras** | Después de validar fase 1: admisión/aprobación de vendedores, propiedad y permisos de catálogo, aislamiento entre vendedores, responsabilidades de cobro/despacho/incidencias, comisiones/liquidaciones si aplican y piloto controlado. La candidatura actual no habilita vendedores. |
-| **3 — Expansión** | Definir categorías y países piloto, requisitos de idiomas/monedas/cobros/entregas/soporte, y validar un mercado o categoría a la vez. Es visión futura, no alcance implementado. |
+1. Completar la ficha de entorno y responsables del [manual operativo](DIRECTO-CAFE-MANUAL-OPERATIVO.md), con correo, almacenamiento y datos aprobados.
+2. Ejecutar el piloto 1 con las definiciones y objetivos propuestos en [criterios de cierre](DIRECTO-CAFE-CIERRE-Y-PILOTOS.md). Las pruebas sintéticas no acreditan demanda o satisfacción.
+3. Decidir entrada a 2A después de validar el primer horizonte; trabajar propiedad y aislamiento antes de permitir ventas de terceros.
+4. Iniciar descubrimiento de fase 3 con evidencia y alcance elegido.
 
-## Orden inmediato
+## Versionamiento y límites
 
-1. 1D.1: contrato y persistencia del pedido completados y verificados.
-2. 1D: inventario y cancelaciones completados; siguen condiciones e idempotencia.
-3. 1D: administración, reportes y pruebas con PostgreSQL.
-4. 1E: aceptación integral y preparación operativa.
-5. Fase 2 solo después de validar el primer horizonte; fase 3 después de definir su alcance.
+Rama: `codex/directo-cafe-fase-1d`. Checkpoint 1C: `b25c4ad`, etiqueta
+`checkpoint-fase-1c-2026-09-22`. Comercio/reportes: `680d0b2`. Main se incorporó
+mediante merge; no se sobrescribió ni se hizo push forzado. Los ajustes de 1E
+se guardan en la misma rama. Bases ficticias, claves, `.env`, respaldos y logs
+permanecen fuera de Git.
 
-## Versionamiento
-
-Se recuperó el historial de `https://github.com/Xafo/La-Reserva-Cafe.git` y se
-guardó el punto de control sobre su rama `main` (base `25b4070`). La rama de
-trabajo es `codex/directo-cafe-fase-1c`; conserva el historial existente.
-Incluye código, migraciones, documentación, configuración de ejemplo y escenarios.
-Excluye `.tools`, `tmp`, dependencias, compilados, logs y archivos de entorno privados.
-El commit y la etiqueta `checkpoint-fase-1c-2026-09-22` identifican esta entrega.
-El punto de control se guarda en una rama separada del repositorio indicado por
-el usuario; no se mezcla ni se sobrescribe `main`.
-
-
-El siguiente avance se guarda en `codex/directo-cafe-fase-1d`, derivada del
-checkpoint 1C (`b25c4ad`). Su punto de control cubre **1D.1 y reservas de 1D.2**, no declara cerrada
-la fase 1D completa. La base de prueba y sus datos ficticios no se publican.
+No se desplegó, cobró, despachó ni enviaron correos. Docker/Render y Supabase están
+preparados en código, pero no verificados en infraestructura real. La recuperación
+es del equipo interno, no de cuentas de tienda. El reporte de movimientos refleja
+historial de pedidos, no un kardex completo de compras/devoluciones/ajustes.

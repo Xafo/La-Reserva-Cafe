@@ -79,6 +79,7 @@ public sealed class Customer
 
 public sealed class User
 {
+    public Guid SessionVersion { get; set; } = Guid.NewGuid();
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Email { get; set; }

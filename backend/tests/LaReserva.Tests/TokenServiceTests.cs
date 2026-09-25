@@ -37,6 +37,10 @@ public sealed class TokenServiceTests
         Assert.NotNull(storedFirst.RevokedAt);
         Assert.Equal(2, await db.RefreshTokens.CountAsync());
         Assert.Null(await service.RefreshAsync(first.RefreshToken, default));
+        var user = await db.Users.FindAsync("u-1");
+        user!.Active = false;
+        await db.SaveChangesAsync();
+        Assert.Null(await service.RefreshAsync(second.RefreshToken, default));
     }
 
     [Fact]

@@ -1,4 +1,5 @@
-import { type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
+import * as AccessibleDialog from '@radix-ui/react-dialog'
 
 interface DialogProps {
   open: boolean
@@ -7,13 +8,19 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onOpenChange, children }: DialogProps) {
-  if (!open) return null
+  const opener = useRef<HTMLElement | null>(null)
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={() => onOpenChange(false)} />
-      <div className="relative bg-background text-foreground rounded-xl border border-border shadow-lg p-6 max-w-md w-full mx-4 z-10">
+    <AccessibleDialog.Root open={open} onOpenChange={onOpenChange}>
+      <AccessibleDialog.Portal>
+      <AccessibleDialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
+      <AccessibleDialog.Content aria-describedby={undefined}
+        onOpenAutoFocus={() => { opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null }}
+        onCloseAutoFocus={(event) => { event.preventDefault(); if (opener.current?.isConnected) opener.current.focus() }}
+        className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-background p-6 text-foreground shadow-lg">
+        <AccessibleDialog.Title className="sr-only">Formulario de administración</AccessibleDialog.Title>
         {children}
-      </div>
-    </div>
+      </AccessibleDialog.Content>
+      </AccessibleDialog.Portal>
+    </AccessibleDialog.Root>
   )
 }

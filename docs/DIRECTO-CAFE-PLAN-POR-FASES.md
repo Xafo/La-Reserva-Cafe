@@ -1,17 +1,16 @@
 # Directo Café: diagnóstico y plan por fases
 
-Actualizado: 22 de septiembre de 2026. Diagnóstico inicial y avances de entregas 1A–1C.
+Actualizado: 24 de septiembre de 2026.
 
-**Avance vigente:** 1A cubre identidad y contenido. Los escenarios autorizados de
-siete cafés, contactos y condiciones permiten continuar el desarrollo; la aprobación
-de datos reales queda previa a producción. 1B implementa los dos recorridos de
-consumidores, guardado versionado y recomendaciones con pruebas de frontend y API.
-Las migraciones están aplicadas y probadas en PostgreSQL local aislado.
-1C ya incorpora las tres ramas comerciales, solicitudes persistentes y bandeja
-protegida del equipo. El seguimiento incorpora responsable, estados, notas e historial. Ver sección 13
-para pruebas con PostgreSQL; la sección 14 documenta la aceptación visual autorizada.
-Ver sección 11 y [contrato de onboarding](DIRECTO-CAFE-ONBOARDING.md).
-La matriz conserva el diagnóstico inicial; las secciones 10–13 registran los avances.
+**Estado vigente:** 1A–1D implementadas y verificadas para desarrollo con escenarios
+autorizados. Se completaron catálogo empresarial, condiciones versionadas, reservas,
+reintentos y reportes. 1E incorpora pruebas locales, recuperación del equipo,
+revocación de sesiones, restauración y manual; resta la aceptación con infraestructura
+y datos operativos reales. Fases 2/3 requieren los pilotos del horizonte anterior.
+
+Las matrices y hallazgos iniciales se conservan como diagnóstico histórico; no son
+el inventario vigente de pendientes. Ver secciones 17–18, [estado actual](ESTADO-Y-PENDIENTES.md),
+[manual](DIRECTO-CAFE-MANUAL-OPERATIVO.md) y [criterios de cierre/pilotos](DIRECTO-CAFE-CIERRE-Y-PILOTOS.md).
 
 ## 1. Alcance y fuentes
 
@@ -259,20 +258,19 @@ Se solicitó al usuario la lista oficial de cafés y el contacto real durante el
 
 Al iniciar: indicar fase/entrega activa, IDs cubiertos, objetivo, cambios previstos y dependencias. Durante: informar hallazgos y ajustes de alcance. Al cerrar: registrar archivos cambiados, comprobaciones ejecutadas, resultado y pendientes concretos.
 
-| Entrega | Estado actualizado al 2026-09-22 | Evidencia de cierre |
+| Entrega | Estado actualizado al 2026-09-24 | Evidencia de cierre |
 |---|---|---|
 | 0 | Diagnóstico completado; límites de ejecución documentados | Este informe y referencias al código |
 | 1A | Identidad verificada; escenarios autorizados para desarrollo; confirmación comercial pendiente | Secciones 10–11 y ficha de conciliación |
 | 1B | Implementada y probada | Contrato compartido, migración, reglas deterministas y dos recorridos de consumidores |
 | 1C | Flujo de solicitudes validado en navegador y PostgreSQL; cerrado para desarrollo con escenarios | Datos y oferta comerciales definitivos antes de operación real |
-| 1D | Pendiente | Pedidos, stock y reportes correctos |
-| 1E | Pendiente | Pruebas integrales y aceptación operativa |
+| 1D | Cerrada técnicamente con escenarios | Pedidos, stock, cotización, reintentos y reportes verificados; sección 17 |
+| 1E | Preparación y validación local cubiertas; salida operativa pendiente | Seguridad, accesibilidad, restauración y manual; sección 18 |
 | 2 | Pendiente, posterior a validación de negocio | Piloto multivendedor aceptado |
 | 3 | Pendiente, requiere definición | Piloto de expansión aceptado |
 
-**Siguiente entrega técnica: 1D.** Datos completos del pedido, presentación/molienda,
-condiciones explícitas, reservas de stock, cancelaciones y reportes. Los escenarios
-permiten continuar; sus datos no se consideran comerciales oficiales por esa razón.
+**Siguiente entrega: aceptación operativa 1E y piloto del horizonte 1.** Los escenarios
+permiten ensayar; no convierten datos ficticios en oferta ni en validación comercial.
 
 ## 10. Bitácora — implementación de identidad y contenido de 1A
 
@@ -650,3 +648,78 @@ condiciones comerciales versionadas (envíos/descuentos/cobertura), idempotencia
 creación frente a reintentos de red, reportes por fecha/estado y métricas de negocio.
 Las devoluciones posteriores a una venta finalizada requieren un flujo separado;
 no se representan reabriendo la orden. Confirmar datos oficiales sigue pendiente.
+
+
+## 17. Cierre técnico 1C/1D — 24 de septiembre de 2026
+
+### Puntos cubiertos
+
+- **B2B-03:** catálogo `/empresas` con tres cafés mayoristas elegibles; simulador de
+  cantidades, mínimo 5 kg y descuentos 5/8/10% desde 5/15/30 kg. Los siete cafés
+  demo pueden sembrarse en una base nueva con escenario habilitado. No se reemplaza
+  un catálogo existente ni se convierten rangos `$` del quiz a HNL automáticamente.
+- **CTA-01/02:** cotización de servidor versionada, importe y preparación históricos;
+  escenario Tegucigalpa L 80 o gratis desde L 1,000 después del descuento. Fuera de
+  cobertura el envío queda sin precio y la aprobación se bloquea hasta registrar
+  tarifa/acuerdo manual con nota y protección de versión.
+- **Idempotencia:** UUID por envío, hash de contenido y restricción única en base;
+  repetición serial o simultánea devuelve la misma orden; cambiar contenido devuelve
+  409. La UI conserva un envío incierto en la pestaña y permite recuperarlo.
+- **Inventario:** reservas al aprobar, cancelación que devuelve una sola vez,
+  finalización terminal, conflictos de producto/orden sin cambios parciales.
+- **ADM-02:** fecha de finalización, historial y reportes tipados. Ventas/ranking
+  incluyen solo finalizadas en período Honduras; históricos sin fecha se excluyen
+  explícitamente. Inventario es actual; movimientos es historial de pedidos, no
+  kardex de bodega. PDF/Excel respetan tipo/rango y muestran importes numéricos.
+- **Medición:** definiciones y objetivos propuestos de piloto en el documento de
+  cierre. Los PDF no fijan umbrales; se separa evidencia técnica de resultados reales.
+
+### Evidencia
+
+Pruebas HTTP con PostgreSQL aislado: contacto, permisos, cotización, cobertura,
+reserva/cancelación, edición obsoleta, dos competidores por últimas unidades,
+repeticiones concurrentes y exportaciones. Migración `CompleteOrderCommerce`
+aditiva; las órdenes existentes no reciben tarifas ni fechas inventadas.
+
+Desde navegador: simulación mayorista de 15 bolsas Blend (5.1 kg), L 4,800 menos
+L 240 y envío L 0 = L 4,560; compra ficticia de una bolsa L 320 + L 80 = L 400,
+referencia `OC-2026-07AB69693B93`, aprobada y finalizada. Stock de 120 a 119;
+dashboard de L 0 a L 400. PDFs ventas/inventario/movimientos renderizados y
+revisados; Excel con valor numérico 400. Ningún cobro, despacho o mensaje real.
+
+**Resultado:** 1C/1D técnicamente cerradas con escenarios. Condiciones oficiales y
+validación comercial quedan como puertas de salida, no como funciones simuladas reales.
+
+## 18. Integración de main y preparación 1E — 24 de septiembre de 2026
+
+1. Git: guardado `680d0b2`, fetch y merge de `origin/main` (`5729221`). Se resolvieron
+   conflictos conservando comercio/reportes y seguridad/auditoría de main. Merge
+   `ea1984f` subido a `codex/directo-cafe-fase-1d`. Main no fue sobrescrita.
+2. Despliegue: Dockerfile Render corregido para incluir `shared`/`scenarios` y Node 24.
+   Configuración revisada; no se ejecutó despliegue ni construcción Docker.
+3. Seguridad: se detectó refresh permitido a usuarios inactivos y se corrigió.
+   `RevokeTeamSessions` añade versión de sesión: cambios de permisos/contraseña o
+   desactivación revocan JWT y refresh. Un JWT real dio 200 antes y 401 después de
+   cambiar la versión en una cuenta ficticia de la base local.
+4. Recuperación del personal: probado token de un uso, expiración, longitud mínima,
+   revocación y bitácora, sin enumerar cuentas. Emisor simulado, sin correo externo.
+   Pruebas InMemory y PostgreSQL; no se acredita entrega del proveedor ni recuperación
+   de cuentas de tienda.
+5. Accesibilidad: formularios/carrito usan diálogo modal con foco confinado, Escape
+   y vuelta al botón de origen; contenido largo desplazable. Verificado con teclado.
+   Panel administrativo con navegación horizontal móvil; catálogo empresarial y
+   formulario de pedidos revisados a 360 px.
+6. Respaldo: dump y restauración en otra base local coinciden en órdenes (9), líneas
+   (9), total (L 25,890), stock agregado (2) y auditoría (4). Imágenes locales con
+   fixture/restauración; infraestructura externa todavía requiere su propio ensayo.
+7. Operación: manual de atención, matriz de roles, cotización, recuperación de envío,
+   reportes, respaldo y reversión. Criterios propuestos y secuencia de fases 2/3.
+
+Build/lint y pruebas frontend correctas; backend y modelo/migraciones verificados.
+`npm audit` y revisión NuGet transitiva sin vulnerabilidades reportadas al ejecutar
+los comandos. Esto no constituye una auditoría exhaustiva de seguridad.
+
+**Límites de cierre:** falta entorno operativo elegido/configurado, datos y responsables
+reales, prueba del correo/almacenamiento del proveedor y piloto comercial aceptado.
+No se declara 1E desplegada ni los horizontes 2/3 implementados. Ver estado vigente
+y manual; los pendientes anteriores de cotización/reintentos/reportes quedan resueltos.
