@@ -75,7 +75,7 @@ export function ShopPage() {
       <StoreNav />
       <section className="mx-auto max-w-7xl px-5 pb-28 pt-28 md:px-8 md:pt-36">
         <h1 className="max-w-4xl font-display text-[clamp(2.6rem,5vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight">
-          Los cafés de La Reserva
+          Los cafés de Directo Cafe
         </h1>
         <p className="mt-4 max-w-xl text-muted-foreground">
           Nuestra primera selección en Directo Cafe. Compará notas de sabor,
