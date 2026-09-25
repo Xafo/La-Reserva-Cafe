@@ -14,6 +14,10 @@ La evolución a Directo Cafe se organiza en [diagnóstico y plan por fases](docs
 
 El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes de La Reserva; sus checklists no sustituyen la validación del diagnóstico actual.
 
+## Despliegue web
+
+El portal se publica en Vercel desde la rama `main`. El proyecto debe usar `frontend` como directorio raíz, el ajuste Vite predeterminado y Node.js 24. Antes de publicar el portal conectado al backend, configurar `VITE_API_URL` en Vercel con la URL HTTPS pública de la API; no guardar secretos en esta variable.
+
 ## Ejecutar con Docker
 
 1. Crear la configuración local:
