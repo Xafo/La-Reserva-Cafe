@@ -37,7 +37,7 @@ public static class ReportDocuments
                 column.Item().Text($"Subtotal: L {terms.SubtotalLps:N2} · Descuento: L {terms.DiscountLps:N2} · Envío: {(terms.ShippingLps is null ? "Por cotizar" : $"L {terms.ShippingLps:N2}")}");
                 column.Item().Text($"Condiciones: {terms.Version}{(terms.Scenario ? " · ESCENARIO DE PRUEBA" : " · Propuesta manual")}");
             }
-            column.Item().Text("Nacido en La Reserva. Este documento no acredita un pago. Entrega y envío sujetos a confirmación.").FontSize(10);
+            column.Item().Text("Directo Cafe. Este documento no acredita un pago. Entrega y envío sujetos a confirmación.").FontSize(10);
         });
     })).GeneratePdf();
 

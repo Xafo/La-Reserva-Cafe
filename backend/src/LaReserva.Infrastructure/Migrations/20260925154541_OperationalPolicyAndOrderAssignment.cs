@@ -1,5 +1,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -20,7 +21,8 @@ public partial class OperationalPolicyAndOrderAssignment : Migration
             name: "operational_policies", schema: "la_reserva",
             columns: table => new
             {
-                id = table.Column<int>(type: "integer", nullable: false),
+                id = table.Column<int>(type: "integer", nullable: false)
+                    .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                 pending_order_expiry_hours = table.Column<int>(type: "integer", nullable: false),
                 automatic_expiry_enabled = table.Column<bool>(type: "boolean", nullable: false),
                 updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
