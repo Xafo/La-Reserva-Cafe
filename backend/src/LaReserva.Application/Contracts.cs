@@ -29,7 +29,7 @@ public sealed record ProductDto(
     QualityProfileDto Quality);
 
 public sealed record OrderItemDto(string ProductId, string ProductName, int Quantity, decimal UnitPriceLps, int? PresentationGrams = null, string? Roast = null, string? Grind = null);
-public sealed record OrderDto(string Id, string CustomerName, string? CustomerEmail, string? CustomerPhone, string? DeliveryAddress, string? DeliveryCity, string? DeliveryNotes, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps, OrderTerms? Terms = null, DateTimeOffset? CompletedAt = null)
+public sealed record OrderDto(string Id, string CustomerName, string? CustomerEmail, string? CustomerPhone, string? DeliveryAddress, string? DeliveryCity, string? DeliveryNotes, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps, string? AssignedUserId = null, OrderTerms? Terms = null, DateTimeOffset? CompletedAt = null)
 {
     public string? Phone => CustomerPhone;
     public string? City => DeliveryCity;
@@ -92,7 +92,8 @@ public sealed record CreateOrderRequest
     public string? QuoteToken { get; init; }
 }
 public sealed record CreateOrderItemRequest(string ProductId, int Quantity, string? Grind = null);
-public sealed record UpdateOrderStatusRequest(string Status, string? ExpectedStatus = null);
+public sealed record UpdateOrderStatusRequest(string Status, string? ExpectedStatus = null, string? AssignedUserId = null, bool UpdateAssignee = false);
+public sealed record OperationalPolicyDto(int PendingOrderExpiryHours, bool AutomaticExpiryEnabled, DateTimeOffset UpdatedAt);
 public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
 public sealed record SaveUserRequest(string Name, string Email, string Role, string? InitialPassword, bool Active = true);
 public sealed record ForgotPasswordRequest(string Email);
@@ -124,7 +125,7 @@ public static class DtoMapper
     public static OrderDto ToDto(this Order value) => new(
         value.Id, value.CustomerName, value.CustomerEmail, value.CustomerPhone, value.DeliveryAddress, value.DeliveryCity, value.DeliveryNotes,
         value.Items.Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPriceLps, item.PresentationGrams, item.Roast, item.Grind)).ToArray(),
-        value.Status, value.CreatedAt, value.TotalLps,
+        value.Status, value.CreatedAt, value.TotalLps, value.AssignedUserId,
         value.TermsJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<OrderTerms>(value.TermsJson), value.CompletedAt) { AccountId = value.AccountId };
 
     public static CustomerDto ToDto(this Customer value) =>

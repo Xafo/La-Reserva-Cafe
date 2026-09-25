@@ -30,6 +30,7 @@ public static class DependencyInjection
             .Validate(options => Encoding.UTF8.GetByteCount(options.SigningKey) >= 32, "Jwt:SigningKey debe tener al menos 32 bytes.")
             .ValidateOnStart();
         services.AddScoped<CsvDataSeeder>();
+        services.AddHostedService<OrderExpiryService>();
         return services;
     }
 }

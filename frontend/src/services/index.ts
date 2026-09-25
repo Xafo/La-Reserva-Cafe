@@ -66,12 +66,18 @@ export const orderService = {
   async createManualOrder(customerName: string, items: { productId: string; quantity: number }[]): Promise<Order> {
     return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ customerName, items }) }, 'team')
   },
-  async updateStatus(id: string, status: OrderStatus, expectedStatus?: OrderStatus): Promise<void> {
+  async updateStatus(id: string, status: OrderStatus, expectedStatus?: OrderStatus, assignedUserId?: string | null, updateAssignee = false): Promise<void> {
     return api<void>(`/orders/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
-      body: JSON.stringify({ status, expectedStatus }),
+      body: JSON.stringify({ status, expectedStatus, assignedUserId, updateAssignee }),
     }, 'team')
   },
+}
+
+export interface OperationalPolicy { pendingOrderExpiryHours: number; automaticExpiryEnabled: boolean; updatedAt: string }
+export const operationsService = {
+  getPolicy: () => api<OperationalPolicy>('/operations/policy', undefined, 'team'),
+  updatePolicy: (policy: OperationalPolicy) => api<OperationalPolicy>('/operations/policy', { method: 'PUT', body: JSON.stringify(policy) }, 'team'),
 }
 
 export const customerService = {

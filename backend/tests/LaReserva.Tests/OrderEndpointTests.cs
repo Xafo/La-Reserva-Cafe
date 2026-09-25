@@ -13,6 +13,8 @@ public sealed class OrderEndpointTests
         var first = Pending("first", 5);
         var second = Pending("second", 5);
 
+        Assert.Null(OrderInventory.Apply(first, "En revisión", new Dictionary<string, Product> { [firstProduct.Id] = firstProduct }));
+        Assert.Null(OrderInventory.Apply(second, "En revisión", new Dictionary<string, Product> { [secondProduct.Id] = secondProduct }));
         Assert.Null(OrderInventory.Apply(first, "Confirmada", new Dictionary<string, Product> { [firstProduct.Id] = firstProduct }));
         Assert.Null(OrderInventory.Apply(second, "Confirmada", new Dictionary<string, Product> { [secondProduct.Id] = secondProduct }));
 

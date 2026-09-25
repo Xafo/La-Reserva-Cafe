@@ -17,6 +17,7 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
     public DbSet<CommercialRequest> CommercialRequests => Set<CommercialRequest>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+    public DbSet<OperationalPolicy> OperationalPolicies => Set<OperationalPolicy>();
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -70,10 +71,18 @@ public sealed class LaReservaDbContext(DbContextOptions<LaReservaDbContext> opti
             entity.Property(value => value.Status).IsConcurrencyToken();
             entity.HasKey(value => value.Id);
             entity.HasOne<CustomerAccount>().WithMany().HasForeignKey(value => value.AccountId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne<User>().WithMany().HasForeignKey(value => value.AssignedUserId).OnDelete(DeleteBehavior.Restrict);
             entity.Property(value => value.TotalLps).HasPrecision(12, 2);
             entity.HasMany(value => value.Items).WithOne()
                 .HasForeignKey(value => value.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OperationalPolicy>(entity =>
+        {
+            entity.ToTable("operational_policies");
+            entity.HasKey(value => value.Id);
+            entity.HasData(new OperationalPolicy { Id = 1, PendingOrderExpiryHours = 48, AutomaticExpiryEnabled = true, UpdatedAt = new DateTimeOffset(2026, 9, 25, 0, 0, 0, TimeSpan.Zero) });
         });
 
         modelBuilder.Entity<OrderItem>(entity =>

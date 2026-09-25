@@ -13,4 +13,5 @@ appsettings.Local.json
 !.env.example
 *.log
 .tools/
+.dotnet-cli/
 tmp/

@@ -29,6 +29,7 @@ public static partial class ApiEndpoints
         MapAccounts(routes.MapGroup("/api/accounts"));
         MapReports(routes.MapGroup("/api/reports"));
         MapCommercialRequests(routes);
+        MapOperationalPolicy(routes.MapGroup("/api/operations"));
         return routes;
     }
 
@@ -296,6 +297,13 @@ public static partial class ApiEndpoints
             if (order is null) return Results.NotFound();
             if (request.ExpectedStatus is not null && !string.Equals(order.Status, request.ExpectedStatus, StringComparison.Ordinal))
                 return Results.Conflict(new { error = "La orden cambió mientras la estabas actualizando. Recargá la lista." });
+            if (request.UpdateAssignee && request.AssignedUserId is not null)
+            {
+                var assignee = await db.Users.SingleOrDefaultAsync(user => user.Id == request.AssignedUserId, cancellationToken);
+                if (assignee is null || !assignee.Active || assignee.Role is not ("Administrador" or "Compras" or "Ventas"))
+                    return Results.BadRequest(new { error = "Elegí un responsable activo de Administración, Compras o Ventas." });
+            }
+            if (request.UpdateAssignee) order.AssignedUserId = request.AssignedUserId;
             var ids = order.Items.Select(item => item.ProductId).Distinct().ToArray();
             var products = await db.Products.Where(product => ids.Contains(product.Id)).ToDictionaryAsync(product => product.Id, cancellationToken);
             var inventoryError = OrderInventory.Apply(order, request.Status, products);
@@ -569,6 +577,30 @@ public static partial class ApiEndpoints
                 ? Results.File(ReportDocuments.ReportExcel(table), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx")
                 : Results.File(ReportDocuments.ReportPdf(table), "application/pdf", $"{type}.pdf");
         }).RequireAuthorization("ReportsView");
+    }
+
+    private static void MapOperationalPolicy(RouteGroupBuilder group)
+    {
+        group.MapGet("/policy", async (LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            var policy = await db.OperationalPolicies.SingleOrDefaultAsync(value => value.Id == 1, cancellationToken)
+                ?? new OperationalPolicy();
+            return Results.Ok(new OperationalPolicyDto(policy.PendingOrderExpiryHours, policy.AutomaticExpiryEnabled, policy.UpdatedAt));
+        }).RequireAuthorization("Team");
+
+        group.MapPut("/policy", async (OperationalPolicyDto request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        {
+            if (request.PendingOrderExpiryHours is < 1 or > 720)
+                return Results.BadRequest(new { error = "El vencimiento debe estar entre 1 y 720 horas." });
+            var policy = await db.OperationalPolicies.SingleOrDefaultAsync(value => value.Id == 1, cancellationToken);
+            if (policy is null) { policy = new OperationalPolicy(); db.OperationalPolicies.Add(policy); }
+            policy.PendingOrderExpiryHours = request.PendingOrderExpiryHours;
+            policy.AutomaticExpiryEnabled = request.AutomaticExpiryEnabled;
+            policy.UpdatedAt = DateTimeOffset.UtcNow;
+            AddAudit(db, principal, "Actualizar política operativa", "Configuración", "operational-policy");
+            await db.SaveChangesAsync(cancellationToken);
+            return Results.Ok(new OperationalPolicyDto(policy.PendingOrderExpiryHours, policy.AutomaticExpiryEnabled, policy.UpdatedAt));
+        }).RequireAuthorization("Administrator");
     }
 
     private static string NormalizeEmail(string value) => value.Trim().ToLowerInvariant();

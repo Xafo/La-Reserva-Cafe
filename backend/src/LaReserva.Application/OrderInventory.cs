@@ -9,7 +9,7 @@ public static class OrderInventory
         if (order.Status == status) return null;
         if (!(order.Status == "Pendiente" && status is "En revisión" or "Cancelada" or "Vencida"
             || order.Status == "En revisión" && status is "Confirmada" or "Cancelada" or "Vencida"
-            || order.Status == "Confirmada" && status is "En preparación" or "Cancelada"
+            || order.Status == "Confirmada" && status is "En preparación" or "Cancelada" or "Vencida"
             || order.Status == "En preparación" && status is "Entregada" or "Cancelada"))
             return "Transición inválida para el estado actual del pedido.";
 

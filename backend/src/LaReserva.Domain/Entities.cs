@@ -52,10 +52,19 @@ public sealed class Order
     public string? City { get => DeliveryCity; set => DeliveryCity = value; }
     public string? DeliveryNotes { get; set; }
     public bool StockCommitted { get; set; }
+    public string? AssignedUserId { get; set; }
     public required string Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public decimal TotalLps { get; set; }
     public List<OrderItem> Items { get; set; } = [];
+}
+
+public sealed class OperationalPolicy
+{
+    public int Id { get; set; } = 1;
+    public int PendingOrderExpiryHours { get; set; } = 48;
+    public bool AutomaticExpiryEnabled { get; set; } = true;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
 public sealed class OrderItem

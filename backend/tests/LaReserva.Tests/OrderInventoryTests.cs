@@ -14,6 +14,7 @@ public sealed class OrderInventoryTests
         Assert.Equal(5, product.Stock);
         Assert.Equal("Pendiente", order.Status);
         order.Items[1].Quantity = 2;
+        Assert.Null(OrderInventory.Apply(order, "En revisión", new Dictionary<string, Product> { [product.Id] = product }));
         Assert.Null(OrderInventory.Apply(order, "Confirmada", new Dictionary<string, Product> { [product.Id] = product }));
         Assert.Equal(0, product.Stock);
         Assert.True(order.StockReserved);
@@ -28,9 +29,10 @@ public sealed class OrderInventoryTests
         var product = Coffee(10);
         var order = Pending(11);
         var products = new Dictionary<string, Product> { [product.Id] = product };
+        Assert.Null(OrderInventory.Apply(order, "En revisión", products));
         Assert.NotNull(OrderInventory.Apply(order, "Confirmada", products));
         Assert.Equal(10, product.Stock);
-        Assert.Equal("Pendiente", order.Status);
+        Assert.Equal("En revisión", order.Status);
         product.Active = false;
         Assert.NotNull(OrderInventory.Apply(Pending(1), "Confirmada", products));
     }
@@ -43,6 +45,7 @@ public sealed class OrderInventoryTests
         var product = Coffee(10);
         var order = Pending(2);
         var products = new Dictionary<string, Product> { [product.Id] = product };
+        Assert.Null(OrderInventory.Apply(order, "En revisión", products));
         Assert.Null(OrderInventory.Apply(order, "Confirmada", products));
         Assert.Equal(8, product.Stock);
         Assert.Null(OrderInventory.Apply(order, finalStatus, products));

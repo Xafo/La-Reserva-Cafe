@@ -54,6 +54,7 @@ export interface Order {
   status: OrderStatus
   createdAt: string
   totalLps: number
+  assignedUserId: string | null
 }
 
 export interface Customer {

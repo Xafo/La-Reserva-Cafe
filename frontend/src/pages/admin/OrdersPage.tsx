@@ -4,14 +4,15 @@ import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
 import { ExportCsvButton } from '../../components/ExportCsvButton'
 import { Dialog } from '../../components/ui/dialog'
 import { downloadTeamFile } from '../../config/api'
-import { catalogService, orderService } from '../../services'
+import { catalogService, operationsService, orderService, userService, type OperationalPolicy } from '../../services'
+import { useAuth } from '../../context/AuthContext'
 import { lps, shortDate } from '../../lib/format'
 import type { Order, OrderStatus, Product } from '../../types'
 
 const transitions: Record<OrderStatus, OrderStatus[]> = {
   Pendiente: ['Pendiente', 'En revisión', 'Cancelada', 'Vencida'],
   'En revisión': ['En revisión', 'Confirmada', 'Cancelada', 'Vencida'],
-  Confirmada: ['Confirmada', 'En preparación', 'Cancelada'],
+  Confirmada: ['Confirmada', 'En preparación', 'Cancelada', 'Vencida'],
   'En preparación': ['En preparación', 'Entregada', 'Cancelada'],
   Entregada: ['Entregada'],
   Cancelada: ['Cancelada'],
@@ -23,6 +24,9 @@ export function OrdersPage() {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [products, setProducts] = useState<Product[]>([])
+  const [assignees, setAssignees] = useState<{ id: string; name: string }[]>([])
+  const [policy, setPolicy] = useState<OperationalPolicy | null>(null)
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [lines, setLines] = useState([{ productId: '', quantity: 1 }])
   const [statusError, setStatusError] = useState<string | null>(null)
@@ -32,7 +36,7 @@ export function OrdersPage() {
   const [to, setTo] = useState('')
 
   useEffect(() => {
-    Promise.all([orderService.getOrders(), catalogService.getProducts(true)]).then(([o, p]) => { setOrders(o); setProducts(p); setLoading(false) })
+    Promise.all([orderService.getOrders(), catalogService.getProducts(true), userService.getUsers(), operationsService.getPolicy()]).then(([o, p, users, currentPolicy]) => { setOrders(o); setProducts(p); setAssignees(users.filter((item) => item.active && ['Administrador', 'Compras', 'Ventas'].includes(item.role))); setPolicy(currentPolicy); setLoading(false) })
   }, [])
 
   const changeStatus = async (id: string, status: OrderStatus) => {
@@ -49,6 +53,13 @@ export function OrdersPage() {
     const customerName = String(new FormData(event.currentTarget).get('customerName'))
     const order = await orderService.createManualOrder(customerName, lines.filter((line) => line.productId && line.quantity > 0))
     setOrders((items) => [order, ...items]); setOpen(false); setLines([{ productId: '', quantity: 1 }])
+  }
+
+  const assign = async (order: Order, assignedUserId: string | null) => {
+    const previous = order.assignedUserId
+    setOrders((items) => items.map((item) => item.id === order.id ? { ...item, assignedUserId } : item))
+    try { await orderService.updateStatus(order.id, order.status, order.status, assignedUserId, true) }
+    catch { setOrders((items) => items.map((item) => item.id === order.id ? { ...item, assignedUserId: previous } : item)); setStatusError('No pudimos asignar el responsable.') }
   }
 
   const visibleOrders = orders.filter((order) => {
@@ -70,6 +81,7 @@ export function OrdersPage() {
             </button>
           </div>
         </header>
+        {user?.role === 'Administrador' && policy && <form onSubmit={async (event) => { event.preventDefault(); const saved = await operationsService.updatePolicy(policy); setPolicy(saved) }} className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3 text-sm"><span className="font-medium">Vencimiento:</span><input type="number" min="1" max="720" value={policy.pendingOrderExpiryHours} onChange={(event) => setPolicy({ ...policy, pendingOrderExpiryHours: Number(event.target.value) })} className="w-20 rounded border border-input px-2 py-1" /> horas <label><input type="checkbox" checked={policy.automaticExpiryEnabled} onChange={(event) => setPolicy({ ...policy, automaticExpiryEnabled: event.target.checked })} /> automático</label><button className="rounded border border-input px-3 py-1">Guardar</button></form>}
         <div className="flex flex-wrap gap-2 border-b border-border px-5 py-3">
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'Todas' | OrderStatus)} aria-label="Filtrar por estado" className="rounded border border-input bg-background px-2 py-1.5 text-sm">
             <option>Todas</option>{Object.keys(transitions).map((status) => <option key={status}>{status}</option>)}
@@ -89,6 +101,7 @@ export function OrdersPage() {
               <tr className="border-b border-border text-left text-muted-foreground">
                 <th className="px-5 py-2.5 font-medium">Orden</th>
                 <th className="px-5 py-2.5 font-medium">Cliente</th>
+                <th className="px-5 py-2.5 font-medium">Responsable</th>
                 <th className="px-5 py-2.5 font-medium">Fecha</th>
                 <th className="px-5 py-2.5 font-medium">Articulos</th>
                 <th className="px-5 py-2.5 font-medium">Total</th>
@@ -102,6 +115,7 @@ export function OrdersPage() {
                   <tr key={o.id} className="border-b border-border">
                     <td className="px-5 py-3 font-medium">{o.id}</td>
                     <td className="px-5 py-3">{o.customerName}</td>
+                    <td className="px-5 py-3"><select value={o.assignedUserId ?? ''} onChange={(event) => assign(o, event.target.value || null)} aria-label={`Responsable de ${o.id}`} className="max-w-32 rounded border border-input bg-background px-1.5 py-1 text-xs"><option value="">Sin asignar</option>{assignees.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></td>
                     <td className="px-5 py-3 text-muted-foreground">{shortDate(o.createdAt)}</td>
                     <td className="px-5 py-3">
                       <button
@@ -138,7 +152,7 @@ export function OrdersPage() {
                   </tr>
                   {expanded === o.id && (
                     <tr className="border-b border-border bg-muted/50">
-                      <td colSpan={7} className="px-5 py-3">
+                      <td colSpan={8} className="px-5 py-3">
                         <ul className="space-y-1 text-sm">
                           {o.items.map((i) => (
                             <li key={i.productId} className="flex justify-between">
