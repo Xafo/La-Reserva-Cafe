@@ -36,7 +36,7 @@ export function HomePage() {
       <section className="relative flex min-h-svh items-center justify-center bg-forest-deep text-forest-foreground">
         <img
           src={IMG.heroFog}
-          alt="Preparación de café de Directo Cafe"
+          alt="Preparación de café de La Reserva Cafe"
           className="absolute inset-0 h-full w-full object-cover opacity-55"
           fetchPriority="high"
         />
@@ -46,7 +46,7 @@ export function HomePage() {
             Buen café. Desde el origen.
           </h1>
           <p className="hero-rise-late mx-auto mt-6 max-w-xl text-balance text-lg text-forest-foreground/85">
-            Somos Directo Cafe, una empresa hondureña creada para acercarte café que cumpla en la taza lo que promete.
+            Somos La Reserva Cafe, una empresa hondureña creada para acercarte café que cumpla en la taza lo que promete.
           </p>
           <div className="hero-rise-late mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
@@ -81,7 +81,7 @@ export function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-40">
         <Reveal className="flex flex-wrap items-end justify-between gap-6">
           <h2 className="max-w-2xl font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-            Café Directo Cafe
+            Café La Reserva Cafe
           </h2>
           <Link to="/tienda" className="group inline-flex items-center gap-2 font-semibold text-primary">
             Ver toda la carta
@@ -89,11 +89,11 @@ export function HomePage() {
           </Link>
         </Reveal>
         <p className="mt-5 max-w-xl text-muted-foreground">
-          Nuestros cafés son el primer paso de Directo Cafe.
+          Nuestros cafés son el primer paso de La Reserva Cafe.
           Explorá sus orígenes, procesos y notas de sabor.
         </p>
         {loading ? (
-          <p role="status" className="mt-10 text-muted-foreground">Cargando los cafés de Directo Cafe…</p>
+          <p role="status" className="mt-10 text-muted-foreground">Cargando los cafés de La Reserva Cafe…</p>
         ) : catalogError ? (
           <div className="mt-10 max-w-xl">
             <p role="status">No pudimos cargar los cafés. Podés volver a intentarlo.</p>
@@ -125,7 +125,7 @@ export function HomePage() {
             <div className="overflow-hidden rounded-lg">
               <img
                 src={IMG.beansSack}
-                alt="Granos de café tostado de Directo Cafe"
+                alt="Granos de café tostado de La Reserva Cafe"
                 loading="lazy"
                 className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
               />
@@ -142,7 +142,7 @@ export function HomePage() {
                 a más personas, empezando por lo que conocemos.
               </p>
               <p>
-                Así es Directo Cafe: una empresa nacida con el compromiso
+                Así es La Reserva Cafe: una empresa nacida con el compromiso
                 de acercar el origen a quien lo disfruta. Nuestra misión es que
                 cada compra se sienta confiable, desde la descripción hasta el primer sorbo.
               </p>
@@ -151,7 +151,7 @@ export function HomePage() {
               to="/origen"
               className="mt-9 inline-flex items-center gap-2 rounded-full border border-forest-foreground/40 px-7 py-3 font-semibold transition-colors hover:bg-white/10"
             >
-              Conocé Directo Cafe
+              Conocé La Reserva Cafe
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Reveal>
@@ -173,7 +173,7 @@ export function HomePage() {
           {[
             {
               img: IMG.mug,
-              alt: 'Taza de café de Directo Cafe junto a granos tostados',
+              alt: 'Taza de café de La Reserva Cafe junto a granos tostados',
               title: 'Filtrados y métodos',
               text: 'Explorá los cafés de tueste claro y compará sus notas de sabor.',
               to: '/tienda?tueste=Claro',
@@ -189,7 +189,7 @@ export function HomePage() {
               img: IMG.bolsasEstante,
               alt: 'Bolsas de microlote en el estante de la tostaduria',
               title: 'Conocé los orígenes',
-              text: 'Conocé los productores, procesos y notas de los cafés de Directo Cafe.',
+              text: 'Conocé los productores, procesos y notas de los cafés de La Reserva Cafe.',
               to: '/tienda',
             },
           ].map((c, i) => (
@@ -218,7 +218,7 @@ export function HomePage() {
             Encontrá tu próxima taza
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-forest-foreground/80">
-            Empezá por un café de Directo Cafe. Compará sus notas, su origen y
+            Empezá por un café de La Reserva Cafe. Compará sus notas, su origen y
             su tueste, y elegí el que más te guste.
           </p>
           <Link

@@ -14,7 +14,7 @@ public static class ReportDocuments
     public static byte[] OrderPdf(Order order) => Document.Create(document => document.Page(page =>
     {
         page.Margin(36);
-        page.Header().Text("DIRECTO CAFÉ · Pedido").FontSize(18).SemiBold();
+        page.Header().Text("LA RESERVA CAFE · Pedido").FontSize(18).SemiBold();
         page.Content().Column(column =>
         {
             column.Spacing(8);
@@ -37,7 +37,7 @@ public static class ReportDocuments
                 column.Item().Text($"Subtotal: L {terms.SubtotalLps:N2} · Descuento: L {terms.DiscountLps:N2} · Envío: {(terms.ShippingLps is null ? "Por cotizar" : $"L {terms.ShippingLps:N2}")}");
                 column.Item().Text($"Condiciones: {terms.Version}{(terms.Scenario ? " · ESCENARIO DE PRUEBA" : " · Propuesta manual")}");
             }
-            column.Item().Text("Directo Cafe. Este documento no acredita un pago. Entrega y envío sujetos a confirmación.").FontSize(10);
+            column.Item().Text("La Reserva Cafe. Este documento no acredita un pago. Entrega y envío sujetos a confirmación.").FontSize(10);
         });
     })).GeneratePdf();
 
@@ -63,7 +63,7 @@ public static class ReportDocuments
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add("Reporte");
-        sheet.Cell(1, 1).Value = $"Directo Café · {report.Title}";
+        sheet.Cell(1, 1).Value = $"La Reserva Cafe · {report.Title}";
         sheet.Cell(2, 1).Value = report.Scope;
         for (var c = 0; c < report.Headers.Length; c++) sheet.Cell(4, c + 1).Value = report.Headers[c];
         for (var r = 0; r < report.Rows.Count; r++)
@@ -83,7 +83,7 @@ public static class ReportDocuments
     public static byte[] ReportPdf(ReportTable report) => Document.Create(document => document.Page(page =>
     {
         page.Size(PageSizes.A4.Landscape()); page.Margin(24); page.DefaultTextStyle(s => s.FontSize(9));
-        page.Header().Text($"Directo Café · {report.Title}").FontSize(17).SemiBold();
+        page.Header().Text($"La Reserva Cafe · {report.Title}").FontSize(17).SemiBold();
         page.Content().Column(column =>
         {
             column.Spacing(10); column.Item().Text(report.Scope);

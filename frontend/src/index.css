@@ -15,7 +15,7 @@
   --color-forest-foreground: oklch(0.96 0.01 120);
   --color-accent: oklch(0.76 0.13 80);
   --color-accent-ink: oklch(0.42 0.09 78);
-  /* Rojo de marca Directo Cafe — acento puntual sobre base verde */
+  /* Rojo de marca La Reserva Cafe — acento puntual sobre base verde */
   --color-brand: oklch(0.55 0.2 24);
   --color-brand-ink: oklch(0.47 0.19 24);
   --color-brand-foreground: oklch(0.99 0.005 40);
@@ -122,9 +122,6 @@ h1, h2, h3 {
   .marquee { animation: none; }
 }
 
-.login-experience { cursor: url('/marca/cursor-grano.svg') 6 5, default; }
-.login-experience a, .login-experience button { cursor: url('/marca/cursor-grano.svg') 6 5, pointer; }
-.login-experience input { cursor: text; }
 .login-panel { background: oklch(0.23 0.055 135); }
 .login-panel::before { content: ''; position: absolute; inset: 0; opacity: .34; background-image: radial-gradient(oklch(0.76 0.13 80 / .26) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(120deg, black, transparent 68%); }
 .login-panel-orbit { position: absolute; border: 1px solid oklch(0.76 0.13 80 / .24); border-radius: 999px; pointer-events: none; }

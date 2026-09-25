@@ -1,10 +1,10 @@
-# Contexto del proyecto — Directo Café
+# Contexto del proyecto — La Reserva Cafe
 
 ## Contexto vigente — 21 de septiembre de 2026
 
 Leer primero [PRODUCT.md](../PRODUCT.md) y el [plan por fases](DIRECTO-CAFE-PLAN-POR-FASES.md).
 Hay frontend React integrado con API .NET 10 y PostgreSQL. La identidad pública
-se adapta a Directo Café; La Reserva sigue siendo la tostaduría inicial.
+se adapta a La Reserva Cafe; La Reserva sigue siendo la tostaduría inicial.
 Los nombres de solución, esquemas y claves de sesión se conservan para evitar
 rupturas de datos. El siguiente alcance es onboarding; aún no existe marketplace.
 

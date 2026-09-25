@@ -1,4 +1,4 @@
-# Directo Café — cierre y secuencia de pilotos
+# La Reserva Cafe — cierre y secuencia de pilotos
 
 24 de septiembre de 2026. Los PDF definen tres horizontes; las entregas 1A–1E son
 la descomposición técnica propuesta, no fases textuales de los documentos.

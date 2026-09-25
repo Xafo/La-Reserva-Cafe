@@ -1,4 +1,4 @@
-// Fotografías de café hondureño para Directo Cafe.
+// Fotografías de café hondureño para La Reserva Cafe.
 // Optimizadas en public/marca/. Las claves historicas se conservan para no
 // romper consumidores; apuntan ahora a la foto real mas adecuada.
 
