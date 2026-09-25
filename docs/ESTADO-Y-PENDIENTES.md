@@ -1,4 +1,4 @@
-# La Reserva Cafe — estado y próximos pasos
+# La Reserva Café — estado y próximos pasos
 
 Actualizado: 24 de septiembre de 2026. Los escenarios de siete cafés, contactos y
 condiciones fueron autorizados para desarrollar y probar. No son datos oficiales.
@@ -7,7 +7,7 @@ condiciones fueron autorizados para desarrollar y probar. No son datos oficiales
 
 | Fase | Cubierto | Para cerrar la salida comercial |
 |---|---|---|
-| **1A — Identidad y catálogo** | La Reserva Cafe nace en La Reserva; historia, misión, siete cafés de escenario y fotografías identificadas como referencia. | Aprobar fichas, precios, existencias, fotos, origen/lote/tueste, contactos y condiciones reales. Cosecha no acredita tueste. |
+| **1A — Identidad y catálogo** | La Reserva Café nace en La Reserva; historia, misión, siete cafés de escenario y fotografías identificadas como referencia. | Aprobar fichas, precios, existencias, fotos, origen/lote/tueste, contactos y condiciones reales. Cosecha no acredita tueste. |
 | **1B — Consumidores** | Cinco perfiles, 22 preguntas versionadas; reglas deterministas, alternativas, catálogo vacío, persistencia y edición. | Contrastar recomendaciones con catálogo definitivo. |
 | **1C — Solicitudes** | Tres ramas sin match de sabor; asignación, estados, historial y permisos; catálogo empresarial dedicado y simulador mayorista. | Responsables y canales reales; moneda y beneficios aprobados. No hay envío automático de solicitudes. |
 | **1D — Pedidos y medición** | Contacto/entrega/molienda, precios históricos, cotización versionada, cobertura y envío manual, reservas, cancelación, concurrencia, reintentos, ventas por período y PDF/Excel por tipo. **Cierre técnico con escenarios.** | Aprobar reglas reales y observar métricas del piloto. Finalizada no acredita pago. |

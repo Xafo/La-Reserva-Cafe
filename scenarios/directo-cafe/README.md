@@ -1,4 +1,4 @@
-# Escenario La Reserva Cafe v1
+# Escenario La Reserva Café v1
 
 Datos de demostración autorizados por el usuario para desbloquear las entregas
 1B y 1C. Fuente reutilizable: `demo-v1.json`. No reemplaza las semillas actuales,

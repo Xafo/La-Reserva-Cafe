@@ -1,6 +1,6 @@
 # Plan de Desarrollo — Plataforma LA RESERVA (Café y Tostadería)
 
-> Revisión del 21 de septiembre de 2026: consultar [La Reserva Cafe: diagnóstico y plan por fases](DIRECTO-CAFE-PLAN-POR-FASES.md) para la evolución del producto y la cobertura verificada en código. Este plan conserva antecedentes técnicos y contiene estados históricos; en particular, las exportaciones de la Fase 3 requieren correcciones antes de considerarse completas.
+> Revisión del 21 de septiembre de 2026: consultar [La Reserva Café: diagnóstico y plan por fases](DIRECTO-CAFE-PLAN-POR-FASES.md) para la evolución del producto y la cobertura verificada en código. Este plan conserva antecedentes técnicos y contiene estados históricos; en particular, las exportaciones de la Fase 3 requieren correcciones antes de considerarse completas.
 
 > Documento de trabajo para continuar el desarrollo. Pensado para usarse como
 > contexto/spec en un agente de código (Codex): contiene el estado actual, las

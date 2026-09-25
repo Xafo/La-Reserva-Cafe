@@ -1,4 +1,4 @@
-# La Reserva Cafe — conciliación del catálogo y condiciones
+# La Reserva Café — conciliación del catálogo y condiciones
 
 Entrega 1A, 21 de septiembre de 2026. Documento de trabajo, no catálogo aprobado.
 
@@ -58,7 +58,7 @@ el criterio de cierre de CAT-01, no la cantidad de filas de una semilla.
 | Empresa | Moneda de los rangos `$`, volumen y facturación | No reinterpretar el símbolo como lempiras o USD |
 | Cafetería | Tarifas, mínimos, exclusividad y soporte | Capturar interés en 1C, no prometer condiciones inventadas |
 | Productores | Admisión y política de comisiones | Presentar una apertura futura, no un vendedor habilitado |
-| Identidad | Logo oficial La Reserva Cafe si existe | Wordmark tipográfico transitorio; fotos de La Reserva conservadas |
+| Identidad | Logo oficial La Reserva Café si existe | Wordmark tipográfico transitorio; fotos de La Reserva conservadas |
 
 ## Decisiones técnicas de esta entrega
 

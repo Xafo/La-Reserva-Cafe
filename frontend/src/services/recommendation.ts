@@ -134,9 +134,9 @@ function goalsScore(profile: PreferenceProfile, product: Product) {
   if (profile.goals.length === 0) return 0
   let matched = 0
   for (const goal of profile.goals) {
-    if (goal === 'Cafe de especialidad' && product.quality.grade === 'Premium') matched++
-    if (goal === 'Cafe de todos los dias' && product.presentationGrams >= 454 && product.priceLps <= 400) matched++
-    if (goal === 'Regalar cafe' && product.quality.cuppingScore >= 88) matched++
+    if (goal === 'Café de especialidad' && product.quality.grade === 'Premium') matched++
+    if (goal === 'Café de todos los días' && product.presentationGrams >= 454 && product.priceLps <= 400) matched++
+    if (goal === 'Regalar café' && product.quality.cuppingScore >= 88) matched++
     if (goal === 'Comprar para mi negocio' && product.stock >= 60) matched++
   }
   return (matched / profile.goals.length) * WEIGHTS.goals

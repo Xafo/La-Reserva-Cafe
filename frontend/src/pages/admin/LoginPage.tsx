@@ -21,7 +21,7 @@ export function LoginPage() {
       await login(String(data.get('email')), String(data.get('password')))
       navigate('/admin')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesion')
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {
       setLoading(false)
     }
@@ -39,7 +39,7 @@ export function LoginPage() {
           </div>
           <h1 className="font-display text-4xl font-extrabold tracking-[-0.035em] sm:text-5xl">Que cada detalle llegue a la taza.</h1>
           <p className="mt-5 max-w-sm text-[0.95rem] leading-7 text-forest-foreground/78">
-            Ingresá al espacio de operación de La Reserva Cafe para atender pedidos, inventario y clientes.
+            Ingresá al espacio de operación de La Reserva Café para atender pedidos, inventario y clientes.
           </p>
           <form onSubmit={handleSubmit} className="mt-10 space-y-5">
           <div>
@@ -59,7 +59,7 @@ export function LoginPage() {
           </button>
         </form>
         </div>
-        <p className="relative z-10 text-xs text-forest-foreground/55">Acceso protegido · La Reserva Cafe, Honduras</p>
+        <p className="relative z-10 text-xs text-forest-foreground/55">Acceso protegido · La Reserva Café, Honduras</p>
       </section>
       <aside className="login-photo relative hidden min-h-svh overflow-hidden lg:block">
         <img src={IMG.beansSack} alt="Granos de café durante una sesión de catación" className="absolute inset-0 h-full w-full object-cover" />

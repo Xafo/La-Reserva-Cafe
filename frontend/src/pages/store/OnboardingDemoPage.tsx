@@ -44,7 +44,7 @@ export default function OnboardingDemoPage() {
               <details className="mt-6 border-y border-border py-4"><summary className="cursor-pointer font-semibold">Ver condiciones del escenario</summary>
                 <p className="mt-3 text-sm">Supuestos de demostración; no constituyen una oferta comercial.</p>
                 {saved.profile === 'business' && <p className="mt-3 text-sm">Presupuesto interpretado como USD solo para este escenario. Abastecimiento según frecuencia elegida, sin suscripción automática ni conversión a lempiras.</p>}
-                {saved.profile === 'cafe' && <p className="mt-3 text-sm">Mínimo 5 kg. Descuentos de escenario: 5% desde 5 kg, 8% desde 15 kg y 10% desde 30 kg, sobre Blend, Espresso de Casa y Roberto Lopez. Se requiere cantidad exacta para cotizar; no se aplica descuento por elegir un rango.</p>}
+                {saved.profile === 'cafe' && <p className="mt-3 text-sm">Mínimo 5 kg. Descuentos de escenario: 5% desde 5 kg, 8% desde 15 kg y 10% desde 30 kg, sobre Blend, Espresso de Casa y Roberto López. Se requiere cantidad exacta para cotizar; no se aplica descuento por elegir un rango.</p>}
                 {saved.profile === 'producer' && <p className="mt-3 text-sm">Candidatura para fase 2. No se habilitan ventas ni exención de comisiones.</p>}
                 <p className="mt-3 break-words text-sm">Contacto simulado: {scenario.contacts[saved.profile === 'business' ? 'advisor' : saved.profile === 'cafe' ? 'roaster' : 'sellerSupport'].email}. No operativo.</p>
               </details>

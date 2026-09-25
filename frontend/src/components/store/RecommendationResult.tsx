@@ -19,7 +19,7 @@ export function RecommendationResult({ recommendations }: { recommendations: Rec
   return (
     <div>
       <Reveal>
-        <p className="text-sm font-semibold uppercase tracking-widest text-primary">Tu cafe ideal</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-primary">Tu café ideal</p>
         <div className="mt-5 grid gap-8 rounded-lg border border-border bg-background p-6 md:grid-cols-[280px_1fr] md:p-8">
           <Link to={`/tienda/${product.id}`} className="relative block aspect-[4/5] overflow-hidden rounded-lg bg-muted">
             <img src={product.imageUrl} alt={product.imageAlt} className="h-full w-full object-cover" />

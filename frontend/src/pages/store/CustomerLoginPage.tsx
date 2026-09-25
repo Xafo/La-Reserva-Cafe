@@ -22,7 +22,7 @@ export function CustomerLoginPage() {
       await login(String(data.get('email')), String(data.get('password')))
       navigate('/cuenta')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesion')
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {
       setLoading(false)
     }
@@ -32,7 +32,7 @@ export function CustomerLoginPage() {
     <main>
       <StoreNav />
       <section className="mx-auto max-w-md px-5 pb-28 pt-28 md:pt-36">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">Iniciar sesion</h1>
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">Iniciar sesión</h1>
         <p className="mt-3 text-muted-foreground">
           Accede a tus preferencias y recomendaciones guardadas.
         </p>
@@ -45,7 +45,7 @@ export function CustomerLoginPage() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm font-medium">Contrasena</label>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium">Contraseña</label>
             <input
               id="password" name="password" type="password" required autoComplete="current-password"
               className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
@@ -61,7 +61,7 @@ export function CustomerLoginPage() {
           <p className="text-sm text-muted-foreground">
             Aun no tenes cuenta?{' '}
             <Link to="/registro" className="font-medium text-primary hover:underline">
-              Crea la tuya y descubri tu cafe ideal
+              Creá la tuya y descubrí tu café ideal
             </Link>
           </p>
         </form>

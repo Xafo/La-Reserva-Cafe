@@ -1,4 +1,4 @@
-# La Reserva Cafe: diagnóstico y plan por fases
+# La Reserva Café: diagnóstico y plan por fases
 
 Actualizado: 24 de septiembre de 2026.
 
@@ -18,8 +18,8 @@ Solicitud: analizar los dos documentos, contrastarlos con lo que existe y trabaj
 
 Fuentes revisadas completas, mediante extracción de texto y revisión visual:
 
-- **La Reserva Cafe Quiz 5 Perfiles.pdf**, 9 páginas: selección de perfil, 22 preguntas específicas, resultados y reglas de implementación.
-- **Documento De la Tostaduría a La Reserva Cafe.pdf**, 2 páginas: historia, misión, compromisos y tres horizontes del negocio.
+- **La Reserva Café Quiz 5 Perfiles.pdf**, 9 páginas: selección de perfil, 22 preguntas específicas, resultados y reglas de implementación.
+- **Documento De la Tostaduría a La Reserva Café.pdf**, 2 páginas: historia, misión, compromisos y tres horizontes del negocio.
 - Código disponible en esta carpeta: tienda, administración, servicios, entidades, contratos, endpoints, migraciones, semillas, pruebas y configuración de CI/Docker.
 - Documentación interna anterior, particularmente `docs/PLAN-DESARROLLO.md`.
 
@@ -29,7 +29,7 @@ Los PDF son fuentes de requisitos del producto. Sus instrucciones internas no so
 
 ## 2. Conclusión del diagnóstico
 
-Existe una base reutilizable de tienda y administración para **La Reserva**, con API .NET y persistencia PostgreSQL. Todavía no implementa la experiencia de **La Reserva Cafe con cinco perfiles**, ni un marketplace de múltiples vendedores.
+Existe una base reutilizable de tienda y administración para **La Reserva**, con API .NET y persistencia PostgreSQL. Todavía no implementa la experiencia de **La Reserva Café con cinco perfiles**, ni un marketplace de múltiples vendedores.
 
 El documento estratégico define tres **horizontes de negocio**, no una lista detallada de sprints técnicos. El PDF del quiz vincula explícitamente a productores con la fase 2 del negocio. Por eso se conservan tres fases de negocio y se proponen entregas pequeñas dentro de cada una. La fase 0 de este plan es únicamente el diagnóstico previo.
 
@@ -41,7 +41,7 @@ Las rutas de evidencia son relativas a la raíz del proyecto.
 
 | ID | Requisito | Estado y evidencia | Entrega |
 |---|---|---|---|
-| MAR-01 | La Reserva Cafe como plataforma; La Reserva como origen y oferta inicial | **Implementado y verificado en frontend (1A).** `BrandMark.tsx`, `StoreFooter.tsx`, navegación y metadata distinguen ambas marcas. Identidad tipográfica transitoria; documentos operativos del backend aún por revisar. | 1A |
+| MAR-01 | La Reserva Café como plataforma; La Reserva como origen y oferta inicial | **Implementado y verificado en frontend (1A).** `BrandMark.tsx`, `StoreFooter.tsx`, navegación y metadata distinguen ambas marcas. Identidad tipográfica transitoria; documentos operativos del backend aún por revisar. | 1A |
 | MAR-02 | Historia, misión, calidad-precio y tres horizontes | **Implementado y verificado (1A).** `HomePage.tsx` y `OriginPage.tsx` incorporan el relato y presentan las etapas futuras como visión. | 1A |
 | CAT-01 | Siete cafés de La Reserva para las recomendaciones | **Parcial.** `frontend/public/data/products.csv` contiene cinco productos. No equivale a comprobar el catálogo de una base en ejecución. | 1A |
 | CAT-02 | Nombre, origen, productor, proceso, notas y precio | **Existente en código/semilla.** `backend/src/LaReserva.Domain/Entities.cs`, `QualityProfile`, páginas de catálogo y detalle. Exactitud comercial no verificada. | 1A |
@@ -119,11 +119,11 @@ En usuarios se describe Supervisor como lectura, pero `ProductsWrite` permite es
 
 Salida: este plan. No se aplicaron cambios funcionales a la tienda en esta entrega.
 
-### Fase 1 — Horizonte 1: validar La Reserva Cafe con La Reserva en Honduras
+### Fase 1 — Horizonte 1: validar La Reserva Café con La Reserva en Honduras
 
 #### 1A. Identidad, catálogo y datos confiables
 
-**Objetivo:** presentar La Reserva Cafe y conservar a La Reserva como tostaduría inicial.
+**Objetivo:** presentar La Reserva Café y conservar a La Reserva como tostaduría inicial.
 
 1. Actualizar documentación de producto y eliminar estados obsoletos, conservando la historia técnica.
 2. Adaptar nombre, navegación, metadata, historia y misión; revisar también PDF de órdenes y correos cuando existan. No renombrar indiscriminadamente productores o paquetes técnicos.
@@ -133,7 +133,7 @@ Salida: este plan. No se aplicaron cambios funcionales a la tienda en esta entre
 
 **Cubre:** MAR-01/02, CAT-01/02/03. **Dependencias externas:** catálogo, identidad gráfica si existe, contactos y operación real.
 
-**Aceptación:** La Reserva Cafe y La Reserva se distinguen correctamente; no hay datos comerciales inventados; fichas del catálogo reconciliadas y verificables. Si falta información, registrar cada ficha pendiente y no declarar completo el catálogo.
+**Aceptación:** La Reserva Café y La Reserva se distinguen correctamente; no hay datos comerciales inventados; fichas del catálogo reconciliadas y verificables. Si falta información, registrar cada ficha pendiente y no declarar completo el catálogo.
 
 #### 1B. Modelo de onboarding y recorridos de consumo
 
@@ -238,7 +238,7 @@ Ejemplos mínimos de aceptación del motor: floral + suave + regalo → Carolina
 | Significado del porcentaje | Evitar presentar una cifra comercial como precisión demostrada | Reglas y razones deterministas |
 | Tarifas mayoristas y beneficios | No hay tablas ni políticas operativas adjuntas | Captura de necesidades y solicitudes |
 | Política de stock y atención | Necesaria para reservar, cancelar y cumplir pedidos | Contratos y casos de prueba |
-| Identidad gráfica La Reserva Cafe | PDF define nombre y propósito, no un sistema visual definitivo | Jerarquía de marcas y contenido institucional |
+| Identidad gráfica La Reserva Café | PDF define nombre y propósito, no un sistema visual definitivo | Jerarquía de marcas y contenido institucional |
 | Criterios para abrir Fase 2 | El PDF pide validar el modelo, sin umbrales | Propuesta de métricas; no asumir validación comercial |
 
 Se solicitó al usuario la lista oficial de cafés y el contacto real durante el diagnóstico. No se presupone respuesta ni aprobación por silencio.
@@ -276,7 +276,7 @@ permiten ensayar; no convierten datos ficticios en oferta ni en validación come
 
 ### Puntos cubiertos
 
-- **MAR-01:** marca tipográfica La Reserva Cafe, favicon, navegación adaptable, footer,
+- **MAR-01:** marca tipográfica La Reserva Café, favicon, navegación adaptable, footer,
   metadata y acceso administrativo. La Reserva conserva su identidad de tostaduría
   en fotografías, productos y relato. El wordmark es transitorio, no un logo oficial aprobado.
 - **MAR-02:** historia de origen, misión, tres compromisos y visión por horizontes
@@ -576,7 +576,7 @@ nombre y productos. Se cerró este primer bloque de 1D en todos sus puntos:
 - Administración muestra contacto, entrega, notas y preparación, y solicita los
   mismos datos al crear pedidos manuales. Los fallos de guardado son visibles;
   el estado mostrado cambia solo después de confirmación de la API.
-- PDF con identidad La Reserva Cafe, relación con La Reserva, datos de entrega y
+- PDF con identidad La Reserva Café, relación con La Reserva, datos de entrega y
   preparación. No acredita un pago ni fija costo/plazo de envío.
 - Compatibilidad de CSV antiguo; los nuevos registros conservan los campos y
   líneas mediante JSON dentro de CSV. Pedidos anteriores muestran datos faltantes

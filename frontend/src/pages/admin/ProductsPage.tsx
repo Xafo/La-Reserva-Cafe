@@ -40,7 +40,7 @@ export function ProductsPage() {
   }
 
   return (
-    <AdminLayout title="Catalogo de productos">
+    <AdminLayout title="Catálogo de productos">
       {error && !open && <p role="alert" className="mb-4 text-destructive">{error}</p>}
       <div className="rounded-lg border border-border bg-background">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">

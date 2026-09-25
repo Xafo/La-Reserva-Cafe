@@ -86,7 +86,7 @@ export interface CartItem {
 // TODO(backend .NET 10): CustomerAccount mapea a las tablas CustomerAccounts +
 // CustomerPreferences (ver docs/STORAGE.md).
 
-export type PlatformGoal = 'Cafe de especialidad' | 'Cafe de todos los dias' | 'Regalar cafe' | 'Comprar para mi negocio'
+export type PlatformGoal = 'Café de especialidad' | 'Café de todos los días' | 'Regalar café' | 'Comprar para mi negocio'
 export type BrewMethod = 'Espresso' | 'Prensa francesa' | 'V60 o chorreado' | 'Cafetera de goteo' | 'Cold brew'
 export type DrinkStyle = 'Solo (negro)' | 'Con leche' | 'Frio'
 export type FlavorFamily = 'Chocolate y nuez' | 'Frutal y tropical' | 'Floral y te' | 'Caramelo y panela' | 'Vino y frutos rojos'

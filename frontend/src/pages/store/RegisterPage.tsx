@@ -20,7 +20,7 @@ const FIELDS = [
   { name: 'email', label: 'Correo', type: 'email', autoComplete: 'email' },
   { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel' },
   { name: 'ciudad', label: 'Ciudad', type: 'text', autoComplete: 'address-level2' },
-  { name: 'password', label: 'Contrasena', type: 'password', autoComplete: 'new-password' },
+  { name: 'password', label: 'Contraseña', type: 'password', autoComplete: 'new-password' },
 ]
 
 export function RegisterPage() {
@@ -110,7 +110,7 @@ export function RegisterPage() {
               <p className="text-sm text-muted-foreground">
                 Ya tenes cuenta?{' '}
                 <Link to="/ingresar" className="font-medium text-primary hover:underline">
-                  Inicia sesion
+                  Iniciá sesión
                 </Link>
               </p>
             </form>
@@ -119,7 +119,7 @@ export function RegisterPage() {
 
         {phase === 'quiz' && (
           <>
-            <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Tu perfil de cafe</h1>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Tu perfil de café</h1>
             <p className="mt-3 max-w-xl text-muted-foreground">
               Elegí tu perfil y respondé las preguntas de tu recorrido para encontrar cafés afines a tus gustos.
             </p>

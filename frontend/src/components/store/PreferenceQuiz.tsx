@@ -44,15 +44,15 @@ const STEPS: QuizStep[] = [
     hint: 'Elegi todas las que apliquen',
     multi: true,
     options: [
-      { value: 'Cafe de especialidad', label: 'Cafe de especialidad', hint: 'Microlotes y taza alta' },
-      { value: 'Cafe de todos los dias', label: 'Cafe de todos los dias', hint: 'Rendidor y confiable' },
-      { value: 'Regalar cafe', label: 'Regalar cafe', hint: 'Algo que impresione' },
+      { value: 'Café de especialidad', label: 'Café de especialidad', hint: 'Microlotes y taza alta' },
+      { value: 'Café de todos los días', label: 'Café de todos los días', hint: 'Rendidor y confiable' },
+      { value: 'Regalar café', label: 'Regalar café', hint: 'Algo que impresione' },
       { value: 'Comprar para mi negocio', label: 'Para mi negocio', hint: 'Volumen y consistencia' },
     ],
   },
   {
     key: 'brewMethods',
-    question: 'Como preparas tu cafe?',
+    question: '¿Cómo preparás tu café?',
     hint: 'Elegi todas las que apliquen',
     multi: true,
     options: [
@@ -136,7 +136,7 @@ interface PreferenceQuizProps {
   onComplete: (profile: PreferenceProfile) => void
 }
 
-export function PreferenceQuiz({ initial, submitLabel = 'Ver mi cafe ideal', submitting = false, onComplete }: PreferenceQuizProps) {
+export function PreferenceQuiz({ initial, submitLabel = 'Ver mi café ideal', submitting = false, onComplete }: PreferenceQuizProps) {
   const [stepIdx, setStepIdx] = useState(0)
   const [answers, setAnswers] = useState<QuizAnswers>(() => (initial ? fromProfile(initial) : emptyAnswers()))
 

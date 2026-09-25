@@ -40,7 +40,7 @@ export function ProductDetailPage() {
       <main>
         <StoreNav />
         <div className="mx-auto max-w-3xl px-5 pb-32 pt-40 text-center">
-          <h1 className="font-display text-3xl font-extrabold">Ese cafe ya no esta en la carta</h1>
+          <h1 className="font-display text-3xl font-extrabold">Ese café ya no está en la carta</h1>
           <p className="mt-3 text-muted-foreground">Las cosechas rotan por temporada. Mira lo que hay disponible hoy.</p>
           <Link to="/tienda" className="mt-7 inline-block rounded-full bg-primary px-7 py-3 font-semibold text-primary-foreground hover:bg-forest">
             Volver a la tienda
@@ -118,7 +118,7 @@ export function ProductDetailPage() {
             <p className="mt-3 text-xs text-muted-foreground">
               {product.stock < 15
                 ? `Quedan ${product.stock} unidades de esta cosecha.`
-                : 'Café de La Reserva Cafe. Consultá su origen, proceso y presentación en esta ficha.'}
+                : 'Café de La Reserva Café. Consultá su origen, proceso y presentación en esta ficha.'}
             </p>
           </div>
         </div>

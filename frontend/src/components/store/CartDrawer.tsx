@@ -29,7 +29,7 @@ export function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-8 text-center">
-            <p className="font-display text-lg font-bold">Aun no has elegido tu cafe</p>
+            <p className="font-display text-lg font-bold">Aún no has elegido tu café</p>
             <p className="text-sm text-muted-foreground">
               Explora la tienda y arma tu pedido por origen, proceso o tueste.
             </p>

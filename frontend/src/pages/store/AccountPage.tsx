@@ -89,7 +89,7 @@ export function AccountPage() {
             }}
             className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border px-5 py-2.5 font-medium transition-colors hover:bg-muted"
           >
-            <LogOut className="h-4 w-4" /> Cerrar sesion
+            <LogOut className="h-4 w-4" /> Cerrar sesión
           </button>
         </div>
 
@@ -146,7 +146,7 @@ export function AccountPage() {
               onClick={() => setEditing(true)}
               className="mt-7 cursor-pointer rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground transition-colors hover:bg-forest"
             >
-              Descubrir mi cafe ideal
+              Descubrir mi café ideal
             </button>
           </div>
         )}

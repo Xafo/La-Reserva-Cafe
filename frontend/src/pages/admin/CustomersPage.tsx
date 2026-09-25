@@ -190,7 +190,7 @@ export function CustomersPage() {
               <div className="mt-6 flex items-center gap-4 rounded-lg border border-border p-4">
                 <img src={recommended.imageUrl} alt="" className="h-14 w-14 rounded object-cover" />
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cafe recomendado</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Café recomendado</p>
                   <p className="font-semibold">{recommended.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {recommended.roast} · {recommended.process} · {lps(recommended.priceLps)}

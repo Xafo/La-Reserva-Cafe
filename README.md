@@ -1,6 +1,6 @@
-# La Reserva Cafe — Café de Honduras
+# La Reserva Café — Café de Honduras
 
-Plataforma hondureña de café. La primera fase ofrece un catálogo curado de La Reserva Cafe; la incorporación de otros vendedores corresponde a un horizonte posterior.
+Plataforma hondureña de café. La primera fase ofrece un catálogo curado de La Reserva Café; la incorporación de otros vendedores corresponde a un horizonte posterior.
 
 ## Estado
 
@@ -10,7 +10,7 @@ Plataforma hondureña de café. La primera fase ofrece un catálogo curado de La
 - Seguridad: contraseñas hasheadas, JWT de corta duración, refresh tokens rotativos en cookies HttpOnly y autorización por roles.
 - Ejecución local: frontend, API y PostgreSQL en Docker Compose.
 
-La evolución a La Reserva Cafe se organiza en [diagnóstico y plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md), con cobertura contrastada contra el código y los dos documentos de negocio (21 de septiembre de 2026).
+La evolución a La Reserva Café se organiza en [diagnóstico y plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md), con cobertura contrastada contra el código y los dos documentos de negocio (21 de septiembre de 2026).
 
 El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes del proyecto; sus checklists no sustituyen la validación del diagnóstico actual.
 

@@ -4,7 +4,7 @@ import { AdminLayout } from '../../components/AdminLayout'
 import { downloadTeamFile } from '../../config/api'
 
 const reports = [
-  { type: 'productos', name: 'Productos registrados', desc: 'Catalogo completo con precios, stock y estado.' },
+  { type: 'productos', name: 'Productos registrados', desc: 'Catálogo completo con precios, stock y estado.' },
   { type: 'ordenes', name: 'Ordenes de compra', desc: 'Historial de ordenes por estado y rango de fechas.' },
   { type: 'ventas', name: 'Ventas', desc: 'Ventas finalizadas por periodo, cliente y producto.' },
   { type: 'inventario', name: 'Inventario', desc: 'Existencias actuales y alertas de stock bajo.' },

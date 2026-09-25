@@ -6,9 +6,9 @@ import type { Role, User } from '../../types'
 
 const roleDescriptions: Record<string, string> = {
   Administrador: 'Acceso total, incluida la gestion de usuarios y roles.',
-  Compras: 'Catalogo, calidad, ordenes y proveedores.',
+  Compras: 'Catálogo, calidad, órdenes y proveedores.',
   Ventas: 'Ordenes, clientes y reporteria de ventas.',
-  Supervisor: 'Lectura de toda la operacion sin gestion de usuarios.',
+  Supervisor: 'Lectura de toda la operación sin gestión de usuarios.',
 }
 
 export function UsersPage() {

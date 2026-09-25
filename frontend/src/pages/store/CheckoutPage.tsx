@@ -67,7 +67,7 @@ export function CheckoutPage() {
         <StoreNav />
         <div className="mx-auto max-w-2xl px-5 pb-32 pt-40 text-center">
           <h1 className="font-display text-3xl font-extrabold">Tu pedido esta vacio</h1>
-          <p className="mt-3 text-muted-foreground">Elegi tu cafe en la tienda antes de confirmar.</p>
+          <p className="mt-3 text-muted-foreground">Elegí tu café en la tienda antes de confirmar.</p>
           <button onClick={() => navigate('/tienda')} className="mt-7 cursor-pointer rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground hover:bg-forest">
             Ir a la tienda
           </button>
@@ -89,7 +89,7 @@ export function CheckoutPage() {
               { name: 'nombre', label: 'Nombre completo', type: 'text', autoComplete: 'name', defaultValue: account?.name },
               { name: 'correo', label: 'Correo electrónico', type: 'email', autoComplete: 'email', defaultValue: account?.email },
               { name: 'telefono', label: 'Telefono', type: 'tel', autoComplete: 'tel', defaultValue: account?.phone },
-              { name: 'direccion', label: 'Direccion de entrega', type: 'text', autoComplete: 'street-address', defaultValue: undefined },
+              { name: 'direccion', label: 'Dirección de entrega', type: 'text', autoComplete: 'street-address', defaultValue: undefined },
               { name: 'ciudad', label: 'Ciudad', type: 'text', autoComplete: 'address-level2', defaultValue: account?.city },
             ].map((f) => (
               <div key={f.name}>

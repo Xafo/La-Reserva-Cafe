@@ -28,7 +28,7 @@ export function QualityPage() {
   }
 
   return (
-    <AdminLayout title="Calidad del cafe">
+    <AdminLayout title="Calidad del café">
       <div className="rounded-lg border border-border bg-background">
         <header className="border-b border-border px-5 py-4">
           <p className="text-sm text-muted-foreground">

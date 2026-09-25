@@ -1,5 +1,5 @@
 id,name,email,phone,type,city,totalOrders
-c-1,Cafe y Letras S. de R.L.,compras@cafeyletras.hn,+504 9871-2234,Cliente,Tegucigalpa,18
+c-1,Café y Letras S. de R.L.,compras@cafeyletras.hn,+504 9871-2234,Cliente,Tegucigalpa,18
 c-2,Hotel Real Intercontinental,ab@realhotels.hn,+504 2290-2700,Cliente,Tegucigalpa,32
 c-3,Maria Fernanda Lagos,mflagos@gmail.com,+504 9933-1845,Cliente,San Pedro Sula,7
 c-4,Josue Galo,jgalo.finca@gmail.com,+504 2774-0211,Proveedor,Guaimaca,12

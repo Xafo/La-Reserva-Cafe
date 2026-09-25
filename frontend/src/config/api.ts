@@ -25,7 +25,7 @@ export async function api<T>(
     }
     clearSession(session)
     window.location.href = session === 'team' ? '/admin/login' : '/ingresar'
-    throw new Error('La sesion expiro')
+    throw new Error('La sesión expiró')
   }
 
   if (!res.ok) throw await toApiError(res)

@@ -66,7 +66,7 @@ export function AdminLayout({ children, title }: { children: ReactNode; title: s
             onClick={() => { logout(); navigate('/admin/login') }}
             className="ml-auto inline-flex shrink-0 cursor-pointer items-center gap-2 text-xs font-medium text-forest-foreground/65 transition-colors hover:text-forest-foreground md:ml-0 md:mt-3"
           >
-            <LogOut className="h-3.5 w-3.5" /> Cerrar sesion
+            <LogOut className="h-3.5 w-3.5" /> Cerrar sesión
           </button>
         </div>
       </aside>

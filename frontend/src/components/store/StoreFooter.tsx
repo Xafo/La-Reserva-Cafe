@@ -9,7 +9,7 @@ export function StoreFooter() {
           <div className="max-w-sm space-y-4">
             <BrandMark dark />
             <p className="text-sm leading-relaxed text-forest-foreground/70">
-              La Reserva Cafe es una empresa hondureña dedicada a acercarte café
+              La Reserva Café es una empresa hondureña dedicada a acercarte café
               con información clara, origen verificable y una taza que cumpla
               lo que promete.
             </p>
@@ -34,7 +34,7 @@ export function StoreFooter() {
           </div>
         </div>
         <p className="mt-14 border-t border-white/10 pt-6 text-xs text-forest-foreground/50">
-          {new Date().getFullYear()} La Reserva Cafe. Café de Honduras.
+          {new Date().getFullYear()} La Reserva Café. Café de Honduras.
         </p>
       </div>
     </footer>

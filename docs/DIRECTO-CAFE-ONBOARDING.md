@@ -1,4 +1,4 @@
-# La Reserva Cafe — entregas 1B y 1C
+# La Reserva Café — entregas 1B y 1C
 
 ## Alcance implementado
 

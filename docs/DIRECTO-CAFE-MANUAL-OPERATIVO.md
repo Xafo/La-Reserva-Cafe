@@ -1,4 +1,4 @@
-# La Reserva Cafe — manual operativo de fase 1
+# La Reserva Café — manual operativo de fase 1
 
 24 de septiembre de 2026. Código de `codex/directo-cafe-fase-1d`. Los ejemplos son
 ensayos, sin cobros, despachos ni comunicaciones a terceros.
