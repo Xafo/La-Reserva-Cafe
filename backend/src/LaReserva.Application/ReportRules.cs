@@ -22,7 +22,9 @@ public static class ReportRules
             throw new ArgumentException("Indicá desde/hasta válidos, en orden y con un máximo de 367 días.");
         return new(start, end);
     }
-    public static Order[] Sales(IEnumerable<Order> orders, ReportPeriod period) => orders.Where(o => o.Status == "Finalizada" && period.Contains(o.CompletedAt)).ToArray();
+    public static Order[] Sales(IEnumerable<Order> orders, ReportPeriod period) => orders
+        .Where(o => o.Status is "Confirmada" or "En preparación" or "Entregada")
+        .Where(o => period.Contains(o.CompletedAt ?? o.CreatedAt)).ToArray();
     public static TopProductDto[] Ranking(IEnumerable<Order> sales) => sales.SelectMany(o => o.Items)
         .GroupBy(i => i.ProductId).Select(g => new TopProductDto(g.First().ProductName, g.Sum(i => i.Quantity)))
         .OrderByDescending(x => x.Units).ThenBy(x => x.Name, StringComparer.Ordinal).ToArray();

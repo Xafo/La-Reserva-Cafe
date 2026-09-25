@@ -1,6 +1,6 @@
-# Directo Cafe — Nacido en La Reserva
+# Directo Cafe — Café de Honduras
 
-Plataforma de café nacida en La Reserva, Honduras. La primera fase ofrece los cafés de la tostaduría; la incorporación de otros vendedores corresponde a un horizonte posterior.
+Plataforma hondureña de café. La primera fase ofrece un catálogo curado de Directo Cafe; la incorporación de otros vendedores corresponde a un horizonte posterior.
 
 ## Estado
 
@@ -12,7 +12,11 @@ Plataforma de café nacida en La Reserva, Honduras. La primera fase ofrece los c
 
 La evolución a Directo Cafe se organiza en [diagnóstico y plan por fases](docs/DIRECTO-CAFE-PLAN-POR-FASES.md), con cobertura contrastada contra el código y los dos documentos de negocio (21 de septiembre de 2026).
 
-El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes de La Reserva; sus checklists no sustituyen la validación del diagnóstico actual.
+El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes del proyecto; sus checklists no sustituyen la validación del diagnóstico actual.
+
+## Despliegue web
+
+Vercel está conectado al repositorio y publica el portal desde cada cambio en la rama `main`. El proyecto debe usar `frontend` como directorio raíz, el ajuste Vite predeterminado y Node.js 24. Antes de publicar el portal conectado al backend, configurar `VITE_API_URL` en Vercel con la URL HTTPS pública de la API; no guardar secretos en esta variable.
 
 ## Ejecutar con Docker
 

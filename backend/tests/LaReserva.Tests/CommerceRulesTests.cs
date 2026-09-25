@@ -38,7 +38,7 @@ public sealed class CommerceRulesTests
     {
         var period = ReportRules.Period("2026-09-01", "2026-09-01", DateTimeOffset.UtcNow);
         Order Sale(string id, string status, DateTimeOffset? date) => new() { Id = id, CustomerName = "Demo", Status = status, CompletedAt = date, TotalLps = 100, Items = [new() { OrderId = id, ProductId = "coffee", ProductName = "Café", Quantity = 2 }] };
-        var orders = new[] { Sale("in", "Finalizada", period.Start), Sale("out", "Finalizada", period.End), Sale("old", "Finalizada", null), Sale("pending", "Pendiente", period.Start), Sale("cancelled", "Cancelada", period.Start) };
+        var orders = new[] { Sale("in", "Entregada", period.Start), Sale("out", "Entregada", period.End), Sale("old", "Entregada", null), Sale("pending", "Pendiente", period.Start), Sale("cancelled", "Cancelada", period.Start), Sale("expired", "Vencida", period.Start) };
         var sales = ReportRules.Sales(orders, period);
         Assert.Equal("in", Assert.Single(sales).Id);
         Assert.Equal(2, Assert.Single(ReportRules.Ranking(sales)).Units);

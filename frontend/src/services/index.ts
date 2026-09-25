@@ -10,12 +10,8 @@ import type {
   PreferenceProfile,
   OnboardingProfile,
   CommercialRequest,
-  OrderContact,
-  Grind,
-  OrderQuote,
 } from '../types'
 import { api, saveSession } from '../config/api'
-import { submitOrder, recoverOrder, hasPendingOrder } from './orderSubmission'
 
 interface TeamAuthResponse {
   user: User
@@ -55,25 +51,22 @@ export const catalogService = {
 }
 
 export const orderService = {
-  recoverOrder, hasPendingOrder,
-  async quote(items: { productId: string; quantity: number; grind?: Grind }[], city: string, wholesale = false): Promise<OrderQuote> {
-    return api('/orders/quote', { method: 'POST', body: JSON.stringify({ items, city, wholesale }) })
-  },
   async getOrders(): Promise<Order[]> {
     return api<Order[]>('/orders', undefined, 'team')
   },
-  async createOrder(contact: OrderContact, items: CartItem[], grinds: Record<string, Grind>, quote: OrderQuote): Promise<Order> {
-    return submitOrder({
-        ...contact,
-        wholesale: quote.terms.wholesale, quoteToken: quote.token,
-        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity, grind: grinds[item.product.id] ?? 'En grano' })),
-    }, contact.accountId ? 'customer' : undefined)
+  async createOrder(details: { customerName: string; customerEmail: string; customerPhone: string; deliveryAddress: string; deliveryCity: string; deliveryNotes: string }, items: CartItem[]): Promise<Order> {
+    return api<Order>('/orders', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...details,
+        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+      }),
+    })
   },
-  async createManualOrder(contact: OrderContact, items: { productId: string; quantity: number; grind: Grind }[]): Promise<Order> {
-    const quote = await this.quote(items, contact.city)
-    return submitOrder({ ...contact, items, quoteToken: quote.token }, 'team')
+  async createManualOrder(customerName: string, items: { productId: string; quantity: number }[]): Promise<Order> {
+    return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ customerName, items }) }, 'team')
   },
-  async updateStatus(id: string, status: OrderStatus, expectedStatus: OrderStatus): Promise<void> {
+  async updateStatus(id: string, status: OrderStatus, expectedStatus?: OrderStatus): Promise<void> {
     return api<void>(`/orders/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status, expectedStatus }),
@@ -185,9 +178,6 @@ export const accountService = {
 export const reportService = {
   async getSummary() {
     return api<{
-      from: string
-      to: string
-      undatedFinalizedOrders: number
       salesLps: number
       pendingOrders: number
       activeProducts: number

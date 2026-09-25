@@ -17,7 +17,6 @@ export interface QualityProfile {
 }
 
 export interface Product {
-  version?: string
   id: string
   name: string
   origin: string
@@ -34,43 +33,23 @@ export interface Product {
   quality: QualityProfile
 }
 
-export type OrderStatus = 'Pendiente' | 'Aprobada' | 'Cancelada' | 'Finalizada'
-export const GRINDS = ['En grano', 'Espresso', 'Filtro', 'Prensa francesa'] as const
-export type Grind = typeof GRINDS[number]
-export interface OrderContact {
-  customerName: string
-  phone: string
-  deliveryAddress: string
-  city: string
-  deliveryNotes: string
-  accountId?: string
-}
-export interface OrderTerms {
-  version: string; scenario: boolean; subtotalLps: number; discountLps: number
-  shippingLps: number | null; totalLps: number; kilograms: number; wholesale: boolean; deliveryNote: string | null
-}
-export interface OrderQuote { terms: OrderTerms; token: string }
+export type OrderStatus = 'Pendiente' | 'En revisión' | 'Confirmada' | 'En preparación' | 'Entregada' | 'Cancelada' | 'Vencida'
 
 export interface OrderItem {
   productId: string
   productName: string
   quantity: number
   unitPriceLps: number
-  presentationGrams: number | null
-  roast: string | null
-  grind: Grind | null
 }
 
 export interface Order {
-  terms?: OrderTerms | null
-  completedAt?: string | null
   id: string
   customerName: string
-  phone: string | null
+  customerEmail: string | null
+  customerPhone: string | null
   deliveryAddress: string | null
-  city: string | null
+  deliveryCity: string | null
   deliveryNotes: string | null
-  accountId: string | null
   items: OrderItem[]
   status: OrderStatus
   createdAt: string

@@ -1,4 +1,4 @@
-// Fotografia real de LA RESERVA - Cafe y Tostaduria (Honduras).
+// Fotografías de café hondureño para Directo Cafe.
 // Optimizadas en public/marca/. Las claves historicas se conservan para no
 // romper consumidores; apuntan ahora a la foto real mas adecuada.
 

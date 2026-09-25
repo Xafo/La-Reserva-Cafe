@@ -56,7 +56,7 @@ public static class ReportDocuments
             orders.SelectMany(o => (JsonSerializer.Deserialize<OrderEvent[]>(o.HistoryJson) ?? []).Where(e => period.Contains(e.At)).Select(e => new[] { o.Id, e.At.ToOffset(TimeSpan.FromHours(-6)).ToString("yyyy-MM-dd HH:mm"), e.Status, e.Actor, e.Note })).OrderBy(r => r[1]).ToList());
         var selected = type == "ventas" ? sales : orders.Where(o => period.Contains(o.CreatedAt) && (status is null || o.Status == status)).ToArray();
         return new(type, scope + (type == "ordenes" ? " Pedidos filtrados por fecha de creación y estado seleccionado." : ""), ["Pedido", "Cliente", "Estado", "Fecha", "Total HNL"],
-            selected.OrderBy(o => o.CreatedAt).Select(o => new[] { o.Id, o.CustomerName, o.Status, (type == "ventas" ? o.CompletedAt!.Value : o.CreatedAt).ToOffset(TimeSpan.FromHours(-6)).ToString("yyyy-MM-dd HH:mm"), N(o.TotalLps) }).ToList());
+            selected.OrderBy(o => o.CreatedAt).Select(o => new[] { o.Id, o.CustomerName, o.Status, (type == "ventas" ? o.CompletedAt ?? o.CreatedAt : o.CreatedAt).ToOffset(TimeSpan.FromHours(-6)).ToString("yyyy-MM-dd HH:mm"), N(o.TotalLps) }).ToList());
     }
 
     public static byte[] ReportExcel(ReportTable report)

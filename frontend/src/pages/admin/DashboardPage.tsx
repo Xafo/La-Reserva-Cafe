@@ -6,9 +6,6 @@ import { lps, shortDate } from '../../lib/format'
 import type { Order, Product } from '../../types'
 
 interface Summary {
-  from: string
-  to: string
-  undatedFinalizedOrders: number
   salesLps: number
   pendingOrders: number
   activeProducts: number
@@ -36,10 +33,10 @@ export function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="space-y-8"><p className="text-sm">Ventas y ranking: {summary.from} a {summary.to}, Honduras (UTC−6). Pendientes e inventario: actuales. Pedidos finalizados históricos sin fecha, excluidos: {summary.undatedFinalizedOrders}.</p>
+        <div className="space-y-8"><p className="text-sm">Ventas y ranking operativos del mes. Pendientes e inventario: actuales.</p>
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              { label: 'Ventas finalizadas (mes)', value: lps(summary.salesLps) },
+              { label: 'Ventas operativas (mes)', value: lps(summary.salesLps) },
               { label: 'Ordenes pendientes', value: String(summary.pendingOrders) },
               { label: 'Productos activos', value: String(summary.activeProducts) },
             ].map((s) => (

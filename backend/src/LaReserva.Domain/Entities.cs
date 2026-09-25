@@ -2,7 +2,7 @@ namespace LaReserva.Domain;
 
 public sealed class Product
 {
-    public Guid Version { get; set; } = Guid.NewGuid();
+    public Guid Version { get; set; }
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Origin { get; set; }
@@ -34,19 +34,24 @@ public sealed class QualityProfile
 
 public sealed class Order
 {
+    // Campos heredados: preservan pedidos existentes durante la transición al ciclo operativo.
     public Guid? RequestId { get; set; }
     public string? RequestHash { get; set; }
     public string? TermsJson { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
     public string HistoryJson { get; set; } = "[]";
     public bool StockReserved { get; set; }
+    public string? AccountId { get; set; }
     public required string Id { get; set; }
     public required string CustomerName { get; set; }
-    public string? AccountId { get; set; }
-    public string? Phone { get; set; }
+    public string? CustomerEmail { get; set; }
+    public string? CustomerPhone { get; set; }
+    public string? Phone { get => CustomerPhone; set => CustomerPhone = value; }
     public string? DeliveryAddress { get; set; }
-    public string? City { get; set; }
+    public string? DeliveryCity { get; set; }
+    public string? City { get => DeliveryCity; set => DeliveryCity = value; }
     public string? DeliveryNotes { get; set; }
+    public bool StockCommitted { get; set; }
     public required string Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public decimal TotalLps { get; set; }
@@ -59,11 +64,11 @@ public sealed class OrderItem
     public required string OrderId { get; set; }
     public required string ProductId { get; set; }
     public required string ProductName { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPriceLps { get; set; }
     public int? PresentationGrams { get; set; }
     public string? Roast { get; set; }
     public string? Grind { get; set; }
-    public int Quantity { get; set; }
-    public decimal UnitPriceLps { get; set; }
 }
 
 public sealed class Customer
@@ -79,12 +84,12 @@ public sealed class Customer
 
 public sealed class User
 {
-    public Guid SessionVersion { get; set; } = Guid.NewGuid();
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string Email { get; set; }
     public required string Role { get; set; }
     public bool Active { get; set; } = true;
+    public Guid SessionVersion { get; set; }
     public required string PasswordHash { get; set; }
 }
 

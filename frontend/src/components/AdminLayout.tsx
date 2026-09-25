@@ -84,9 +84,12 @@ export function AdminLayout({ children, title }: { children: ReactNode; title: s
 export function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     Pendiente: 'bg-accent/20 text-accent-ink',
-    Aprobada: 'bg-primary/12 text-primary',
-    Finalizada: 'bg-forest/10 text-forest',
+    'En revisión': 'bg-primary/12 text-primary',
+    Confirmada: 'bg-primary/12 text-primary',
+    'En preparación': 'bg-primary/12 text-primary',
+    Entregada: 'bg-forest/10 text-forest',
     Cancelada: 'bg-destructive/10 text-destructive',
+    Vencida: 'bg-destructive/10 text-destructive',
     Premium: 'bg-accent/20 text-accent-ink',
     Exportacion: 'bg-primary/12 text-primary',
     Estandar: 'bg-muted text-muted-foreground',

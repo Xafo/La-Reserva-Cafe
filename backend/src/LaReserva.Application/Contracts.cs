@@ -26,12 +26,15 @@ public sealed record ProductDto(
     string Description,
     string ImageUrl,
     string ImageAlt,
-    QualityProfileDto Quality,
-    Guid Version = default);
+    QualityProfileDto Quality);
 
-public sealed record OrderItemDto(string ProductId, string ProductName, int Quantity, decimal UnitPriceLps, int? PresentationGrams, string? Roast, string? Grind);
-public sealed record OrderDto(string Id, string CustomerName, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps,
-    string? Phone, string? DeliveryAddress, string? City, string? DeliveryNotes, string? AccountId, OrderTerms? Terms, DateTimeOffset? CompletedAt);
+public sealed record OrderItemDto(string ProductId, string ProductName, int Quantity, decimal UnitPriceLps, int? PresentationGrams = null, string? Roast = null, string? Grind = null);
+public sealed record OrderDto(string Id, string CustomerName, string? CustomerEmail, string? CustomerPhone, string? DeliveryAddress, string? DeliveryCity, string? DeliveryNotes, OrderItemDto[] Items, string Status, DateTimeOffset CreatedAt, decimal TotalLps, OrderTerms? Terms = null, DateTimeOffset? CompletedAt = null)
+{
+    public string? Phone => CustomerPhone;
+    public string? City => DeliveryCity;
+    public string? AccountId { get; init; }
+}
 public sealed record CustomerDto(string Id, string Name, string Email, string Phone, string Type, string City, int TotalOrders);
 public sealed record UserDto(string Id, string Name, string Email, string Role, bool Active);
 
@@ -65,9 +68,29 @@ public sealed record AccountAuthResponse(CustomerAccountDto Account, string Acce
 public sealed record RefreshResponse(string AccessToken);
 public sealed record RegisterAccountRequest(string Name, string Email, string Password, string Phone, string City);
 public sealed record UpdatePreferencesRequest(PreferenceProfileDto Preferences, string? RecommendedProductId);
-public sealed record CreateOrderRequest(string CustomerName, CreateOrderItemRequest[] Items,
-    string? Phone = null, string? DeliveryAddress = null, string? City = null, string? DeliveryNotes = null, string? AccountId = null,
-    Guid? RequestId = null, bool Wholesale = false, string? QuoteToken = null);
+public sealed record CreateOrderRequest
+{
+    public CreateOrderRequest() { }
+    public CreateOrderRequest(string customerName, CreateOrderItemRequest[] items) { CustomerName = customerName; Items = items; }
+    public CreateOrderRequest(string customerName, CreateOrderItemRequest[] items, string? phone, string? deliveryAddress, string? city, string? deliveryNotes)
+    {
+        CustomerName = customerName; Items = items; Phone = phone; CustomerPhone = phone;
+        DeliveryAddress = deliveryAddress; City = city; DeliveryCity = city; DeliveryNotes = deliveryNotes;
+    }
+    public string CustomerName { get; init; } = "";
+    public CreateOrderItemRequest[] Items { get; init; } = [];
+    public string? CustomerEmail { get; init; }
+    public string? CustomerPhone { get; init; }
+    public string? DeliveryAddress { get; init; }
+    public string? DeliveryCity { get; init; }
+    public string? DeliveryNotes { get; init; }
+    public string? Phone { get; init; }
+    public string? City { get; init; }
+    public string? AccountId { get; init; }
+    public Guid? RequestId { get; init; }
+    public bool Wholesale { get; init; }
+    public string? QuoteToken { get; init; }
+}
 public sealed record CreateOrderItemRequest(string ProductId, int Quantity, string? Grind = null);
 public sealed record UpdateOrderStatusRequest(string Status, string? ExpectedStatus = null);
 public sealed record SaveCustomerRequest(string Name, string Email, string Phone, string Type, string City);
@@ -82,7 +105,8 @@ public sealed record ReportSummaryDto(
     int ActiveProducts,
     ProductDto[] LowStock,
     OrderDto[] RecentOrders,
-    TopProductDto[] TopProducts, string From, string To, int UndatedFinalizedOrders, AuditEntryDto[] RecentActivity);
+    TopProductDto[] TopProducts,
+    AuditEntryDto[] RecentActivity);
 
 public sealed record TopProductDto(string Name, int Units);
 
@@ -95,13 +119,13 @@ public static class DtoMapper
         new QualityProfileDto(
             value.Quality.GrainType, value.Quality.AltitudeMasl, value.Quality.HumidityPct,
             value.Quality.HarvestDate.ToString("yyyy-MM-dd"), value.Quality.Producer,
-            value.Quality.Grade, value.Quality.CuppingScore, value.Quality.Notes), value.Version);
+            value.Quality.Grade, value.Quality.CuppingScore, value.Quality.Notes));
 
     public static OrderDto ToDto(this Order value) => new(
-        value.Id, value.CustomerName,
+        value.Id, value.CustomerName, value.CustomerEmail, value.CustomerPhone, value.DeliveryAddress, value.DeliveryCity, value.DeliveryNotes,
         value.Items.Select(item => new OrderItemDto(item.ProductId, item.ProductName, item.Quantity, item.UnitPriceLps, item.PresentationGrams, item.Roast, item.Grind)).ToArray(),
-        value.Status, value.CreatedAt, value.TotalLps, value.Phone, value.DeliveryAddress, value.City, value.DeliveryNotes, value.AccountId,
-        value.TermsJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<OrderTerms>(value.TermsJson), value.CompletedAt);
+        value.Status, value.CreatedAt, value.TotalLps,
+        value.TermsJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<OrderTerms>(value.TermsJson), value.CompletedAt) { AccountId = value.AccountId };
 
     public static CustomerDto ToDto(this Customer value) =>
         new(value.Id, value.Name, value.Email, value.Phone, value.Type, value.City, value.TotalOrders);

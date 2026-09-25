@@ -284,68 +284,43 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("id");
 
-                    b.Property<string>("AccountId")
-                        .HasColumnType("text")
-                        .HasColumnName("account_id");
-
-                    b.Property<string>("City")
-                        .HasColumnType("text")
-                        .HasColumnName("city");
-
-                    b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("CustomerEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_email");
 
                     b.Property<string>("CustomerName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("customer_name");
 
+                    b.Property<string>("CustomerPhone")
+                        .HasColumnType("text")
+                        .HasColumnName("customer_phone");
+
                     b.Property<string>("DeliveryAddress")
                         .HasColumnType("text")
                         .HasColumnName("delivery_address");
+
+                    b.Property<string>("DeliveryCity")
+                        .HasColumnType("text")
+                        .HasColumnName("delivery_city");
 
                     b.Property<string>("DeliveryNotes")
                         .HasColumnType("text")
                         .HasColumnName("delivery_notes");
 
-                    b.Property<string>("HistoryJson")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("[]")
-                        .HasColumnName("history_json");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("text")
-                        .HasColumnName("phone");
-
-                    b.Property<string>("RequestHash")
-                        .HasColumnType("text")
-                        .HasColumnName("request_hash");
-
-                    b.Property<Guid?>("RequestId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("request_id");
-
                     b.Property<string>("Status")
-                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<bool>("StockReserved")
+                    b.Property<bool>("StockCommitted")
                         .HasColumnType("boolean")
-                        .HasColumnName("stock_reserved");
-
-                    b.Property<string>("TermsJson")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text")
-                        .HasColumnName("terms_json");
+                        .HasColumnName("stock_committed");
 
                     b.Property<decimal>("TotalLps")
                         .HasPrecision(12, 2)
@@ -354,13 +329,6 @@ namespace LaReserva.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_orders");
-
-                    b.HasIndex("AccountId")
-                        .HasDatabaseName("ix_orders_account_id");
-
-                    b.HasIndex("RequestId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_orders_request_id");
 
                     b.ToTable("orders", "la_reserva");
                 });
@@ -374,18 +342,10 @@ namespace LaReserva.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Grind")
-                        .HasColumnType("text")
-                        .HasColumnName("grind");
-
                     b.Property<string>("OrderId")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("order_id");
-
-                    b.Property<int?>("PresentationGrams")
-                        .HasColumnType("integer")
-                        .HasColumnName("presentation_grams");
 
                     b.Property<string>("ProductId")
                         .IsRequired()
@@ -400,10 +360,6 @@ namespace LaReserva.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
-
-                    b.Property<string>("Roast")
-                        .HasColumnType("text")
-                        .HasColumnName("roast");
 
                     b.Property<decimal>("UnitPriceLps")
                         .HasPrecision(12, 2)
@@ -516,11 +472,6 @@ namespace LaReserva.Infrastructure.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("integer")
                         .HasColumnName("stock");
-
-                    b.Property<Guid>("Version")
-                        .IsConcurrencyToken()
-                        .HasColumnType("uuid")
-                        .HasColumnName("version");
 
                     b.HasKey("Id")
                         .HasName("pk_products");
@@ -660,10 +611,6 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("role");
 
-                    b.Property<Guid>("SessionVersion")
-                        .HasColumnType("uuid")
-                        .HasColumnName("session_version");
-
                     b.HasKey("Id")
                         .HasName("pk_users");
 
@@ -707,15 +654,6 @@ namespace LaReserva.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_customer_preferences_customer_accounts_account_id");
-                });
-
-            modelBuilder.Entity("LaReserva.Domain.Order", b =>
-                {
-                    b.HasOne("LaReserva.Domain.CustomerAccount", null)
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_orders_customer_accounts_account_id");
                 });
 
             modelBuilder.Entity("LaReserva.Domain.OrderItem", b =>
