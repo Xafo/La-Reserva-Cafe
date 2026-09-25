@@ -34,7 +34,7 @@ export function DashboardPage() {
         <div className="space-y-8">
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              { label: 'Ventas finalizadas (mes)', value: lps(summary.salesLps) },
+              { label: 'Ventas operativas (mes)', value: lps(summary.salesLps) },
               { label: 'Ordenes pendientes', value: String(summary.pendingOrders) },
               { label: 'Productos activos', value: String(summary.activeProducts) },
             ].map((s) => (

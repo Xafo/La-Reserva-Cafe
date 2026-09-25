@@ -530,17 +530,19 @@ public static partial class ApiEndpoints
     {
         group.MapGet("/summary", async (LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
+            var monthStart = new DateTimeOffset(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, TimeSpan.Zero);
             var products = await db.Products.AsNoTracking().Include(value => value.Quality).ToListAsync(cancellationToken);
             var orders = await db.Orders.AsNoTracking().Include(value => value.Items)
                 .OrderByDescending(value => value.CreatedAt).ToListAsync(cancellationToken);
-            var topProducts = orders.SelectMany(value => value.Items)
+            var operationalOrders = orders.Where(value => value.Status is "Confirmada" or "En preparación" or "Entregada").ToArray();
+            var topProducts = operationalOrders.SelectMany(value => value.Items)
                 .GroupBy(value => value.ProductName)
                 .Select(grouping => new TopProductDto(grouping.Key, grouping.Sum(value => value.Quantity)))
                 .OrderByDescending(value => value.Units).Take(5).ToArray();
             var activity = await db.AuditEntries.AsNoTracking().OrderByDescending(value => value.OccurredAt).Take(5).ToListAsync(cancellationToken);
             return Results.Ok(new ReportSummaryDto(
-                orders.Where(value => value.Status == "Finalizada").Sum(value => value.TotalLps),
-                orders.Count(value => value.Status == "Pendiente"),
+                operationalOrders.Where(value => value.CreatedAt >= monthStart).Sum(value => value.TotalLps),
+                orders.Count(value => value.Status is "Pendiente" or "En revisión"),
                 products.Count(value => value.Active),
                 products.Where(value => value.Stock < 25).Select(value => value.ToDto()).ToArray(),
                 orders.Take(5).Select(value => value.ToDto()).ToArray(),
@@ -554,6 +556,7 @@ public static partial class ApiEndpoints
                 return Results.BadRequest(new { error = "Tipo o formato inválido." });
             var products = await db.Products.AsNoTracking().ToListAsync(cancellationToken);
             var orders = await db.Orders.AsNoTracking().Include(value => value.Items).ToListAsync(cancellationToken);
+            if (type is "ventas" or "mas-vendidos") orders = orders.Where(value => value.Status is "Confirmada" or "En preparación" or "Entregada").ToList();
             if (format == "xlsx") return Results.File(ReportDocuments.Excel(type, products, orders), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx");
             var document = ReportDocuments.OrderPdf(new Order { Id = $"Reporte {type}", CustomerName = "Directo Cafe", Status = "", CreatedAt = DateTimeOffset.UtcNow, TotalLps = orders.Sum(value => value.TotalLps), Items = orders.SelectMany(value => value.Items).ToList() });
             return Results.File(document, "application/pdf", $"{type}.pdf");
