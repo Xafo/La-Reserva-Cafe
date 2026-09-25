@@ -318,6 +318,10 @@ namespace LaReserva.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
+                    b.Property<bool>("StockCommitted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("stock_committed");
+
                     b.Property<decimal>("TotalLps")
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)")

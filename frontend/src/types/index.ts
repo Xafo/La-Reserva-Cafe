@@ -33,7 +33,7 @@ export interface Product {
   quality: QualityProfile
 }
 
-export type OrderStatus = 'Pendiente' | 'Aprobada' | 'Cancelada' | 'Finalizada'
+export type OrderStatus = 'Pendiente' | 'En revisión' | 'Confirmada' | 'En preparación' | 'Entregada' | 'Cancelada' | 'Vencida'
 
 export interface OrderItem {
   productId: string

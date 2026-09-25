@@ -12,7 +12,7 @@ namespace LaReserva.Api;
 
 public static partial class ApiEndpoints
 {
-    private static readonly string[] OrderStatuses = ["Pendiente", "Aprobada", "Cancelada", "Finalizada"];
+    private static readonly string[] OrderStatuses = ["Pendiente", "En revisión", "Confirmada", "En preparación", "Entregada", "Cancelada", "Vencida"];
 
     public static IEndpointRouteBuilder MapLaReservaEndpoints(this IEndpointRouteBuilder routes)
     {
@@ -286,8 +286,26 @@ public static partial class ApiEndpoints
         group.MapPatch("/{id}/status", async (string id, UpdateOrderStatusRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (!OrderStatuses.Contains(request.Status)) return Results.BadRequest(new { error = "Estado inválido." });
-            var order = await db.Orders.FindAsync([id], cancellationToken);
+            var order = await db.Orders.Include(value => value.Items).SingleOrDefaultAsync(value => value.Id == id, cancellationToken);
             if (order is null) return Results.NotFound();
+            if (!CanTransition(order.Status, request.Status)) return Results.BadRequest(new { error = "La transición de estado no está permitida." });
+
+            if (request.Status == "Confirmada" && !order.StockCommitted)
+            {
+                var ids = order.Items.Select(item => item.ProductId).Distinct().ToArray();
+                var products = await db.Products.Where(product => ids.Contains(product.Id)).ToDictionaryAsync(product => product.Id, cancellationToken);
+                if (products.Count != ids.Length || order.Items.Any(item => products[item.ProductId].Stock < item.Quantity))
+                    return Results.BadRequest(new { error = "No hay inventario suficiente para confirmar esta orden." });
+                foreach (var item in order.Items) products[item.ProductId].Stock -= item.Quantity;
+                order.StockCommitted = true;
+            }
+            if (request.Status is "Cancelada" or "Vencida" && order.StockCommitted)
+            {
+                var ids = order.Items.Select(item => item.ProductId).Distinct().ToArray();
+                var products = await db.Products.Where(product => ids.Contains(product.Id)).ToDictionaryAsync(product => product.Id, cancellationToken);
+                foreach (var item in order.Items.Where(item => products.ContainsKey(item.ProductId))) products[item.ProductId].Stock += item.Quantity;
+                order.StockCommitted = false;
+            }
             order.Status = request.Status;
             AddAudit(db, principal, "Cambiar estado de orden", "Orden", order.Id);
             await db.SaveChangesAsync(cancellationToken);
@@ -545,6 +563,15 @@ public static partial class ApiEndpoints
     private static string NormalizeEmail(string value) => value.Trim().ToLowerInvariant();
 
     private static string? EmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static bool CanTransition(string current, string next) => current == next || (current, next) switch
+    {
+        ("Pendiente", "En revisión" or "Cancelada" or "Vencida") => true,
+        ("En revisión", "Confirmada" or "Cancelada" or "Vencida") => true,
+        ("Confirmada", "En preparación" or "Cancelada") => true,
+        ("En preparación", "Entregada" or "Cancelada") => true,
+        _ => false,
+    };
 
     private static bool ValidProduct(ProductDto product) =>
         product.PresentationGrams > 0 && product.PriceLps >= 0 && product.Stock >= 0 &&

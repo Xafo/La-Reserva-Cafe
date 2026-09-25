@@ -40,6 +40,7 @@ public sealed class Order
     public string? DeliveryAddress { get; set; }
     public string? DeliveryCity { get; set; }
     public string? DeliveryNotes { get; set; }
+    public bool StockCommitted { get; set; }
     public required string Status { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public decimal TotalLps { get; set; }

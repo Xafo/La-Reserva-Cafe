@@ -8,7 +8,7 @@ import { catalogService, orderService } from '../../services'
 import { lps, shortDate } from '../../lib/format'
 import type { Order, OrderStatus, Product } from '../../types'
 
-const STATUSES: OrderStatus[] = ['Pendiente', 'Aprobada', 'Cancelada', 'Finalizada']
+const STATUSES: OrderStatus[] = ['Pendiente', 'En revisión', 'Confirmada', 'En preparación', 'Entregada', 'Cancelada', 'Vencida']
 
 export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
