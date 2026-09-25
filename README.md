@@ -16,7 +16,7 @@ El [plan técnico anterior](docs/PLAN-DESARROLLO.md) conserva antecedentes de La
 
 ## Despliegue web
 
-El portal se publica en Vercel desde la rama `main`. El proyecto debe usar `frontend` como directorio raíz, el ajuste Vite predeterminado y Node.js 24. Antes de publicar el portal conectado al backend, configurar `VITE_API_URL` en Vercel con la URL HTTPS pública de la API; no guardar secretos en esta variable.
+Vercel está conectado al repositorio y publica el portal desde cada cambio en la rama `main`. El proyecto debe usar `frontend` como directorio raíz, el ajuste Vite predeterminado y Node.js 24. Antes de publicar el portal conectado al backend, configurar `VITE_API_URL` en Vercel con la URL HTTPS pública de la API; no guardar secretos en esta variable.
 
 ## Ejecutar con Docker
 
