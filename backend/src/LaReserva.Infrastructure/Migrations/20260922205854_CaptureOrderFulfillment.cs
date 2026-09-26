@@ -10,77 +10,36 @@ namespace LaReserva.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "account_id",
-                schema: "la_reserva",
-                table: "orders",
-                type: "text",
-                nullable: true);
+            // This migration was partially applied in production before it was
+            // recorded in EF's history. Make retries safe for that database state.
+            migrationBuilder.Sql("""
+                ALTER TABLE la_reserva.orders ADD COLUMN IF NOT EXISTS account_id text;
+                ALTER TABLE la_reserva.orders ADD COLUMN IF NOT EXISTS city text;
+                ALTER TABLE la_reserva.orders ADD COLUMN IF NOT EXISTS delivery_address text;
+                ALTER TABLE la_reserva.orders ADD COLUMN IF NOT EXISTS delivery_notes text;
+                ALTER TABLE la_reserva.orders ADD COLUMN IF NOT EXISTS phone text;
+                ALTER TABLE la_reserva.order_items ADD COLUMN IF NOT EXISTS grind text;
+                ALTER TABLE la_reserva.order_items ADD COLUMN IF NOT EXISTS presentation_grams integer;
+                ALTER TABLE la_reserva.order_items ADD COLUMN IF NOT EXISTS roast text;
+                CREATE INDEX IF NOT EXISTS ix_orders_account_id ON la_reserva.orders (account_id);
 
-            migrationBuilder.AddColumn<string>(
-                name: "city",
-                schema: "la_reserva",
-                table: "orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "delivery_address",
-                schema: "la_reserva",
-                table: "orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "delivery_notes",
-                schema: "la_reserva",
-                table: "orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "phone",
-                schema: "la_reserva",
-                table: "orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "grind",
-                schema: "la_reserva",
-                table: "order_items",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "presentation_grams",
-                schema: "la_reserva",
-                table: "order_items",
-                type: "integer",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "roast",
-                schema: "la_reserva",
-                table: "order_items",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_orders_account_id",
-                schema: "la_reserva",
-                table: "orders",
-                column: "account_id");
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_orders_customer_accounts_account_id",
-                schema: "la_reserva",
-                table: "orders",
-                column: "account_id",
-                principalSchema: "la_reserva",
-                principalTable: "customer_accounts",
-                principalColumn: "id",
-                onDelete: ReferentialAction.SetNull);
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM information_schema.table_constraints
+                        WHERE constraint_schema = 'la_reserva'
+                          AND table_name = 'orders'
+                          AND constraint_name = 'fk_orders_customer_accounts_account_id'
+                    ) THEN
+                        ALTER TABLE la_reserva.orders
+                            ADD CONSTRAINT fk_orders_customer_accounts_account_id
+                            FOREIGN KEY (account_id)
+                            REFERENCES la_reserva.customer_accounts (id)
+                            ON DELETE SET NULL;
+                    END IF;
+                END $$;
+                """);
         }
 
         /// <inheritdoc />
