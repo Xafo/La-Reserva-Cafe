@@ -27,7 +27,7 @@ export function recommendOnboarding(profile: OnboardingProfile, products: Produc
   if (!novice && (fermented || coarse)) target = 'miguel angel'
   else if (!novice && flavor.includes('achocolatado') && a.a5 === 'Espresso') target = 'roberto lopez'
   else if (floral) target = 'carolina claros'
-  else if (novice && flavor.includes('dulces') && a.n3 === 'Equilibrado') target = 'la reserva café blend'
+  else if (novice && flavor.includes('dulces') && a.n3 === 'Equilibrado') target = 'directo café blend'
 
   const roast = novice
     ? ({ 'Suave y ligero': 'Claro', Equilibrado: 'Medio', 'Fuerte e intenso': 'Oscuro', 'Complejo y memorable': 'Medio' }[a.n3])

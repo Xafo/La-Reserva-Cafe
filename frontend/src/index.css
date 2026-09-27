@@ -15,7 +15,7 @@
   --color-forest-foreground: oklch(0.96 0.01 120);
   --color-accent: oklch(0.76 0.13 80);
   --color-accent-ink: oklch(0.42 0.09 78);
-  /* Rojo de marca La Reserva Café — acento puntual sobre base verde */
+  /* Rojo de marca Directo Café — acento puntual sobre base verde */
   --color-brand: oklch(0.55 0.2 24);
   --color-brand-ink: oklch(0.47 0.19 24);
   --color-brand-foreground: oklch(0.99 0.005 40);

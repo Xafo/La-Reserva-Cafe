@@ -11,7 +11,7 @@ const commitments = [
 ]
 
 const horizons = [
-  { stage: 'Nuestro comienzo', title: 'La Reserva Café, Honduras', text: 'Empezamos con cafés hondureños seleccionados con frescura, origen real y una buena relación calidad-precio.' },
+  { stage: 'Nuestro comienzo', title: 'Directo Café, Honduras', text: 'Empezamos con cafés hondureños seleccionados con frescura, origen real y una buena relación calidad-precio.' },
   { stage: 'El siguiente paso', title: 'Más fincas y tostadurías', text: 'Una vez validado este primer paso, queremos invitar a otros productores y tostadurías de Honduras que compartan nuestro compromiso con la calidad.' },
   { stage: 'Nuestra visión', title: 'La cultura del café, más lejos', text: 'Con el tiempo, queremos ir más allá del café tostado y de Centroamérica, llevando esa misma confianza a más personas que aman el café.' },
 ]
@@ -23,7 +23,7 @@ export function OriginPage() {
       <section className="relative bg-forest-deep text-forest-foreground">
         <img src={IMG.cuppingMesa} alt="Mesa de catación donde comienza nuestra historia" className="absolute inset-0 h-full w-full object-cover opacity-25" />
         <div className="relative mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-36">
-          <h1 className="max-w-4xl font-display text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.08] tracking-tight">Conocé La Reserva Café</h1>
+          <h1 className="max-w-4xl font-display text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.08] tracking-tight">Conocé Directo Café</h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-forest-foreground/90">Nuestra historia empieza en Honduras, con la convicción de que cada taza merece información clara y buen café.</p>
         </div>
       </section>
@@ -32,13 +32,13 @@ export function OriginPage() {
         <Reveal>
           <h2 id="story-heading" className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">La frescura nos abrió una pregunta</h2>
           <div className="mt-6 max-w-prose space-y-5 leading-relaxed text-muted-foreground">
-            <p>La Reserva Café nace de una idea sencilla: llevar café fresco y bien explicado a más personas. Cada taza nos recuerda que el origen, el proceso y la calidad deben notarse al probarla.</p>
-            <p>Al mismo tiempo, veíamos un mercado lleno de historias que no siempre se cumplían al probar el café. La Reserva Café nace de esas dos experiencias: lo que aprendimos tostando y el deseo de que cada producto cumpla lo que promete.</p>
-            <p>La Reserva Café es la empresa y la plataforma. Empezamos con cafés hondureños y queremos abrir, más adelante, un espacio para otras fincas y tostadurías que compartan nuestros estándares.</p>
+            <p>Directo Café nace de una idea sencilla: llevar café fresco y bien explicado a más personas. Cada taza nos recuerda que el origen, el proceso y la calidad deben notarse al probarla.</p>
+            <p>Al mismo tiempo, veíamos un mercado lleno de historias que no siempre se cumplían al probar el café. Directo Café nace de esas dos experiencias: lo que aprendimos tostando y el deseo de que cada producto cumpla lo que promete.</p>
+            <p>Directo Café es la empresa y la plataforma. Empezamos con cafés hondureños y queremos abrir, más adelante, un espacio para otras fincas y tostadurías que compartan nuestros estándares.</p>
           </div>
         </Reveal>
         <Reveal delay={100}>
-          <img src={IMG.bolsasEstante} alt="Cafés de La Reserva Café en el estante" loading="lazy" className="aspect-[4/5] w-full rounded-lg object-cover" />
+          <img src={IMG.bolsasEstante} alt="Cafés de Directo Café en el estante" loading="lazy" className="aspect-[4/5] w-full rounded-lg object-cover" />
         </Reveal>
       </section>
 
@@ -73,7 +73,7 @@ export function OriginPage() {
             </li>
           ))}
         </ol>
-        <Link to="/tienda" className="mt-14 inline-block rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground hover:bg-forest">Conocé los cafés de La Reserva Café</Link>
+        <Link to="/tienda" className="mt-14 inline-block rounded-full bg-primary px-8 py-3 font-semibold text-primary-foreground hover:bg-forest">Conocé los cafés de Directo Café</Link>
       </section>
       <StoreFooter />
     </main>

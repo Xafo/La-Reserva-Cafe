@@ -118,7 +118,7 @@ export function ProductDetailPage() {
             <p className="mt-3 text-xs text-muted-foreground">
               {product.stock < 15
                 ? `Quedan ${product.stock} unidades de esta cosecha.`
-                : 'Café de La Reserva Café. Consultá su origen, proceso y presentación en esta ficha.'}
+                : 'Café de Directo Café. Consultá su origen, proceso y presentación en esta ficha.'}
             </p>
           </div>
         </div>
