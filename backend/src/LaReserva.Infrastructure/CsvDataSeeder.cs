@@ -15,6 +15,18 @@ public sealed class CsvDataSeeder(
 {
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
+        if (configuration.GetValue<bool>("Seed:ResetAdminPassword"))
+        {
+            var admin = await dbContext.Users.SingleOrDefaultAsync(
+                user => user.Email == "admin@lareserva.hn",
+                cancellationToken);
+            if (admin is not null)
+            {
+                admin.PasswordHash = userPasswordHasher.HashPassword(admin, RequireSecret("Seed:AdminPassword"));
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+
         if (await dbContext.Products.AnyAsync(cancellationToken)) return;
 
         var seedPath = configuration["Seed:DataPath"]
