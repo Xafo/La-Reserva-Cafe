@@ -18,7 +18,7 @@ public sealed class CsvDataSeeder(
         if (configuration.GetValue<bool>("Seed:ResetAdminPassword"))
         {
             var admin = await dbContext.Users.SingleOrDefaultAsync(
-                user => user.Email == "admin@lareserva.hn",
+                user => user.Email == "admin@directocafe.hn",
                 cancellationToken);
             if (admin is not null)
             {
