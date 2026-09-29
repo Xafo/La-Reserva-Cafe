@@ -76,8 +76,15 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new { error = "Demasiados intentos. Esperá un minuto e intentá de nuevo." },
+            cancellationToken);
+    };
     options.AddPolicy("auth", context => RateLimitPartition.GetFixedWindowLimiter(
-        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        ClientAddress(context),
         _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = 10,
@@ -85,6 +92,22 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0,
         }));
 });
+
+static string ClientAddress(HttpContext context)
+{
+    // Render sits behind Cloudflare. The TCP address may be a shared proxy,
+    // which would otherwise make unrelated visitors consume the same quota.
+    var cloudflareAddress = context.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
+    if (!string.IsNullOrWhiteSpace(cloudflareAddress)) return cloudflareAddress;
+
+    var forwardedAddress = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+        ?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+        .FirstOrDefault();
+    return !string.IsNullOrWhiteSpace(forwardedAddress)
+        ? forwardedAddress
+        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+}
+
 builder.Services.AddHealthChecks();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
