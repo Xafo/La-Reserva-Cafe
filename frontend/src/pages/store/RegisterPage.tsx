@@ -10,6 +10,7 @@ import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
 import { OnboardingQuiz } from '../../components/store/OnboardingQuiz'
 import { RecommendationResult } from '../../components/store/RecommendationResult'
+import { Eye, EyeOff } from 'lucide-react'
 
 // Registro publico: crear cuenta -> quiz de preferencias -> cafe recomendado.
 
@@ -30,6 +31,7 @@ export function RegisterPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   // Cuenta existente con preferencias completas: su lugar es /cuenta.
   if (alreadyComplete) return <Navigate to="/cuenta" replace />
@@ -88,15 +90,14 @@ export function RegisterPage() {
                   <label htmlFor={f.name} className="mb-1.5 block text-sm font-medium">
                     {f.label}
                   </label>
-                  <input
-                    id={f.name}
-                    name={f.name}
-                    type={f.type}
-                    required
-                    minLength={f.type === 'password' ? 12 : undefined}
-                    autoComplete={f.autoComplete}
-                    className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
-                  />
+                  {f.name === 'password' ? (
+                    <div className="relative">
+                      <input id={f.name} name={f.name} type={showPassword ? 'text' : 'password'} required minLength={12} autoComplete={f.autoComplete} className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-12 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25" />
+                      <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute inset-y-0 right-0 grid w-12 cursor-pointer place-items-center rounded-r-lg text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25">
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  ) : <input id={f.name} name={f.name} type={f.type} required autoComplete={f.autoComplete} className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25" />}
                 </div>
               ))}
               {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}

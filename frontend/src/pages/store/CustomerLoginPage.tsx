@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
+import { Eye, EyeOff } from 'lucide-react'
 
 // Inicio de sesion de clientes de la tienda (los usuarios del equipo entran
 // por /admin/login).
@@ -12,6 +13,7 @@ export function CustomerLoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -46,10 +48,12 @@ export function CustomerLoginPage() {
           </div>
           <div>
             <label htmlFor="password" className="mb-1.5 block text-sm font-medium">Contraseña</label>
-            <input
-              id="password" name="password" type="password" required autoComplete="current-password"
-              className="w-full rounded-lg border border-input bg-background px-4 py-3 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25"
-            />
+            <div className="relative">
+              <input id="password" name="password" type={showPassword ? 'text' : 'password'} required autoComplete="current-password" className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-12 outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/25" />
+              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="absolute inset-y-0 right-0 grid w-12 cursor-pointer place-items-center rounded-r-lg text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25">
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
           {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
           <button

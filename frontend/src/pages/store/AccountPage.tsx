@@ -61,7 +61,6 @@ export function AccountPage() {
   useEffect(() => {
     if (!account) return
     let cancelled = false
-    setOrdersLoading(true)
     orderService.getAccountOrders(account.id)
       .then((saved) => { if (!cancelled) setOrders(saved) })
       .catch(() => { if (!cancelled) setError('No pudimos cargar tu historial de pedidos. Intentá de nuevo.') })
