@@ -87,8 +87,8 @@ public sealed class OnboardingEndpointTests
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request)).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-Type");
         client.DefaultRequestHeaders.Add("X-Test-Type", "customer");
-        var ownedOrders = await client.GetFromJsonAsync<OrderDto[]>("/api/accounts/owner/orders");
-        Assert.Single(ownedOrders!);
+        var ownedOrders = Assert.IsType<OrderDto[]>(await client.GetFromJsonAsync<OrderDto[]>("/api/accounts/owner/orders"));
+        Assert.Single(ownedOrders);
         Assert.Equal("OC-OWNER-1", ownedOrders[0].Id);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request with { Onboarding = onboarding with { Version = 2 } })).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request with { RecommendedProductId = "missing" })).StatusCode);
