@@ -60,6 +60,13 @@ public sealed class OnboardingEndpointTests
             Preferences = new CustomerPreference { AccountId = "owner", Intensity = "Suave", Budget = "Hasta L400", Goals = [] },
         });
         await db.SaveChangesAsync();
+        db.Orders.Add(new Order
+        {
+            Id = "OC-OWNER-1", CustomerName = "Demo", Status = "Pendiente", CreatedAt = DateTimeOffset.UtcNow,
+            TotalLps = 320, AccountId = "owner",
+            Items = [new OrderItem { OrderId = "OC-OWNER-1", ProductId = "coffee", ProductName = "Café", Quantity = 1, UnitPriceLps = 320 }],
+        });
+        await db.SaveChangesAsync();
         var onboarding = new OnboardingDto(1, "new", new()
         {
             ["n1"] = "Solo negro", ["n2"] = "Florales y delicados", ["n3"] = "Suave y ligero",
@@ -68,9 +75,11 @@ public sealed class OnboardingEndpointTests
         var request = new UpdateOnboardingRequest(onboarding, null);
         using var client = app.GetTestClient();
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request)).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/accounts/owner/orders")).StatusCode);
         client.DefaultRequestHeaders.Add("X-Test-Subject", "other");
         client.DefaultRequestHeaders.Add("X-Test-Type", "customer");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/accounts/owner/orders")).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-Subject");
         client.DefaultRequestHeaders.Add("X-Test-Subject", "owner");
         client.DefaultRequestHeaders.Remove("X-Test-Type");
@@ -78,6 +87,9 @@ public sealed class OnboardingEndpointTests
         Assert.Equal(HttpStatusCode.Forbidden, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request)).StatusCode);
         client.DefaultRequestHeaders.Remove("X-Test-Type");
         client.DefaultRequestHeaders.Add("X-Test-Type", "customer");
+        var ownedOrders = await client.GetFromJsonAsync<OrderDto[]>("/api/accounts/owner/orders");
+        Assert.Single(ownedOrders!);
+        Assert.Equal("OC-OWNER-1", ownedOrders[0].Id);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request with { Onboarding = onboarding with { Version = 2 } })).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request with { RecommendedProductId = "missing" })).StatusCode);
         var response = await client.PutAsJsonAsync("/api/accounts/owner/onboarding", request);

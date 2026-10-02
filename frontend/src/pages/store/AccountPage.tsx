@@ -2,10 +2,12 @@ import { CommercialResult } from '../../components/store/CommercialResult'
 import { commercialService } from '../../services'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Pencil } from 'lucide-react'
-import type { OnboardingProfile, Recommendation } from '../../types'
+import { LogOut, PackageCheck, Pencil, RotateCcw } from 'lucide-react'
+import type { OnboardingProfile, Order, Recommendation } from '../../types'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
-import { catalogService, recommendationService } from '../../services'
+import { catalogService, orderService, recommendationService } from '../../services'
+import { useCart } from '../../context/CartContext'
+import { lps, shortDate } from '../../lib/format'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
 import { OnboardingQuiz } from '../../components/store/OnboardingQuiz'
@@ -32,11 +34,15 @@ function PreferenceChips({ label, values }: { label: string; values: string[] })
 
 export function AccountPage() {
   const { account, logout, saveOnboarding } = useCustomerAuth()
+  const { replace } = useCart()
   const navigate = useNavigate()
   const [editing, setEditing] = useState(false)
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [ordersLoading, setOrdersLoading] = useState(true)
+  const [reordering, setReordering] = useState<string | null>(null)
 
   const preferences = account?.preferences ?? null
   const onboarding = account?.onboarding ?? null
@@ -51,6 +57,17 @@ export function AccountPage() {
       cancelled = true
     }
   }, [preferences, onboarding])
+
+  useEffect(() => {
+    if (!account) return
+    let cancelled = false
+    setOrdersLoading(true)
+    orderService.getAccountOrders(account.id)
+      .then((saved) => { if (!cancelled) setOrders(saved) })
+      .catch(() => { if (!cancelled) setError('No pudimos cargar tu historial de pedidos. Intentá de nuevo.') })
+      .finally(() => { if (!cancelled) setOrdersLoading(false) })
+    return () => { cancelled = true }
+  }, [account])
 
   if (!account) return null // CustomerRoute redirige a /ingresar
 
@@ -68,6 +85,25 @@ export function AccountPage() {
       setError(err instanceof Error ? err.message : 'No pudimos guardar tu perfil. Volvé a intentarlo.')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleReorder = async (order: Order) => {
+    setReordering(order.id)
+    setError(null)
+    try {
+      const products = await Promise.all(order.items.map((item) => catalogService.getProduct(item.productId)))
+      const available = products.flatMap((product, index) => product && product.active && product.stock > 0
+        ? [{ product, quantity: order.items[index].quantity }]
+        : [])
+      if (available.length === 0) throw new Error('Los productos de este pedido ya no están disponibles.')
+      replace(available)
+      if (available.length !== order.items.length) setError('Agregamos los productos que siguen disponibles. Revisá tu carrito antes de confirmar.')
+      navigate('/checkout')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No pudimos preparar la recompra. Intentá de nuevo.')
+    } finally {
+      setReordering(null)
     }
   }
 
@@ -94,6 +130,52 @@ export function AccountPage() {
         </div>
 
         {error && <p role="alert" className="mt-6 text-destructive">{error}</p>}
+        <section className="mt-12" aria-labelledby="orders-heading">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-primary">Seguimiento de compra</p>
+              <h2 id="orders-heading" className="mt-1 font-display text-2xl font-bold">Mis pedidos</h2>
+            </div>
+            {!ordersLoading && orders.length > 0 && <p className="text-sm text-muted-foreground">{orders.length} {orders.length === 1 ? 'pedido registrado' : 'pedidos registrados'}</p>}
+          </div>
+          {ordersLoading ? (
+            <div className="mt-6 space-y-3" aria-busy="true" aria-label="Cargando pedidos">
+              {[0, 1].map((item) => <div key={item} className="h-36 animate-pulse rounded-lg bg-muted" />)}
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="mt-6 rounded-lg border border-dashed border-border px-6 py-10 text-center">
+              <PackageCheck className="mx-auto h-7 w-7 text-primary" aria-hidden="true" />
+              <h3 className="mt-3 font-display text-lg font-bold">Aún no tenés pedidos</h3>
+              <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Cuando confirmés una compra con esta cuenta, podrás seguir su estado y volver a pedirla desde aquí.</p>
+              <Link to="/tienda" className="mt-5 inline-block font-medium text-primary hover:underline">Explorar la carta</Link>
+            </div>
+          ) : (
+            <ul className="mt-6 space-y-4">
+              {orders.map((order) => (
+                <li key={order.id} className="rounded-lg border border-border p-5 md:p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p className="font-display text-lg font-bold">Pedido {order.id}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Registrado el {shortDate(order.createdAt)}</p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{order.status}</span>
+                  </div>
+                  <ul className="mt-5 divide-y divide-border border-y border-border text-sm">
+                    {order.items.map((item) => <li key={item.productId} className="flex items-center justify-between gap-4 py-3"><span>{item.quantity} × {item.productName}</span><span className="font-medium">{lps(item.unitPriceLps * item.quantity)}</span></li>)}
+                  </ul>
+                  <div className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+                    <p><span className="font-medium text-foreground">Entrega:</span> {order.deliveryAddress ? `${order.deliveryAddress}${order.deliveryCity ? `, ${order.deliveryCity}` : ''}` : 'Por coordinar'}</p>
+                    {order.deliveryNotes && <p><span className="font-medium text-foreground">Notas:</span> {order.deliveryNotes}</p>}
+                  </div>
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                    <p className="font-display text-lg font-bold">Total {lps(order.totalLps)}</p>
+                    <button onClick={() => void handleReorder(order)} disabled={reordering === order.id} className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:cursor-wait disabled:opacity-60"><RotateCcw className="h-4 w-4" /> {reordering === order.id ? 'Preparando…' : 'Volver a pedir'}</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
         {editing ? (
           <div className="mt-12 max-w-3xl">
             <h2 className="font-display text-2xl font-bold">Actualizar mis preferencias</h2>

@@ -61,7 +61,7 @@ export const orderService = {
         ...details,
         items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
       }),
-    })
+    }, 'customer')
   },
   async createManualOrder(customerName: string, items: { productId: string; quantity: number }[]): Promise<Order> {
     return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ customerName, items }) }, 'team')
@@ -71,6 +71,9 @@ export const orderService = {
       method: 'PATCH',
       body: JSON.stringify({ status, expectedStatus, assignedUserId, updateAssignee }),
     }, 'team')
+  },
+  async getAccountOrders(accountId: string): Promise<Order[]> {
+    return api<Order[]>(`/accounts/${encodeURIComponent(accountId)}/orders`, undefined, 'customer')
   },
 }
 

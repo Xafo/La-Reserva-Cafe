@@ -252,7 +252,7 @@ public static partial class ApiEndpoints
             return Results.Ok(orders.Select(value => value.ToDto()));
         }).RequireAuthorization("Team");
 
-        group.MapPost("/", async (CreateOrderRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (string.IsNullOrWhiteSpace(request.CustomerName) || request.Items.Length == 0 || request.Items.Any(value => value.Quantity <= 0))
                 return Results.BadRequest(new { error = "La orden requiere cliente e items con cantidad válida." });
@@ -273,6 +273,7 @@ public static partial class ApiEndpoints
                 DeliveryAddress = EmptyToNull(request.DeliveryAddress),
                 DeliveryCity = EmptyToNull(request.DeliveryCity ?? request.City),
                 DeliveryNotes = EmptyToNull(request.DeliveryNotes),
+                AccountId = principal.FindFirstValue("subject_type") == "customer" ? principal.FindFirstValue("sub") : null,
                 Status = "Pendiente",
                 CreatedAt = DateTimeOffset.UtcNow,
                 TotalLps = request.Items.Sum(value => products[value.ProductId].PriceLps * value.Quantity),
@@ -530,6 +531,21 @@ public static partial class ApiEndpoints
             // Las preferencias previas se conservan; no se infiere un perfil a partir de ellas.
             await db.SaveChangesAsync(cancellationToken);
             return Results.Ok(account.ToDto());
+        }).RequireAuthorization();
+
+        group.MapGet("/{id}/orders", async (
+            string id,
+            ClaimsPrincipal principal,
+            LaReservaDbContext db,
+            CancellationToken cancellationToken) =>
+        {
+            if (principal.FindFirstValue("subject_type") != "customer" || principal.FindFirstValue("sub") != id)
+                return Results.Forbid();
+            var orders = await db.Orders.AsNoTracking().Include(value => value.Items)
+                .Where(value => value.AccountId == id)
+                .OrderByDescending(value => value.CreatedAt)
+                .ToListAsync(cancellationToken);
+            return Results.Ok(orders.Select(value => value.ToDto()));
         }).RequireAuthorization();
 
         group.MapGet("/", async (LaReservaDbContext db, CancellationToken cancellationToken) =>

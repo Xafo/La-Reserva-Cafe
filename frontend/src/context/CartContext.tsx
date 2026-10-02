@@ -7,6 +7,7 @@ interface CartContextType {
   add: (product: Product, quantity?: number) => void
   remove: (productId: string) => void
   setQuantity: (productId: string, quantity: number) => void
+  replace: (items: CartItem[]) => void
   clear: () => void
   open: () => void
   close: () => void
@@ -61,6 +62,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => persist([]), [])
 
+  const replace = useCallback((next: CartItem[]) => persist(next), [])
+
   const totalLps = useMemo(() => items.reduce((s, i) => s + i.product.priceLps * i.quantity, 0), [items])
   const count = useMemo(() => items.reduce((s, i) => s + i.quantity, 0), [items])
 
@@ -72,6 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         add,
         remove,
         setQuantity,
+        replace,
         clear,
         open: () => setIsOpen(true),
         close: () => setIsOpen(false),
