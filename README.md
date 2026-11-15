@@ -2,6 +2,10 @@
 
 Plataforma hondureña de café. La primera fase ofrece un catálogo curado de La Reserva Café; la incorporación de otros vendedores corresponde a un horizonte posterior.
 
+## Licencia
+
+Este proyecto se distribuye bajo la [licencia MIT](LICENSE).
+
 ## Estado
 
 - Frontend: React 19, Vite, TypeScript y Tailwind CSS 4.
