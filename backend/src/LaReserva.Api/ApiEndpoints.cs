@@ -277,7 +277,7 @@ public static partial class ApiEndpoints
                 Id = orderId,
                 RequestId = request.RequestId,
                 CustomerName = request.CustomerName.Trim(),
-                CustomerEmail = EmptyToNull(request.CustomerEmail),
+                CustomerEmail = EmptyToNull(request.CustomerEmail) is { } customerEmail ? NormalizeEmail(customerEmail) : null,
                 CustomerPhone = EmptyToNull(request.CustomerPhone ?? request.Phone),
                 DeliveryAddress = EmptyToNull(request.DeliveryAddress),
                 DeliveryCity = EmptyToNull(request.DeliveryCity ?? request.City),
@@ -357,7 +357,15 @@ public static partial class ApiEndpoints
         group.MapGet("/", async (LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             var customers = await db.Customers.AsNoTracking().OrderBy(value => value.Name).ToListAsync(cancellationToken);
-            return Results.Ok(customers.Select(value => value.ToDto()));
+            var orderCounts = (await db.Orders.AsNoTracking()
+                .Where(value => value.CustomerEmail != null)
+                .Select(value => value.CustomerEmail!)
+                .ToListAsync(cancellationToken))
+                .GroupBy(NormalizeEmail)
+                .ToDictionary(group => group.Key, group => group.Count());
+            return Results.Ok(customers.Select(value => new CustomerDto(
+                value.Id, value.Name, value.Email, value.Phone, value.Type, value.City,
+                orderCounts.GetValueOrDefault(NormalizeEmail(value.Email), 0))));
         }).RequireAuthorization("CustomersView");
 
         group.MapPost("/", async (SaveCustomerRequest request, LaReservaDbContext db, CancellationToken cancellationToken) =>

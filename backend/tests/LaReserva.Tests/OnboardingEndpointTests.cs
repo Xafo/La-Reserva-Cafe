@@ -59,10 +59,14 @@ public sealed class OnboardingEndpointTests
             PasswordHash = "unused", CreatedAt = DateTimeOffset.UtcNow,
             Preferences = new CustomerPreference { AccountId = "owner", Intensity = "Suave", Budget = "Hasta L400", Goals = [] },
         });
+        db.Customers.Add(new Customer
+        {
+            Id = "customer-owner", Name = "Demo", Email = "owner@example.com", Phone = "", City = "", Type = "Cliente", TotalOrders = 0,
+        });
         await db.SaveChangesAsync();
         db.Orders.Add(new Order
         {
-            Id = "OC-OWNER-1", CustomerName = "Demo", Status = "Pendiente", CreatedAt = DateTimeOffset.UtcNow,
+            Id = "OC-OWNER-1", CustomerName = "Demo", CustomerEmail = "owner@example.com", Status = "Pendiente", CreatedAt = DateTimeOffset.UtcNow,
             TotalLps = 320, AccountId = "owner",
             Items = [new OrderItem { OrderId = "OC-OWNER-1", ProductId = "coffee", ProductName = "Café", Quantity = 1, UnitPriceLps = 320 }],
         });
@@ -139,6 +143,8 @@ public sealed class OnboardingEndpointTests
         var listingJson = await listing.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
         Assert.Equal(3, listingJson.GetProperty("items").GetArrayLength());
         Assert.False(listingJson.GetProperty("hasMore").GetBoolean());
+        var customerListing = Assert.IsType<CustomerDto[]>(await client.GetFromJsonAsync<CustomerDto[]>("/api/customers"));
+        Assert.Equal(1, customerListing.Single(value => value.Id == "customer-owner").TotalOrders);
         db.Users.Add(new User { Id = "sales", Name = "Ventas", Email = "sales@example.com", Role = "Ventas", Active = true, PasswordHash = "unused" });
         db.Users.Add(new User { Id = "inactive", Name = "Inactivo", Email = "inactive@example.com", Role = "Ventas", Active = false, PasswordHash = "unused" });
         await db.SaveChangesAsync();
