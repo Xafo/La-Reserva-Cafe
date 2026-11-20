@@ -1,16 +1,15 @@
 import { Link } from 'react-router-dom'
 import { Check, ShoppingBag } from 'lucide-react'
 import type { Recommendation } from '../../types'
-import { useCart } from '../../context/CartContext'
 import { lps } from '../../lib/format'
 import { ProductCard } from './ProductCard'
 import { Reveal } from './Reveal'
+import { AddToCartButton } from './AddToCartButton'
 
 // Pantalla de resultado del quiz: el cafe ganador con el % de compatibilidad
 // y las razones, mas hasta dos alternativas.
 
 export function RecommendationResult({ recommendations }: { recommendations: Recommendation[] }) {
-  const { add, open } = useCart()
   const [winner, ...runnerUps] = recommendations
 
   if (!winner) return <div role="status" className="rounded-lg border border-border p-6"><h2 className="font-display text-xl font-bold">No hay cafés disponibles para recomendar</h2><p className="mt-3 text-muted-foreground">Tu perfil queda guardado. Podés volver a consultar cuando haya disponibilidad.</p><Link to="/tienda" className="mt-4 inline-block font-semibold text-primary">Ver catálogo</Link></div>
@@ -49,16 +48,10 @@ export function RecommendationResult({ recommendations }: { recommendations: Rec
             <p className="mt-4 leading-relaxed text-muted-foreground">{product.description}</p>
             <p className="mt-3 text-sm text-muted-foreground">Afinidad orientativa calculada con tus respuestas y las características del café; no garantiza que te guste. Presentación y molienda se coordinan al atender el pedido.</p>
             <div className="mt-auto flex flex-wrap items-center gap-4 pt-7">
-              <button
-                onClick={() => {
-                  add(product)
-                  open()
-                }}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-7 py-3 font-semibold text-primary-foreground transition-colors hover:bg-forest"
-              >
+              <AddToCartButton product={product} className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-7 py-3 font-semibold text-primary-foreground transition-colors hover:bg-forest">
                 <ShoppingBag className="h-4 w-4" />
                 Agregar al carrito — {lps(product.priceLps)}
-              </button>
+              </AddToCartButton>
               <Link to={`/tienda/${product.id}`} className="font-medium text-primary hover:underline">
                 Ver detalle
               </Link>

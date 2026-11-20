@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AdminLayout, StatusBadge } from '../../components/AdminLayout'
 import { reportService } from '../../services'
-import { lps, shortDate } from '../../lib/format'
+import { lps, shortDate, shortDateTime } from '../../lib/format'
 import type { Order, Product } from '../../types'
 
 interface Summary {
@@ -68,7 +68,7 @@ export function DashboardPage() {
                     <tr key={o.id} className="border-b border-border last:border-0">
                       <td className="px-5 py-3 font-medium">{o.id}</td>
                       <td className="px-5 py-3">{o.customerName}</td>
-                      <td className="px-5 py-3 text-muted-foreground">{shortDate(o.createdAt)}</td>
+                      <td className="px-5 py-3 text-muted-foreground">{shortDateTime(o.createdAt)}</td>
                       <td className="px-5 py-3">{lps(o.totalLps)}</td>
                       <td className="px-5 py-3"><StatusBadge status={o.status} /></td>
                     </tr>

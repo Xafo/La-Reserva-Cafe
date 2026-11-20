@@ -59,7 +59,7 @@ export const orderService = {
       method: 'POST',
       body: JSON.stringify({
         ...details,
-        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity, grind: item.grind })),
       }),
     }, 'customer')
   },

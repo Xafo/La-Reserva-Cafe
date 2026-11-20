@@ -2,7 +2,7 @@ namespace LaReserva.Application;
 
 public static class OrderRules
 {
-    public static readonly string[] Grinds = ["En grano", "Espresso", "Filtro", "Prensa francesa"];
+    public static readonly string[] Grinds = ["En grano", "Molido"];
 
     public static string? Validate(CreateOrderRequest request)
     {

@@ -43,22 +43,22 @@ export function CartDrawer() {
         ) : (
           <>
             <ul className="flex-1 divide-y divide-border overflow-y-auto px-6">
-              {items.map(({ product, quantity }) => (
-                <li key={product.id} className="flex gap-4 py-5">
+              {items.map(({ product, quantity, grind }) => (
+                <li key={`${product.id}-${grind}`} className="flex gap-4 py-5">
                   <img src={product.imageUrl} alt="" className="h-20 w-16 rounded-md object-cover" />
                   <div className="flex flex-1 flex-col">
                     <div className="flex justify-between gap-2">
                       <p className="font-display font-bold leading-tight">{product.name}</p>
                       <p className="font-medium">{lps(product.priceLps * quantity)}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground">{product.presentationGrams} g · {product.roast}</p>
+                    <p className="text-xs text-muted-foreground">{product.presentationGrams} g · {product.roast} · {grind}</p>
                     <div className="mt-auto flex items-center gap-3 pt-2">
                       <div className="inline-flex items-center rounded-full border border-border">
-                        <button onClick={() => setQuantity(product.id, quantity - 1)} aria-label="Quitar uno" className="cursor-pointer p-1.5 hover:text-primary"><Minus className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => setQuantity(product.id, grind, quantity - 1)} aria-label="Quitar uno" className="cursor-pointer p-1.5 hover:text-primary"><Minus className="h-3.5 w-3.5" /></button>
                         <span className="w-7 text-center text-sm font-medium">{quantity}</span>
-                        <button onClick={() => setQuantity(product.id, quantity + 1)} aria-label="Agregar uno" className="cursor-pointer p-1.5 hover:text-primary"><Plus className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => setQuantity(product.id, grind, quantity + 1)} aria-label="Agregar uno" className="cursor-pointer p-1.5 hover:text-primary"><Plus className="h-3.5 w-3.5" /></button>
                       </div>
-                      <button onClick={() => remove(product.id)} aria-label={`Eliminar ${product.name}`} className="cursor-pointer p-1.5 text-muted-foreground hover:text-destructive">
+                      <button onClick={() => remove(product.id, grind)} aria-label={`Eliminar ${product.name} ${grind.toLowerCase()}`} className="cursor-pointer p-1.5 text-muted-foreground hover:text-destructive">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

@@ -93,7 +93,7 @@ export function AccountPage() {
     try {
       const products = await Promise.all(order.items.map((item) => catalogService.getProduct(item.productId)))
       const available = products.flatMap((product, index) => product && product.active && product.stock > 0
-        ? [{ product, quantity: order.items[index].quantity }]
+        ? [{ product, quantity: order.items[index].quantity, grind: order.items[index].grind ?? 'En grano' }]
         : [])
       if (available.length === 0) throw new Error('Los productos de este pedido ya no están disponibles.')
       replace(available)
@@ -160,7 +160,7 @@ export function AccountPage() {
                     <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{order.status}</span>
                   </div>
                   <ul className="mt-5 divide-y divide-border border-y border-border text-sm">
-                    {order.items.map((item) => <li key={item.productId} className="flex items-center justify-between gap-4 py-3"><span>{item.quantity} × {item.productName}</span><span className="font-medium">{lps(item.unitPriceLps * item.quantity)}</span></li>)}
+                    {order.items.map((item) => <li key={`${item.productId}-${item.grind ?? 'En grano'}`} className="flex items-center justify-between gap-4 py-3"><span>{item.quantity} × {item.productName}<span className="block text-xs text-muted-foreground">{item.grind ?? 'En grano'}</span></span><span className="font-medium">{lps(item.unitPriceLps * item.quantity)}</span></li>)}
                   </ul>
                   <div className="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
                     <p><span className="font-medium text-foreground">Entrega:</span> {order.deliveryAddress ? `${order.deliveryAddress}${order.deliveryCity ? `, ${order.deliveryCity}` : ''}` : 'Por coordinar'}</p>

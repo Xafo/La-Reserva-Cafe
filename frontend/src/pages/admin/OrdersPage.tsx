@@ -6,7 +6,7 @@ import { Dialog } from '../../components/ui/dialog'
 import { downloadTeamFile } from '../../config/api'
 import { catalogService, operationsService, orderService, userService, type OperationalPolicy } from '../../services'
 import { useAuth } from '../../context/AuthContext'
-import { lps, shortDate } from '../../lib/format'
+import { lps, shortDateTime } from '../../lib/format'
 import type { Order, OrderStatus, Product } from '../../types'
 
 const transitions: Record<OrderStatus, OrderStatus[]> = {
@@ -116,7 +116,7 @@ export function OrdersPage() {
                     <td className="px-5 py-3 font-medium">{o.id}</td>
                     <td className="px-5 py-3">{o.customerName}</td>
                     <td className="px-5 py-3"><select value={o.assignedUserId ?? ''} onChange={(event) => assign(o, event.target.value || null)} aria-label={`Responsable de ${o.id}`} className="max-w-32 rounded border border-input bg-background px-1.5 py-1 text-xs"><option value="">Sin asignar</option>{assignees.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></td>
-                    <td className="px-5 py-3 text-muted-foreground">{shortDate(o.createdAt)}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{shortDateTime(o.createdAt)}</td>
                     <td className="px-5 py-3">
                       <button
                         onClick={() => setExpanded(expanded === o.id ? null : o.id)}
@@ -155,8 +155,8 @@ export function OrdersPage() {
                       <td colSpan={8} className="px-5 py-3">
                         <ul className="space-y-1 text-sm">
                           {o.items.map((i) => (
-                            <li key={i.productId} className="flex justify-between">
-                              <span>{i.quantity} × {i.productName}</span>
+                            <li key={`${i.productId}-${i.grind ?? 'En grano'}`} className="flex justify-between">
+                              <span>{i.quantity} × {i.productName} <span className="text-muted-foreground">· {i.grind ?? 'En grano'}</span></span>
                               <span className="text-muted-foreground">{lps(i.unitPriceLps * i.quantity)}</span>
                             </li>
                           ))}

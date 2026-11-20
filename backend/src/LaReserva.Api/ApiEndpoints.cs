@@ -254,7 +254,7 @@ public static partial class ApiEndpoints
 
         group.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
-            if (string.IsNullOrWhiteSpace(request.CustomerName) || request.Items.Length == 0 || request.Items.Any(value => value.Quantity <= 0))
+            if (string.IsNullOrWhiteSpace(request.CustomerName) || request.Items.Length == 0 || request.Items.Any(value => value.Quantity <= 0 || !OrderRules.Grinds.Contains(value.Grind ?? "En grano")))
                 return Results.BadRequest(new { error = "La orden requiere cliente e items con cantidad válida." });
 
             var requestedIds = request.Items.Select(value => value.ProductId).Distinct().ToArray();
@@ -284,6 +284,9 @@ public static partial class ApiEndpoints
                     ProductName = products[value.ProductId].Name,
                     Quantity = value.Quantity,
                     UnitPriceLps = products[value.ProductId].PriceLps,
+                    PresentationGrams = products[value.ProductId].PresentationGrams,
+                    Roast = products[value.ProductId].Roast,
+                    Grind = value.Grind ?? "En grano",
                 }).ToList(),
             };
             db.Orders.Add(order);

@@ -34,12 +34,14 @@ export interface Product {
 }
 
 export type OrderStatus = 'Pendiente' | 'En revisión' | 'Confirmada' | 'En preparación' | 'Entregada' | 'Cancelada' | 'Vencida'
+export type CoffeeFormat = 'En grano' | 'Molido'
 
 export interface OrderItem {
   productId: string
   productName: string
   quantity: number
   unitPriceLps: number
+  grind: CoffeeFormat | null
 }
 
 export interface Order {
@@ -80,6 +82,7 @@ export interface User {
 export interface CartItem {
   product: Product
   quantity: number
+  grind: CoffeeFormat
 }
 
 // --- Cuentas de cliente de la tienda (separadas de los usuarios admin) ---

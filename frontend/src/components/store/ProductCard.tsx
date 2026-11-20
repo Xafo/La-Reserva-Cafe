@@ -1,12 +1,9 @@
 import { Link } from 'react-router-dom'
-import { Plus } from 'lucide-react'
 import type { Product } from '../../types'
-import { useCart } from '../../context/CartContext'
 import { lps } from '../../lib/format'
+import { AddToCartButton } from './AddToCartButton'
 
 export function ProductCard({ product }: { product: Product }) {
-  const { add } = useCart()
-
   return (
     <article className="group relative flex flex-col">
       <Link
@@ -42,13 +39,9 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <p className="font-display text-lg font-bold">{lps(product.priceLps)}</p>
-          <button
-            onClick={() => add(product)}
-            aria-label={`Agregar ${product.name} al carrito`}
-            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-forest"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
+          <AddToCartButton product={product} className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary text-lg leading-none text-primary-foreground transition-colors hover:bg-forest">
+            <span aria-hidden="true">+</span><span className="sr-only">Agregar {product.name} al carrito</span>
+          </AddToCartButton>
         </div>
       </div>
     </article>

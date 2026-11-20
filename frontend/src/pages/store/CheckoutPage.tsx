@@ -134,11 +134,11 @@ export function CheckoutPage() {
           <aside className="h-fit rounded-lg border border-border p-6">
             <h2 className="font-display text-lg font-bold">Resumen</h2>
             <ul className="mt-4 space-y-3 text-sm">
-              {items.map(({ product, quantity }) => (
-                <li key={product.id} className="flex justify-between gap-3">
+              {items.map(({ product, quantity, grind }) => (
+                <li key={`${product.id}-${grind}`} className="flex justify-between gap-3">
                   <span>
                     {quantity} × {product.name}
-                    <span className="block text-xs text-muted-foreground">{product.presentationGrams} g · {product.roast}</span>
+                    <span className="block text-xs text-muted-foreground">{product.presentationGrams} g · {product.roast} · {grind}</span>
                   </span>
                   <span className="font-medium">{lps(product.priceLps * quantity)}</span>
                 </li>

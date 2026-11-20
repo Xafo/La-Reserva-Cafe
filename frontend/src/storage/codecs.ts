@@ -83,13 +83,13 @@ export const productCodec: EntityCodec<Product> = {
 
 const encodeItems = (items: OrderItem[]) =>
   items
-    .map((i) => [i.productId, i.productName, i.quantity, i.unitPriceLps].join(ITEM_SEP))
+    .map((i) => [i.productId, i.productName, i.quantity, i.unitPriceLps, i.grind ?? ''].join(ITEM_SEP))
     .join(SEP)
 
 const decodeItems = (value: string): OrderItem[] =>
   splitList(value).map((chunk) => {
-    const [productId, productName, quantity, unitPriceLps] = chunk.split(ITEM_SEP)
-    return { productId, productName, quantity: Number(quantity), unitPriceLps: Number(unitPriceLps) }
+    const [productId, productName, quantity, unitPriceLps, grind] = chunk.split(ITEM_SEP)
+    return { productId, productName, quantity: Number(quantity), unitPriceLps: Number(unitPriceLps), grind: grind === 'En grano' || grind === 'Molido' ? grind : null }
   })
 
 export const orderCodec: EntityCodec<Order> = {

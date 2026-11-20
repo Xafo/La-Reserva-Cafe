@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
-import type { Product, CartItem } from '../types'
+import type { Product, CartItem, CoffeeFormat } from '../types'
 
 interface CartContextType {
   items: CartItem[]
   isOpen: boolean
-  add: (product: Product, quantity?: number) => void
-  remove: (productId: string) => void
-  setQuantity: (productId: string, quantity: number) => void
+  add: (product: Product, grind: CoffeeFormat, quantity?: number) => void
+  remove: (productId: string, grind: CoffeeFormat) => void
+  setQuantity: (productId: string, grind: CoffeeFormat, quantity: number) => void
   replace: (items: CartItem[]) => void
   clear: () => void
   open: () => void
@@ -20,7 +20,7 @@ const CartContext = createContext<CartContextType | null>(null)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     const stored = localStorage.getItem('cart')
-    return stored ? JSON.parse(stored) : []
+    return stored ? (JSON.parse(stored) as CartItem[]).map((item) => ({ ...item, grind: item.grind ?? 'En grano' })) : []
   })
   const [isOpen, setIsOpen] = useState(false)
 
@@ -29,32 +29,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems(next)
   }
 
-  const add = useCallback((product: Product, quantity = 1) => {
+  const add = useCallback((product: Product, grind: CoffeeFormat, quantity = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id)
+      const existing = prev.find((i) => i.product.id === product.id && i.grind === grind)
       const next = existing
-        ? prev.map((i) => (i.product.id === product.id ? { ...i, quantity: i.quantity + quantity } : i))
-        : [...prev, { product, quantity }]
+        ? prev.map((i) => (i.product.id === product.id && i.grind === grind ? { ...i, quantity: i.quantity + quantity } : i))
+        : [...prev, { product, quantity, grind }]
       localStorage.setItem('cart', JSON.stringify(next))
       return next
     })
     setIsOpen(true)
   }, [])
 
-  const remove = useCallback((productId: string) => {
+  const remove = useCallback((productId: string, grind: CoffeeFormat) => {
     setItems((prev) => {
-      const next = prev.filter((i) => i.product.id !== productId)
+      const next = prev.filter((i) => i.product.id !== productId || i.grind !== grind)
       localStorage.setItem('cart', JSON.stringify(next))
       return next
     })
   }, [])
 
-  const setQuantity = useCallback((productId: string, quantity: number) => {
+  const setQuantity = useCallback((productId: string, grind: CoffeeFormat, quantity: number) => {
     setItems((prev) => {
       const next =
         quantity <= 0
-          ? prev.filter((i) => i.product.id !== productId)
-          : prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i))
+          ? prev.filter((i) => i.product.id !== productId || i.grind !== grind)
+          : prev.map((i) => (i.product.id === productId && i.grind === grind ? { ...i, quantity } : i))
       localStorage.setItem('cart', JSON.stringify(next))
       return next
     })

@@ -3,14 +3,13 @@ import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Minus, Plus } from 'lucide-react'
 import type { Product } from '../../types'
 import { catalogService } from '../../services'
-import { useCart } from '../../context/CartContext'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
+import { AddToCartButton } from '../../components/store/AddToCartButton'
 import { lps, shortDate } from '../../lib/format'
 
 export function ProductDetailPage() {
   const { id } = useParams()
-  const { add } = useCart()
   const [product, setProduct] = useState<Product | null | undefined>(undefined)
   const [quantity, setQuantity] = useState(1)
 
@@ -109,12 +108,11 @@ export function ProductDetailPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => add(product, quantity)}
-              className="mt-6 w-full cursor-pointer rounded-full bg-primary py-4 font-semibold text-primary-foreground transition-colors hover:bg-forest sm:max-w-sm"
-            >
+            <div className="mt-6 w-full sm:max-w-sm">
+            <AddToCartButton product={product} quantity={quantity} className="w-full cursor-pointer rounded-full bg-primary py-4 font-semibold text-primary-foreground transition-colors hover:bg-forest">
               Agregar al pedido — {lps(product.priceLps * quantity)}
-            </button>
+            </AddToCartButton>
+            </div>
             <p className="mt-3 text-xs text-muted-foreground">
               {product.stock < 15
                 ? `Quedan ${product.stock} unidades de esta cosecha.`
