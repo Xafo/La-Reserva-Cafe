@@ -60,6 +60,10 @@ public sealed class OrderSubmissionEndpointTests
         Assert.NotNull(roundTrip);
         Assert.Null(OrderRules.Validate(roundTrip!));
         using var client = app.GetTestClient();
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/commerce")).StatusCode);
+        var quote = await client.PostAsJsonAsync("/api/orders/quote", new QuoteRequest(
+            [new CreateOrderItemRequest("coffee", 1, "Molido")], "Tegucigalpa"));
+        Assert.Equal(HttpStatusCode.OK, quote.StatusCode);
         var first = await client.PostAsJsonAsync("/api/orders", request);
         var second = await client.PostAsJsonAsync("/api/orders", request);
 

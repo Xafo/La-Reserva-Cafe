@@ -43,7 +43,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function CustomerRoute({ children }: { children: React.ReactNode }) {
-  const { account } = useCustomerAuth()
+  const { account, ready } = useCustomerAuth()
+  if (!ready) return <p className="p-8 text-center" role="status">Restaurando sesión…</p>
   if (!account) return <Navigate to="/ingresar" replace />
   return <>{children}</>
 }

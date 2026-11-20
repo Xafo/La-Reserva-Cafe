@@ -29,6 +29,7 @@ public static partial class ApiEndpoints
         MapAccounts(routes.MapGroup("/api/accounts"));
         MapReports(routes.MapGroup("/api/reports"));
         MapCommercialRequests(routes);
+        MapCommerce(routes);
         MapOperationalPolicy(routes.MapGroup("/api/operations"));
         return routes;
     }
@@ -431,6 +432,18 @@ public static partial class ApiEndpoints
 
     private static void MapAccounts(RouteGroupBuilder group)
     {
+        group.MapGet("/me", async (
+            ClaimsPrincipal principal,
+            LaReservaDbContext db,
+            CancellationToken cancellationToken) =>
+        {
+            if (principal.FindFirstValue("subject_type") != "customer") return Results.Forbid();
+            var accountId = principal.FindFirstValue("sub");
+            var account = await db.CustomerAccounts.AsNoTracking().Include(value => value.Preferences)
+                .SingleOrDefaultAsync(value => value.Id == accountId, cancellationToken);
+            return account is null ? Results.NotFound() : Results.Ok(account.ToDto());
+        }).RequireAuthorization();
+
         group.MapPost("/", async (
             RegisterAccountRequest request,
             LaReservaDbContext db,

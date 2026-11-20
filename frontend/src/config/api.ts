@@ -1,5 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? '/api'
+const API_BASE = import.meta.env?.VITE_API_URL ?? '/api'
 export type SessionKind = 'team' | 'customer'
+const refreshInFlight: Partial<Record<SessionKind, Promise<boolean>>> = {}
 
 export async function api<T>(
   path: string,
@@ -16,7 +17,7 @@ export async function api<T>(
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
 
   if (res.status === 401 && session) {
-    const refreshed = await refreshToken(session)
+    const refreshed = await refreshSession(session)
     if (refreshed) {
       headers.set('Authorization', `Bearer ${sessionStorage.getItem(`${session}_access_token`)}`)
       const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
@@ -32,8 +33,12 @@ export async function api<T>(
   return parseResponse<T>(res)
 }
 
-async function refreshToken(session: SessionKind): Promise<boolean> {
-  try {
+export function refreshSession(session: SessionKind): Promise<boolean> {
+  const activeRefresh = refreshInFlight[session]
+  if (activeRefresh) return activeRefresh
+
+  const refresh = (async () => {
+    try {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -44,9 +49,14 @@ async function refreshToken(session: SessionKind): Promise<boolean> {
     const data = (await res.json()) as { accessToken: string }
     saveSession(session, data.accessToken)
     return true
-  } catch {
-    return false
-  }
+    } catch {
+      return false
+    } finally {
+      delete refreshInFlight[session]
+    }
+  })()
+  refreshInFlight[session] = refresh
+  return refresh
 }
 
 export function saveSession(session: SessionKind, accessToken: string): void {

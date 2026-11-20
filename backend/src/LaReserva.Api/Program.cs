@@ -84,7 +84,7 @@ builder.Services.AddRateLimiter(options =>
             cancellationToken);
     };
     options.AddPolicy("auth", context => RateLimitPartition.GetFixedWindowLimiter(
-        ClientAddress(context),
+        RateLimitClientKey.From(context),
         _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = 10,
@@ -92,21 +92,6 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0,
         }));
 });
-
-static string ClientAddress(HttpContext context)
-{
-    // Render sits behind Cloudflare. The TCP address may be a shared proxy,
-    // which would otherwise make unrelated visitors consume the same quota.
-    var cloudflareAddress = context.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
-    if (!string.IsNullOrWhiteSpace(cloudflareAddress)) return cloudflareAddress;
-
-    var forwardedAddress = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-        ?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-        .FirstOrDefault();
-    return !string.IsNullOrWhiteSpace(forwardedAddress)
-        ? forwardedAddress
-        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-}
 
 builder.Services.AddHealthChecks();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -157,3 +142,13 @@ await using (var scope = app.Services.CreateAsyncScope())
 app.Run();
 
 public partial class Program;
+
+public static class RateLimitClientKey
+{
+    public static string From(HttpContext context)
+    {
+        // Solo se usa la dirección que ASP.NET ya aceptó tras procesar proxies
+        // confiables. Nunca se toma una cabecera enviada directamente por el cliente.
+        return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    }
+}

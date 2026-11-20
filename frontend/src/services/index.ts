@@ -11,7 +11,7 @@ import type {
   OnboardingProfile,
   CommercialRequest,
 } from '../types'
-import { api, saveSession } from '../config/api'
+import { api, refreshSession, saveSession } from '../config/api'
 import { submitOrder } from './orderSubmission'
 
 interface TeamAuthResponse {
@@ -161,6 +161,10 @@ export const accountService = {
     })
     saveSession('customer', response.accessToken)
     return response.account
+  },
+  async restore(): Promise<CustomerAccount | null> {
+    if (!await refreshSession('customer')) return null
+    return api<CustomerAccount>('/accounts/me', undefined, 'customer')
   },
   async updatePreferences(
     accountId: string,

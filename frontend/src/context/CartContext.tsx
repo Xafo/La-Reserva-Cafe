@@ -38,7 +38,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cart', JSON.stringify(next))
       return next
     })
-    setIsOpen(true)
   }, [])
 
   const remove = useCallback((productId: string, grind: CoffeeFormat) => {

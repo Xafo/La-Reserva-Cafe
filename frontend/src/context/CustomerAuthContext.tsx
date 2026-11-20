@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import type { CustomerAccount, PreferenceProfile, OnboardingProfile } from '../types'
 import { accountService, type RegisterData } from '../services'
 import { clearSession, revokeSession } from '../config/api'
@@ -11,6 +11,7 @@ const SESSION_KEY = 'customer_session'
 
 interface CustomerAuthContextType {
   account: CustomerAccount | null
+  ready: boolean
   register: (data: RegisterData) => Promise<CustomerAccount>
   login: (email: string, password: string) => Promise<void>
   logout: () => void
@@ -21,22 +22,29 @@ interface CustomerAuthContextType {
 const CustomerAuthContext = createContext<CustomerAuthContextType | null>(null)
 
 export function CustomerAuthProvider({ children }: { children: ReactNode }) {
-  const [account, setAccount] = useState<CustomerAccount | null>(() => {
-    const stored = localStorage.getItem(SESSION_KEY)
-    return stored ? JSON.parse(stored) : null
-  })
+  const [account, setAccount] = useState<CustomerAccount | null>(null)
+  const [ready, setReady] = useState(false)
 
-  const persist = (next: CustomerAccount | null) => {
+  const persist = useCallback((next: CustomerAccount | null) => {
     if (next) localStorage.setItem(SESSION_KEY, JSON.stringify(next))
     else localStorage.removeItem(SESSION_KEY)
     setAccount(next)
-  }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    void accountService.restore()
+      .then((restored) => { if (active) persist(restored) })
+      .catch(() => { if (active) persist(null) })
+      .finally(() => { if (active) setReady(true) })
+    return () => { active = false }
+  }, [persist])
 
   const register = useCallback(async (data: RegisterData) => {
     const created = await accountService.register(data)
     persist(created)
     return created
-  }, [])
+  }, [persist])
 
   const login = useCallback(async (email: string, password: string) => {
     // No conservamos un perfil de una sesión anterior si el nuevo acceso falla.
@@ -45,12 +53,12 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     clearSession('customer')
     persist(null)
     persist(await accountService.login(email, password))
-  }, [])
+  }, [persist])
 
   const logout = useCallback(() => {
     void revokeSession('customer')
     persist(null)
-  }, [])
+  }, [persist])
 
   const savePreferences = useCallback(
     async (preferences: PreferenceProfile, recommendedProductId: string | null) => {
@@ -59,16 +67,16 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       const { id } = JSON.parse(current) as CustomerAccount
       persist(await accountService.updatePreferences(id, preferences, recommendedProductId))
     },
-    [],
+    [persist],
   )
 
   const saveOnboarding = useCallback(async (profile: OnboardingProfile, recommendedProductId: string | null) => {
     if (!account) throw new Error('Iniciá sesión para guardar tu perfil.')
     persist(await accountService.updateOnboarding(account.id, profile, recommendedProductId))
-  }, [account])
+  }, [account, persist])
 
   return (
-    <CustomerAuthContext.Provider value={{ account, register, login, logout, savePreferences, saveOnboarding }}>
+    <CustomerAuthContext.Provider value={{ account, ready, register, login, logout, savePreferences, saveOnboarding }}>
       {children}
     </CustomerAuthContext.Provider>
   )

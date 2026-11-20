@@ -69,7 +69,7 @@ public sealed class CsvDataSeeder(
         }
         dbContext.Products.AddRange(products);
 
-        var orders = Read("orders.csv", seedPath).Select(row => new Order
+        var orders = ReadOptional("orders.csv", seedPath).Select(row => new Order
         {
             Id = row["id"],
             CustomerName = row["customerName"],
@@ -91,7 +91,7 @@ public sealed class CsvDataSeeder(
         }).ToArray();
         dbContext.Orders.AddRange(orders);
 
-        dbContext.Customers.AddRange(Read("customers.csv", seedPath).Select(row => new Customer
+        dbContext.Customers.AddRange(ReadOptional("customers.csv", seedPath).Select(row => new Customer
         {
             Id = row["id"],
             Name = row["name"],
@@ -116,7 +116,7 @@ public sealed class CsvDataSeeder(
             dbContext.Users.Add(user);
         }
 
-        foreach (var row in Read("accounts.csv", seedPath))
+        foreach (var row in ReadOptional("accounts.csv", seedPath))
         {
             var account = new CustomerAccount
             {
@@ -166,6 +166,9 @@ public sealed class CsvDataSeeder(
             .Select((header, index) => new { header, value = index < row.Length ? row[index] : string.Empty })
             .ToDictionary(item => item.header, item => item.value));
     }
+
+    private static IEnumerable<Dictionary<string, string>> ReadOptional(string fileName, string seedPath) =>
+        File.Exists(Path.Combine(seedPath, fileName)) ? Read(fileName, seedPath) : [];
 
     private static List<string[]> ParseCsv(string text)
     {

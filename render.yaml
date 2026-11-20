@@ -7,7 +7,7 @@ services:
     branch: main
     dockerfilePath: ./deploy/Dockerfile.render
     healthCheckPath: /health
-    autoDeployTrigger: off
+    autoDeployTrigger: commit
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
