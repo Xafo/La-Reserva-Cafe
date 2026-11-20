@@ -6,6 +6,22 @@ namespace LaReserva.Tests;
 public sealed class OrderEndpointTests
 {
     [Fact]
+    public void OrderRules_AcceptsLegacyManualLinesAndRequiresCheckoutDetails()
+    {
+        var valid = new CreateOrderRequest
+        {
+            CustomerName = "Cliente",
+            CustomerPhone = "9999-9999",
+            DeliveryAddress = "Barrio Centro",
+            DeliveryCity = "Tegucigalpa",
+            Items = [new CreateOrderItemRequest("coffee", 1)],
+        };
+
+        Assert.Null(OrderRules.Validate(valid));
+        Assert.NotNull(OrderRules.Validate(valid with { CustomerPhone = " " }));
+    }
+
+    [Fact]
     public void ConcurrentConfirmationsUseTheProductConcurrencyToken()
     {
         var firstProduct = Coffee(5);

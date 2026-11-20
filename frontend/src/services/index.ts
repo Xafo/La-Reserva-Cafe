@@ -12,6 +12,7 @@ import type {
   CommercialRequest,
 } from '../types'
 import { api, saveSession } from '../config/api'
+import { submitOrder } from './orderSubmission'
 
 interface TeamAuthResponse {
   user: User
@@ -55,16 +56,13 @@ export const orderService = {
     return api<Order[]>('/orders', undefined, 'team')
   },
   async createOrder(details: { customerName: string; customerEmail: string; customerPhone: string; deliveryAddress: string; deliveryCity: string; deliveryNotes: string }, items: CartItem[]): Promise<Order> {
-    return api<Order>('/orders', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...details,
-        items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity, grind: item.grind })),
-      }),
+    return submitOrder({
+      ...details,
+      items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity, grind: item.grind })),
     }, 'customer')
   },
-  async createManualOrder(customerName: string, items: { productId: string; quantity: number }[]): Promise<Order> {
-    return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ customerName, items }) }, 'team')
+  async createManualOrder(details: { customerName: string; customerPhone: string; deliveryAddress: string; deliveryCity: string }, items: { productId: string; quantity: number }[]): Promise<Order> {
+    return api<Order>('/orders', { method: 'POST', body: JSON.stringify({ ...details, items: items.map((item) => ({ ...item, grind: 'En grano' })) }) }, 'team')
   },
   async updateStatus(id: string, status: OrderStatus, expectedStatus?: OrderStatus, assignedUserId?: string | null, updateAssignee = false): Promise<void> {
     return api<void>(`/orders/${encodeURIComponent(id)}/status`, {

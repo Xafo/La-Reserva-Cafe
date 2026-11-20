@@ -50,8 +50,13 @@ export function OrdersPage() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const customerName = String(new FormData(event.currentTarget).get('customerName'))
-    const order = await orderService.createManualOrder(customerName, lines.filter((line) => line.productId && line.quantity > 0))
+    const form = new FormData(event.currentTarget)
+    const order = await orderService.createManualOrder({
+      customerName: String(form.get('customerName')),
+      customerPhone: String(form.get('customerPhone')),
+      deliveryAddress: String(form.get('deliveryAddress')),
+      deliveryCity: String(form.get('deliveryCity')),
+    }, lines.filter((line) => line.productId && line.quantity > 0))
     setOrders((items) => [order, ...items]); setOpen(false); setLines([{ productId: '', quantity: 1 }])
   }
 
@@ -170,7 +175,7 @@ export function OrdersPage() {
           </table>
         )}
       </div>
-      <Dialog open={open} onOpenChange={setOpen}><form onSubmit={submit} className="space-y-3"><h2 className="font-display text-xl font-bold">Nueva orden</h2><input name="customerName" required placeholder="Cliente" className="w-full rounded border border-input p-2" />{lines.map((line, index) => <div key={index} className="flex gap-2"><select required value={line.productId} onChange={(event) => setLines((items) => items.map((item, i) => i === index ? { ...item, productId: event.target.value } : item))} className="min-w-0 flex-1 rounded border border-input p-2"><option value="">Producto</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}</select><input type="number" min="1" value={line.quantity} onChange={(event) => setLines((items) => items.map((item, i) => i === index ? { ...item, quantity: Number(event.target.value) } : item))} className="w-20 rounded border border-input p-2" /></div>)}<button type="button" onClick={() => setLines((items) => [...items, { productId: '', quantity: 1 }])} className="text-sm font-medium text-primary">+ Agregar producto</button><button className="w-full rounded bg-primary py-2 font-semibold text-primary-foreground">Crear orden</button></form></Dialog>
+      <Dialog open={open} onOpenChange={setOpen}><form onSubmit={submit} className="space-y-3"><h2 className="font-display text-xl font-bold">Nueva orden</h2><input name="customerName" required placeholder="Cliente" className="w-full rounded border border-input p-2" /><input name="customerPhone" required placeholder="Teléfono" className="w-full rounded border border-input p-2" /><input name="deliveryAddress" required placeholder="Dirección de entrega" className="w-full rounded border border-input p-2" /><input name="deliveryCity" required placeholder="Ciudad" className="w-full rounded border border-input p-2" />{lines.map((line, index) => <div key={index} className="flex gap-2"><select required value={line.productId} onChange={(event) => setLines((items) => items.map((item, i) => i === index ? { ...item, productId: event.target.value } : item))} className="min-w-0 flex-1 rounded border border-input p-2"><option value="">Producto</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}</select><input type="number" min="1" value={line.quantity} onChange={(event) => setLines((items) => items.map((item, i) => i === index ? { ...item, quantity: Number(event.target.value) } : item))} className="w-20 rounded border border-input p-2" /></div>)}<button type="button" onClick={() => setLines((items) => [...items, { productId: '', quantity: 1 }])} className="text-sm font-medium text-primary">+ Agregar producto</button><button className="w-full rounded bg-primary py-2 font-semibold text-primary-foreground">Crear orden</button></form></Dialog>
     </AdminLayout>
   )
 }

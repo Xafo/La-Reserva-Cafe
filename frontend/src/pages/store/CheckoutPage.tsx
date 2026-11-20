@@ -4,6 +4,8 @@ import { Check } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { orderService } from '../../services'
+import { ApiError } from '../../config/api'
+import { hasPendingOrder, recoverOrder } from '../../services/orderSubmission'
 import { StoreNav } from '../../components/store/StoreNav'
 import { StoreFooter } from '../../components/store/StoreFooter'
 import { lps } from '../../lib/format'
@@ -15,6 +17,13 @@ export function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false)
   const [orderId, setOrderId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [hasPending, setHasPending] = useState(hasPendingOrder)
+
+  const finishOrder = (order: { id: string }) => {
+    clear()
+    setOrderId(order.id)
+    setHasPending(false)
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -30,10 +39,23 @@ export function CheckoutPage() {
         deliveryCity: String(data.get('ciudad')),
         deliveryNotes: String(data.get('notas')),
       }, items)
-      clear()
-      setOrderId(order.id)
-    } catch {
-      setError('No pudimos registrar tu pedido. Intenta de nuevo.')
+      finishOrder(order)
+    } catch (reason) {
+      setHasPending(hasPendingOrder())
+      setError(reason instanceof ApiError ? reason.message : reason instanceof Error ? reason.message : 'No pudimos registrar tu pedido. Intentá de nuevo.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const verifyPending = async () => {
+    setSubmitting(true)
+    setError(null)
+    try {
+      finishOrder(await recoverOrder())
+    } catch (reason) {
+      setHasPending(hasPendingOrder())
+      setError(reason instanceof ApiError ? reason.message : reason instanceof Error ? reason.message : 'No pudimos verificar el envío anterior. Intentá de nuevo.')
     } finally {
       setSubmitting(false)
     }
@@ -119,9 +141,19 @@ export function CheckoutPage() {
               />
             </div>
             {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
+            {hasPending && (
+              <button
+                type="button"
+                onClick={verifyPending}
+                disabled={submitting}
+                className="w-full cursor-pointer rounded-full border border-primary py-3 font-semibold text-primary transition-colors hover:bg-primary/5 disabled:opacity-60"
+              >
+                Verificar envío anterior
+              </button>
+            )}
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || hasPending}
               className="w-full cursor-pointer rounded-full bg-primary py-4 font-semibold text-primary-foreground transition-colors hover:bg-forest disabled:opacity-60"
             >
               {submitting ? 'Registrando pedido...' : `Confirmar — ${lps(totalLps)}`}

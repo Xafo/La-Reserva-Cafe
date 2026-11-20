@@ -254,8 +254,15 @@ public static partial class ApiEndpoints
 
         group.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal principal, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
-            if (string.IsNullOrWhiteSpace(request.CustomerName) || request.Items.Length == 0 || request.Items.Any(value => value.Quantity <= 0 || !OrderRules.Grinds.Contains(value.Grind ?? "En grano")))
-                return Results.BadRequest(new { error = "La orden requiere cliente e items con cantidad válida." });
+            var validationError = OrderRules.Validate(request);
+            if (validationError is not null) return Results.BadRequest(new { error = validationError });
+
+            if (request.RequestId is Guid requestId)
+            {
+                var existing = await db.Orders.AsNoTracking().Include(value => value.Items)
+                    .SingleOrDefaultAsync(value => value.RequestId == requestId, cancellationToken);
+                if (existing is not null) return Results.Ok(existing.ToDto());
+            }
 
             var requestedIds = request.Items.Select(value => value.ProductId).Distinct().ToArray();
             var products = await db.Products.Where(value => requestedIds.Contains(value.Id) && value.Active)
@@ -267,6 +274,7 @@ public static partial class ApiEndpoints
             var order = new Order
             {
                 Id = orderId,
+                RequestId = request.RequestId,
                 CustomerName = request.CustomerName.Trim(),
                 CustomerEmail = EmptyToNull(request.CustomerEmail),
                 CustomerPhone = EmptyToNull(request.CustomerPhone ?? request.Phone),
@@ -290,7 +298,18 @@ public static partial class ApiEndpoints
                 }).ToList(),
             };
             db.Orders.Add(order);
-            await db.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException) when (request.RequestId is Guid duplicateRequestId)
+            {
+                db.ChangeTracker.Clear();
+                var existing = await db.Orders.AsNoTracking().Include(value => value.Items)
+                    .SingleOrDefaultAsync(value => value.RequestId == duplicateRequestId, cancellationToken);
+                if (existing is not null) return Results.Ok(existing.ToDto());
+                throw;
+            }
             return Results.Created($"/api/orders/{order.Id}", order.ToDto());
         });
 
