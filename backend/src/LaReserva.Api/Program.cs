@@ -136,7 +136,6 @@ await using (var scope = app.Services.CreateAsyncScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<LaReservaDbContext>();
     await dbContext.Database.MigrateAsync();
-    await scope.ServiceProvider.GetRequiredService<CsvDataSeeder>().SeedAsync();
 }
 
 app.Run();

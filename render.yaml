@@ -15,12 +15,6 @@ services:
         sync: false
       - key: Jwt__SigningKey
         generateValue: true
-      - key: Seed__DataPath
-        value: /app/seed
-      - key: Seed__AdminPassword
-        generateValue: true
-      - key: Seed__CustomerPassword
-        generateValue: true
       - key: Uploads__Provider
         value: Supabase
       - key: Uploads__SupabaseUrl

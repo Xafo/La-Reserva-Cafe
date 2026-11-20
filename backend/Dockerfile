@@ -13,7 +13,6 @@ RUN dotnet publish backend/src/LaReserva.Api/LaReserva.Api.csproj --no-restore -
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build --chown=app:app /app/publish .
-COPY --chown=app:app backend/seed ./seed
 RUN mkdir /app/uploads && chown app:app /app/uploads
 USER app
 EXPOSE 8080
