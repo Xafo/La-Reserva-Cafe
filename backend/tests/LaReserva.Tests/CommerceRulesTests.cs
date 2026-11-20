@@ -1,4 +1,5 @@
 using LaReserva.Application;
+using LaReserva.Api;
 using LaReserva.Domain;
 
 namespace LaReserva.Tests;
@@ -42,6 +43,23 @@ public sealed class CommerceRulesTests
         var sales = ReportRules.Sales(orders, period);
         Assert.Equal("in", Assert.Single(sales).Id);
         Assert.Equal(2, Assert.Single(ReportRules.Ranking(sales)).Units);
+    }
+
+    [Fact]
+    public void OrderReportHonorsPeriodAndStatus()
+    {
+        var period = ReportRules.Period("2026-11-19", "2026-11-19", DateTimeOffset.UtcNow);
+        var orders = new[]
+        {
+            new Order { Id = "delivered", CustomerName = "Cliente", Status = "Entregada", CreatedAt = period.Start, TotalLps = 100 },
+            new Order { Id = "pending", CustomerName = "Cliente", Status = "Pendiente", CreatedAt = period.Start, TotalLps = 100 },
+            new Order { Id = "outside", CustomerName = "Cliente", Status = "Entregada", CreatedAt = period.End, TotalLps = 100 },
+        };
+
+        var report = ReportDocuments.BuildReport("ordenes", Array.Empty<Product>(), orders, period, "Entregada");
+
+        Assert.Single(report.Rows);
+        Assert.Equal("delivered", report.Rows[0][0]);
     }
 
     private static Dictionary<string, Product> Products() => new() { ["p-blend"] = new() { Id = "p-blend", Name = "Demo", PresentationGrams = 1000, PriceLps = 320, Active = true, Origin = "Honduras", Region = "Demo", Process = "Lavado", Roast = "Medio", Description = "Demo", ImageUrl = "", ImageAlt = "", Quality = null! } };

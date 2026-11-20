@@ -27,7 +27,7 @@ export function ReportsPage() {
   }
   return (
     <AdminLayout title="Reporteria">
-      <div className="mb-6 flex flex-wrap gap-4"><label>Desde<input type="date" value={from} onChange={e => setFrom(e.target.value)} className="ml-2 rounded border border-input p-2" /></label><label>Hasta<input type="date" value={to} onChange={e => setTo(e.target.value)} className="ml-2 rounded border border-input p-2" /></label><label>Estado (reporte de órdenes)<select value={status} onChange={e => setStatus(e.target.value)} className="ml-2 rounded border border-input p-2"><option value="">Todos</option>{['Pendiente', 'Aprobada', 'Cancelada', 'Finalizada'].map(s => <option key={s}>{s}</option>)}</select></label></div>
+      <div className="mb-6 flex flex-wrap gap-4"><label>Desde<input type="date" value={from} onChange={e => setFrom(e.target.value)} className="ml-2 rounded border border-input p-2" /></label><label>Hasta<input type="date" value={to} onChange={e => setTo(e.target.value)} className="ml-2 rounded border border-input p-2" /></label><label>Estado (reporte de órdenes)<select value={status} onChange={e => setStatus(e.target.value)} className="ml-2 rounded border border-input p-2"><option value="">Todos</option>{['Pendiente', 'En revisión', 'Confirmada', 'En preparación', 'Entregada', 'Cancelada', 'Vencida'].map(s => <option key={s}>{s}</option>)}</select></label></div>
       <p className="mb-4 text-sm">Ventas según fecha de finalización, en Honduras (UTC−6). Los históricos sin esa fecha quedan excluidos. Inventario y catálogo muestran el estado actual.</p>
       {error && <p role="alert" className="mb-4 text-destructive">{error}</p>}
       <div className="rounded-lg border border-border bg-background">

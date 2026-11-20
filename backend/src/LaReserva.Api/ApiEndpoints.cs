@@ -623,15 +623,25 @@ public static partial class ApiEndpoints
                 activity.Select(value => value.ToDto()).ToArray()));
         }).RequireAuthorization("ReportsView");
 
-        group.MapGet("/export", async (string type, string format, LaReservaDbContext db, CancellationToken cancellationToken) =>
+        group.MapGet("/export", async (string type, string format, string? from, string? to, string? status, LaReservaDbContext db, CancellationToken cancellationToken) =>
         {
             if (!new[] { "productos", "ordenes", "ventas", "inventario", "mas-vendidos", "movimientos" }.Contains(type) || !new[] { "pdf", "xlsx" }.Contains(format))
                 return Results.BadRequest(new { error = "Tipo o formato inválido." });
+            if (status is not null && !OrderStatuses.Contains(status))
+                return Results.BadRequest(new { error = "Estado inválido." });
+            ReportPeriod period;
+            try
+            {
+                period = ReportRules.Period(from, to, DateTimeOffset.UtcNow);
+            }
+            catch (ArgumentException exception)
+            {
+                return Results.BadRequest(new { error = exception.Message });
+            }
             var products = await db.Products.AsNoTracking().ToListAsync(cancellationToken);
             var orders = await db.Orders.AsNoTracking().Include(value => value.Items).ToListAsync(cancellationToken);
             if (type is "ventas" or "mas-vendidos") orders = orders.Where(value => value.Status is "Confirmada" or "En preparación" or "Entregada").ToList();
-            var period = ReportRules.Period(null, null, DateTimeOffset.UtcNow);
-            var table = ReportDocuments.BuildReport(type, products, orders, period, null);
+            var table = ReportDocuments.BuildReport(type, products, orders, period, status);
             return format == "xlsx"
                 ? Results.File(ReportDocuments.ReportExcel(table), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{type}.xlsx")
                 : Results.File(ReportDocuments.ReportPdf(table), "application/pdf", $"{type}.pdf");
