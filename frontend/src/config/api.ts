@@ -14,13 +14,15 @@ export async function api<T>(
   }
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
+  // Operational data (orders, stock and customer history) must never be served
+  // from a browser cache after a team member changes it in another session.
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include', cache: 'no-store' })
 
   if (res.status === 401 && session) {
     const refreshed = await refreshSession(session)
     if (refreshed) {
       headers.set('Authorization', `Bearer ${sessionStorage.getItem(`${session}_access_token`)}`)
-      const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
+      const retryRes = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include', cache: 'no-store' })
       if (!retryRes.ok) throw await toApiError(retryRes)
       return parseResponse<T>(retryRes)
     }
@@ -79,7 +81,7 @@ export async function revokeSession(session: SessionKind): Promise<void> {
 
 export async function downloadTeamFile(path: string): Promise<void> {
   const token = sessionStorage.getItem('team_access_token')
-  const response = await fetch(`${API_BASE}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {}, credentials: 'include' })
+  const response = await fetch(`${API_BASE}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {}, credentials: 'include', cache: 'no-store' })
   if (!response.ok) throw await toApiError(response)
   const blob = await response.blob()
   const disposition = response.headers.get('Content-Disposition') ?? ''
