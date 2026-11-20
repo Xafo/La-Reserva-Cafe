@@ -6,6 +6,7 @@ import { LogOut, PackageCheck, Pencil, RotateCcw } from 'lucide-react'
 import type { OnboardingProfile, Order, Recommendation } from '../../types'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { catalogService, orderService, recommendationService } from '../../services'
+import { ApiError } from '../../config/api'
 import { useCart } from '../../context/CartContext'
 import { lps, shortDate } from '../../lib/format'
 import { StoreNav } from '../../components/store/StoreNav'
@@ -63,10 +64,21 @@ export function AccountPage() {
     let cancelled = false
     orderService.getAccountOrders(account.id)
       .then((saved) => { if (!cancelled) setOrders(saved) })
-      .catch(() => { if (!cancelled) setError('No pudimos cargar tu historial de pedidos. Intentá de nuevo.') })
+      .catch((requestError) => {
+        if (cancelled) return
+        // Una cuenta guardada localmente no equivale a una sesión vigente. Si el
+        // token no corresponde a la cuenta, se elimina el estado obsoleto y se
+        // vuelve al acceso en lugar de mostrar un perfil parcialmente autenticado.
+        if (requestError instanceof ApiError && (requestError.status === 401 || requestError.status === 403)) {
+          logout()
+          navigate('/ingresar', { replace: true })
+          return
+        }
+        setError('No pudimos cargar tu historial de pedidos. Intentá de nuevo.')
+      })
       .finally(() => { if (!cancelled) setOrdersLoading(false) })
     return () => { cancelled = true }
-  }, [account])
+  }, [account, logout, navigate])
 
   if (!account) return null // CustomerRoute redirige a /ingresar
 

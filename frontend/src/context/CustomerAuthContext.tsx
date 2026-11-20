@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import type { CustomerAccount, PreferenceProfile, OnboardingProfile } from '../types'
 import { accountService, type RegisterData } from '../services'
-import { revokeSession } from '../config/api'
+import { clearSession, revokeSession } from '../config/api'
 
 // Sesion del cliente de la tienda, separada del AuthContext del portal admin.
 // Conserva el DTO de la cuenta en localStorage para presentación; la API
@@ -39,6 +39,11 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
+    // No conservamos un perfil de una sesión anterior si el nuevo acceso falla.
+    // De otro modo el usuario podía volver atrás y ver una cuenta local que ya no
+    // tenía un token válido para consultar sus pedidos.
+    clearSession('customer')
+    persist(null)
     persist(await accountService.login(email, password))
   }, [])
 
